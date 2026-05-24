@@ -152,41 +152,41 @@
   .header { 
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
+    gap: 8px;
+    margin-bottom: 10px;
     overflow: visible;
   }
   
   .profile-img {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    border: 3px solid #4A2F1B;
+    border: 2px solid #4A2F1B;
     object-fit: cover;
     flex-shrink: 0;
     box-shadow: 2px 2px 0 #4A2F1B;
   }
   .profile-img-placeholder {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    border: 3px solid #4A2F1B;
+    border: 2px solid #4A2F1B;
     background: #EAE0C2;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
+    font-size: 22px;
     flex-shrink: 0;
     box-shadow: 2px 2px 0 #4A2F1B;
   }
   
   .header h1 {
     font-family: 'Gaegu', cursive;
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 700;
     letter-spacing: -1.5px;
     cursor: pointer;
-    padding: 4px 8px;
+    padding: 2px 6px;
     border-radius: 8px;
     transition: background 0.2s;
     color: #4A2F1B;
@@ -199,7 +199,7 @@
   
   .header-title-input {
     font-family: 'Gaegu', cursive;
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 700;
     letter-spacing: -1.5px;
     border: 2px solid #B88A4A;
@@ -218,9 +218,9 @@
     gap: 0;
     background: white;
     border: 2px solid #4A2F1B;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 3px 3px 0 #4A2F1B;
+    box-shadow: 2px 2px 0 #4A2F1B;
     flex-shrink: 0;
     align-self: stretch;
   }
@@ -228,9 +228,9 @@
   .top-buttons button {
     background: white;
     border: none;
-    width: 18px;
+    width: 16px;
     flex: 1;
-    font-size: 11px;
+    font-size: 10px;
     cursor: pointer;
     padding: 0;
     display: flex;
@@ -248,42 +248,42 @@
   
   .top-buttons button:active { background: #EAE0C2; }
   
-  .top-bar { display: flex; gap: 8px; margin-bottom: 18px; align-items: stretch; }
+  .top-bar { display: flex; gap: 6px; margin-bottom: 12px; align-items: stretch; }
   
   .coin-display {
     flex: 1;
-    background: linear-gradient(135deg, #FCD34D, #F59E0B);
-    border: 3px solid #4A2F1B;
-    border-radius: 14px;
-    padding: 8px 12px;
+    background: linear-gradient(135deg, #E8A000, #C07800);
+    border: 2px solid #4A2F1B;
+    border-radius: 12px;
+    padding: 6px 10px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    box-shadow: 3px 3px 0 #4A2F1B;
+    gap: 6px;
+    box-shadow: 2px 2px 0 #4A2F1B;
   }
   
-  .coin-icon { font-size: 40px; animation: spin 4s linear infinite; }
+  .coin-icon { font-size: 28px; animation: spin 4s linear infinite; filter: brightness(1.3); }
   
   @keyframes spin {
     0%, 90%, 100% { transform: rotateY(0deg); }
     95% { transform: rotateY(360deg); }
   }
   
-  .coin-amount { font-family: 'Gaegu', cursive; font-size: 48px; font-weight: 700; color: #4A2F1B; line-height: 1; }
-  .coin-pending { font-family: 'Gaegu', cursive; font-size: 20px; color: #7C2D12; font-weight: 700; line-height: 1; white-space: nowrap; }
-  .coin-stack { font-size: 36px; margin-left: auto; }
+  .coin-amount { font-family: 'Gaegu', cursive; font-size: 36px; font-weight: 700; color: white; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+  .coin-pending { font-family: 'Gaegu', cursive; font-size: 16px; color: #FFF4D6; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .coin-stack { font-size: 24px; margin-left: auto; }
   
   .shop-btn {
     background: #5A8A5E;
-    border: 3px solid #4A2F1B;
-    border-radius: 14px;
-    padding: 6px 8px;
+    border: 2px solid #4A2F1B;
+    border-radius: 12px;
+    padding: 4px 6px;
     font-family: 'Gaegu', cursive;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 700;
     color: white;
     cursor: pointer;
-    box-shadow: 3px 3px 0 #4A2F1B;
+    box-shadow: 2px 2px 0 #4A2F1B;
     line-height: 1.1;
     flex-shrink: 0;
     display: flex;
@@ -291,47 +291,47 @@
     align-items: center;
     justify-content: center;
     gap: 1px;
-    min-width: 60px;
+    min-width: 48px;
   }
   
   .shop-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #4A2F1B; }
   
   .calendar-card {
     background: white;
-    border: 3px solid #4A2F1B;
-    border-radius: 18px;
-    padding: 14px;
-    margin-bottom: 20px;
-    box-shadow: 4px 4px 0 #4A2F1B;
+    border: 2px solid #4A2F1B;
+    border-radius: 14px;
+    padding: 10px;
+    margin-bottom: 14px;
+    box-shadow: 3px 3px 0 #4A2F1B;
     overflow: hidden;
   }
   
-  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   
   .cal-nav {
     background: #EAE0C2;
     border: 2px solid #4A2F1B;
-    border-radius: 10px;
-    width: 36px;
-    height: 36px;
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
     font-family: 'Gaegu', cursive;
-    font-size: 22px;
+    font-size: 18px;
     cursor: pointer;
     font-weight: 700;
     color: #4A2F1B;
   }
   
-  .cal-title { font-family: 'Gaegu', cursive; font-size: 26px; font-weight: 700; color: #4A2F1B; }
+  .cal-title { font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700; color: #4A2F1B; }
   
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; width: 100%; }
   
   .cal-day-name {
     text-align: center;
     font-family: 'Gaegu', cursive;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
     color: #7C5A3A;
-    padding: 4px 0;
+    padding: 2px 0;
   }
   
   .cal-day-name.sun { color: #B86B6B; }
@@ -346,14 +346,14 @@
     justify-content: center;
     cursor: pointer;
     font-family: 'Gaegu', cursive;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     background: #EAE0C2;
     border: 2px solid transparent;
     position: relative;
     transition: all 0.15s;
-    padding-top: 4px;
-    padding-bottom: 8px;
+    padding-top: 2px;
+    padding-bottom: 4px;
     min-width: 0;
     box-sizing: border-box;
     overflow: hidden;
@@ -396,19 +396,19 @@
   
   .selected-date {
     text-align: center; margin-bottom: 14px;
-    font-family: 'Gaegu', cursive; font-size: 26px; font-weight: 700; color: #4A2F1B;
+    font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700; color: #4A2F1B;
   }
   
   .subject {
-    background: white; border: 2px solid #4A2F1B; border-radius: 14px;
-    margin-bottom: 10px; overflow: hidden; box-shadow: 3px 3px 0 #4A2F1B;
+    background: white; border: 2px solid #4A2F1B; border-radius: 12px;
+    margin-bottom: 8px; overflow: hidden; box-shadow: 2px 2px 0 #4A2F1B;
   }
   .subject-header {
-    padding: 6px 10px; display: flex; align-items: center; gap: 8px;
+    padding: 5px 8px; display: flex; align-items: center; gap: 6px;
     border-bottom: 1px dashed #C8A47C;
   }
   .subject-name-input {
-    flex: 1; font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700;
+    flex: 1; font-family: 'Gaegu', cursive; font-size: 17px; font-weight: 700;
     border: none; background: transparent; outline: none; padding: 2px 4px;
     border-radius: 6px; color: #4A2F1B; min-width: 0;
   }
@@ -422,12 +422,12 @@
   
   .task-list { padding: 2px 0; }
   .task {
-    display: flex; align-items: center; gap: 8px; padding: 5px 10px;
+    display: flex; align-items: center; gap: 6px; padding: 4px 8px;
     cursor: pointer; user-select: none;
   }
   .task:active { background: #F5EDD7; }
   .checkbox {
-    width: 24px; height: 24px; border: 2px solid #4A2F1B; border-radius: 6px;
+    width: 22px; height: 22px; border: 2px solid #4A2F1B; border-radius: 5px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     background: white; transition: all 0.2s;
   }
@@ -435,7 +435,7 @@
   .task.done .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 15px; }
   .task-input {
     flex: 1; border: none; background: transparent; font-family: 'Gowun Dodum', sans-serif;
-    font-size: 17px; color: #4A2F1B; outline: none; padding: 2px 0; min-width: 0;
+    font-size: 15px; color: #4A2F1B; outline: none; padding: 2px 0; min-width: 0;
   }
   .task.done .task-input { text-decoration: line-through; color: #A8967C; }
   .delete-btn {
@@ -452,8 +452,8 @@
   .add-btn:active { background: #F5EDD7; color: #4A2F1B; }
   
   .add-subject-btn {
-    width: 100%; padding: 12px; background: white; border: 2px dashed #7C5A3A;
-    border-radius: 14px; font-family: 'Gaegu', cursive; font-size: 20px;
+    width: 100%; padding: 10px; background: white; border: 2px dashed #7C5A3A;
+    border-radius: 12px; font-family: 'Gaegu', cursive; font-size: 16px;
     font-weight: 700; color: #7C5A3A; cursor: pointer; margin-bottom: 12px;
   }
   .add-subject-btn:active { background: #EAE0C2; }
@@ -465,14 +465,14 @@
   }
   
   .mom-card {
-    background: white; border: 3px solid #4A2F1B; border-radius: 16px;
-    padding: 12px; margin-bottom: 12px; box-shadow: 4px 4px 0 #4A2F1B; text-align: center;
+    background: white; border: 2px solid #4A2F1B; border-radius: 12px;
+    padding: 10px; margin-bottom: 10px; box-shadow: 3px 3px 0 #4A2F1B; text-align: center;
   }
   .mom-card.confirmed { background: linear-gradient(135deg, #E8C97A, #D9B97A); padding: 10px; }
-  .mom-title { font-family: 'Gaegu', cursive; font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #4A2F1B; }
+  .mom-title { font-family: 'Gaegu', cursive; font-size: 18px; font-weight: 700; margin-bottom: 6px; color: #4A2F1B; }
   .mom-btn {
-    background: #B88A4A; color: white; border: 3px solid #4A2F1B; border-radius: 12px;
-    padding: 9px 22px; font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700;
+    background: #B88A4A; color: white; border: 2px solid #4A2F1B; border-radius: 10px;
+    padding: 8px 18px; font-family: 'Gaegu', cursive; font-size: 16px; font-weight: 700;
     cursor: pointer; box-shadow: 3px 3px 0 #4A2F1B;
   }
   .mom-btn:disabled { background: #A8967C; cursor: not-allowed; }
