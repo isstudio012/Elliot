@@ -1041,11 +1041,12 @@ function toggleSound() {
 }
 
 /* ====== 데이터 ====== */
-const STORAGE_KEY = 'hw-app-v2';
+const STORAGE_KEY = 'hw-app-v5-each-date-separate';
 
 let state = {
   appTitle: '숙제 체크리스트',
   subjects: [],
+  daySubjects: {},
   tasks: {},
   coins: 0,
   pendingCoins: {},
@@ -1083,21 +1084,43 @@ function genId() {
   return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
+function getSubjectsForDate(key = selectedDate) {
+  if (!state.daySubjects || typeof state.daySubjects !== 'object' || Array.isArray(state.daySubjects)) {
+    state.daySubjects = {};
+  }
+  if (!Array.isArray(state.daySubjects[key])) {
+    state.daySubjects[key] = [];
+  }
+  return state.daySubjects[key];
+}
+
+function setSubjectsForDate(key, subjects) {
+  if (!state.daySubjects || typeof state.daySubjects !== 'object' || Array.isArray(state.daySubjects)) {
+    state.daySubjects = {};
+  }
+  state.daySubjects[key] = subjects;
+}
+
 function load() {
   try {
+    // 기존 hw-app-v2 / v3 데이터가 이미 날짜별로 섞여 있을 수 있어서
+    // 이번 최종 버전은 완전히 새 저장소로 시작합니다.
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) state = Object.assign(state, JSON.parse(raw));
   } catch (e) {}
   
   if (!state.subjects) state.subjects = [];
+  if (!state.daySubjects || typeof state.daySubjects !== 'object' || Array.isArray(state.daySubjects)) state.daySubjects = {};
   if (!state.shopItems || !Array.isArray(state.shopItems) || state.shopItems.length === 0) {
     state.shopItems = [
       { id: 'samgyup', name: '삼겹살', icon: '🥓', price: 30 },
       { id: 'pcbang', name: 'PC방', icon: '🎮', price: 20 }
     ];
   }
-  state.subjects.forEach(s => { if (!s.color) s.color = randomSubjectColor(); });
-  if (!state.tasks) state.tasks = {};
+  Object.keys(state.daySubjects).forEach(dk => {
+    getSubjectsForDate(dk).forEach(s => { if (!s.color) s.color = randomSubjectColor(); });
+  });
+  if (!state.tasks || typeof state.tasks !== 'object' || Array.isArray(state.tasks)) state.tasks = {};
   if (!state.tickets) state.tickets = {};
   if (!state.bonusGiven) state.bonusGiven = {};
   if (!state.momConfirmed) state.momConfirmed = {};
@@ -1105,6 +1128,27 @@ function load() {
   if (!state.momPassword) state.momPassword = '0000';
   if (!state.appTitle) state.appTitle = '숙제 체크리스트';
   if (typeof state.coins !== 'number') state.coins = 0;
+
+  // 날짜별 데이터 강제 정리: 각 날짜/과목 배열을 독립 배열로 재생성
+  Object.keys(state.tasks).forEach(dk => {
+    const day = state.tasks[dk];
+    if (!day || typeof day !== 'object' || Array.isArray(day)) {
+      state.tasks[dk] = {};
+      return;
+    }
+
+    Object.keys(day).forEach(sid => {
+      if (!Array.isArray(day[sid])) {
+        day[sid] = [];
+        return;
+      }
+
+      day[sid] = day[sid]
+        .filter(t => !(t && t.text === '숙제 내용 입력...' && !t.done))
+        .map(t => ({ text: String(t.text || ''), done: !!t.done }));
+    });
+  });
+  save();
   
   const savedSound = localStorage.getItem('soundOn');
   if (savedSound !== null) {
@@ -1128,11 +1172,22 @@ function save() {
 }
 
 function ensureDay(key) {
-  if (!state.tasks[key]) state.tasks[key] = {};
-  state.subjects.forEach(s => {
-    if (!state.tasks[key][s.id]) state.tasks[key][s.id] = [];
-    if (state.tasks[key][s.id].length === 0) {
-      state.tasks[key][s.id].push({ text: '숙제 내용 입력...', done: false });
+  if (!state.tasks || typeof state.tasks !== 'object' || Array.isArray(state.tasks)) {
+    state.tasks = {};
+  }
+  if (!state.tasks[key] || typeof state.tasks[key] !== 'object' || Array.isArray(state.tasks[key])) {
+    state.tasks[key] = {};
+  }
+
+  getSubjectsForDate(key).forEach(s => {
+    if (!Array.isArray(state.tasks[key][s.id])) {
+      state.tasks[key][s.id] = [];
+    } else {
+      // 날짜별 배열과 task 객체를 새로 복제해서 다른 날짜와 참조가 섞이지 않게 고정
+      state.tasks[key][s.id] = state.tasks[key][s.id].map(t => ({
+        text: String((t && t.text) || ''),
+        done: !!(t && t.done)
+      }));
     }
   });
 }
@@ -1141,7 +1196,7 @@ function getDayStats(key) {
   const day = state.tasks[key];
   if (!day) return { done: 0, total: 0 };
   let done = 0, total = 0;
-  state.subjects.forEach(s => {
+  getSubjectsForDate(key).forEach(s => {
     const list = day[s.id] || [];
     total += list.length;
     done += list.filter(t => t.done).length;
@@ -1151,7 +1206,7 @@ function getDayStats(key) {
 
 function hasRealTaskOnDay(key) {
   if (!state.tasks[key]) return false;
-  return state.subjects.some(s => 
+  return getSubjectsForDate(key).some(s => 
     (state.tasks[key][s.id] || []).some(t => t.text !== '숙제 내용 입력...' || t.done)
   );
 }
@@ -1259,7 +1314,8 @@ function renderCalendar() {
 
 function selectDate(key) {
   selectedDate = key;
-  ensureDay(key);
+  ensureDay(selectedDate);
+  save();
   renderAll();
 }
 
@@ -1272,7 +1328,10 @@ function changeMonth(delta) {
 }
 
 function renderTasks() {
-  const [y, m, d] = selectedDate.split('-').map(Number);
+  const currentDateKey = selectedDate;
+  ensureDay(currentDateKey);
+
+  const [y, m, d] = currentDateKey.split('-').map(Number);
   const dt = new Date(y, m-1, d);
   const days = ['일','월','화','수','목','금','토'];
   document.getElementById('selectedDate').textContent = 
@@ -1281,13 +1340,15 @@ function renderTasks() {
   const container = document.getElementById('subjects');
   container.innerHTML = '';
   
-  if (state.subjects.length === 0) {
+  const subjectsForThisDate = getSubjectsForDate(currentDateKey);
+
+  if (subjectsForThisDate.length === 0) {
     container.innerHTML = '<div class="empty-subjects">아직 과목이 없어요.<br>아래 "+ 과목 추가" 버튼을 눌러주세요!</div>';
     return;
   }
   
-  state.subjects.forEach(s => {
-    const tasks = state.tasks[selectedDate][s.id] || [];
+  subjectsForThisDate.forEach(s => {
+    const tasks = state.tasks[currentDateKey][s.id] || [];
     const done = tasks.filter(t => t.done).length;
     
     const sEl = document.createElement('div');
@@ -1306,7 +1367,7 @@ function renderTasks() {
     `;
     container.appendChild(sEl);
     
-    // 이벤트 바인딩 (인라인 onclick 제거 → 따옴표 깨짐 문제 차단)
+    // 이벤트 바인딩 (현재 날짜를 함께 고정해서 다른 날짜에 영향이 가지 않게 함)
     sEl.querySelector('.subject-name-input').addEventListener('change', e => {
       updateSubjectName(s.id, e.target.value);
     });
@@ -1314,7 +1375,7 @@ function renderTasks() {
       openDeleteSubject(s.id);
     });
     sEl.querySelector('.add-btn').addEventListener('click', () => {
-      addTask(s.id);
+      addTask(s.id, currentDateKey);
     });
     
     const list = sEl.querySelector(`#list-${s.id}`);
@@ -1327,13 +1388,13 @@ function renderTasks() {
         <button class="delete-btn" title="삭제">−</button>
       `;
       tEl.querySelector('.checkbox').addEventListener('click', (e) => {
-        toggleTask(s.id, idx, e.currentTarget);
+        toggleTask(s.id, idx, e.currentTarget, currentDateKey);
       });
       tEl.querySelector('.task-input').addEventListener('change', e => {
-        updateText(s.id, idx, e.target.value);
+        updateText(s.id, idx, e.target.value, currentDateKey);
       });
       tEl.querySelector('.delete-btn').addEventListener('click', () => {
-        deleteTask(s.id, idx);
+        deleteTask(s.id, idx, currentDateKey);
       });
       list.appendChild(tEl);
     });
@@ -1347,7 +1408,7 @@ function renderMomSection() {
   const allDone = hasReal && stats.done === stats.total;
   const confirmed = state.momConfirmed[selectedDate];
   
-  if (state.subjects.length === 0) {
+  if (getSubjectsForDate(selectedDate).length === 0) {
     container.innerHTML = '';
     return;
   }
@@ -1441,12 +1502,13 @@ function addSubject() {
   
   if (!name) { err.textContent = '과목 이름을 입력하세요'; soundError(); return; }
   if (name.length > 20) { err.textContent = '20자 이내로 입력하세요'; soundError(); return; }
-  if (state.subjects.some(s => s.name === name)) {
+  const subjectsForThisDate = getSubjectsForDate(selectedDate);
+  if (subjectsForThisDate.some(s => s.name === name)) {
     err.textContent = '같은 이름의 과목이 있어요'; soundError(); return;
   }
   
   const id = genId();
-  state.subjects.push({ id, name, color: randomSubjectColor() });
+  subjectsForThisDate.push({ id, name, color: randomSubjectColor() });
   ensureDay(selectedDate);
   save();
   soundFanfare();
@@ -1457,7 +1519,7 @@ function addSubject() {
 
 function updateSubjectName(subjectId, newName) {
   const trimmed = newName.trim();
-  const s = state.subjects.find(x => x.id === subjectId);
+  const s = getSubjectsForDate(selectedDate).find(x => x.id === subjectId);
   if (!s) return;
   if (!trimmed) { renderAll(); return; }
   s.name = trimmed.slice(0, 20);
@@ -1467,7 +1529,7 @@ function updateSubjectName(subjectId, newName) {
 function openDeleteSubject(subjectId) {
   soundClick();
   pendingDeleteSubjectId = subjectId;
-  const s = state.subjects.find(x => x.id === subjectId);
+  const s = getSubjectsForDate(selectedDate).find(x => x.id === subjectId);
   if (!s) return;
   document.getElementById('deleteSubjectMsg').textContent = `"${s.name}" 과목 삭제`;
   document.getElementById('deleteSubjectPwd').value = '';
@@ -1494,12 +1556,13 @@ function confirmDeleteSubject() {
   
   if (!pendingDeleteSubjectId) return;
   
-  state.subjects = state.subjects.filter(s => s.id !== pendingDeleteSubjectId);
-  Object.keys(state.tasks).forEach(dk => {
-    if (state.tasks[dk] && state.tasks[dk][pendingDeleteSubjectId]) {
-      delete state.tasks[dk][pendingDeleteSubjectId];
-    }
-  });
+  const subjectsForThisDate = getSubjectsForDate(selectedDate)
+    .filter(s => s.id !== pendingDeleteSubjectId);
+  setSubjectsForDate(selectedDate, subjectsForThisDate);
+
+  if (state.tasks[selectedDate] && state.tasks[selectedDate][pendingDeleteSubjectId]) {
+    delete state.tasks[selectedDate][pendingDeleteSubjectId];
+  }
   
   save();
   soundFanfare();
@@ -1509,8 +1572,11 @@ function confirmDeleteSubject() {
 }
 
 /* ====== 숙제 (코인 로직 정리됨) ====== */
-function toggleTask(subjectId, idx, checkboxEl) {
-  const task = state.tasks[selectedDate][subjectId][idx];
+function toggleTask(subjectId, idx, checkboxEl, dateKeyForTask = selectedDate) {
+  ensureDay(dateKeyForTask);
+  const task = state.tasks[dateKeyForTask][subjectId][idx];
+  if (!task) return;
+
   const wasDone = task.done;
   task.done = !task.done;
   
@@ -1518,16 +1584,16 @@ function toggleTask(subjectId, idx, checkboxEl) {
     // 체크 ✓
     soundCheck();
     setTimeout(() => soundCoin(), 200);
-    addPendingCoin(selectedDate, 1, checkboxEl);
+    addPendingCoin(dateKeyForTask, 1, checkboxEl);
     showDogMsg('+1 🪙', 1500);
   } else if (wasDone && !task.done) {
     // 체크 해제
     soundClick();
-    revokeCoin(selectedDate, 1);
+    revokeCoin(dateKeyForTask, 1);
     let msg = '-1 🪙';
     
-    if (state.momConfirmed[selectedDate]) {
-      delete state.momConfirmed[selectedDate];
+    if (state.momConfirmed[dateKeyForTask]) {
+      delete state.momConfirmed[dateKeyForTask];
       msg = '확인 취소';
     }
     
@@ -1594,33 +1660,41 @@ function hideDogMsg() {
   if (dogTimer) { clearTimeout(dogTimer); dogTimer = null; }
 }
 
-function updateText(subjectId, idx, text) {
-  state.tasks[selectedDate][subjectId][idx].text = text;
+function updateText(subjectId, idx, text, dateKeyForTask = selectedDate) {
+  ensureDay(dateKeyForTask);
+  if (!state.tasks[dateKeyForTask][subjectId] || !state.tasks[dateKeyForTask][subjectId][idx]) return;
+  state.tasks[dateKeyForTask][subjectId][idx].text = text;
   save();
 }
 
-function addTask(subjectId) {
+function addTask(subjectId, dateKeyForTask = selectedDate) {
   soundClick();
-  state.tasks[selectedDate][subjectId].push({ text: '새 숙제', done: false });
-  delete state.bonusGiven[selectedDate];
-  delete state.momConfirmed[selectedDate];
+  ensureDay(dateKeyForTask);
+  state.tasks[dateKeyForTask][subjectId].push({ text: '새 숙제', done: false });
+  delete state.bonusGiven[dateKeyForTask];
+  delete state.momConfirmed[dateKeyForTask];
   save();
   renderAll();
   showToast('✏️ 숙제가 추가됐어요');
   setTimeout(() => {
     const list = document.getElementById(`list-${subjectId}`);
-    const inputs = list.querySelectorAll('.task-input');
+    const inputs = list ? list.querySelectorAll('.task-input') : [];
     const last = inputs[inputs.length - 1];
     if (last) { last.focus(); last.select(); }
   }, 50);
 }
 
-function deleteTask(subjectId, idx) {
+function deleteTask(subjectId, idx, dateKeyForTask = selectedDate) {
   soundClick();
-  state.tasks[selectedDate][subjectId].splice(idx, 1);
-  if (state.tasks[selectedDate][subjectId].length === 0) {
-    state.tasks[selectedDate][subjectId].push({ text: '숙제 내용 입력...', done: false });
-  }
+  ensureDay(dateKeyForTask);
+
+  if (!state.tasks[dateKeyForTask][subjectId]) return;
+
+  state.tasks[dateKeyForTask][subjectId].splice(idx, 1);
+
+  delete state.bonusGiven[dateKeyForTask];
+  delete state.momConfirmed[dateKeyForTask];
+
   save();
   renderAll();
 }
@@ -1913,10 +1987,17 @@ function showToast(msg) {
   t._timer = setTimeout(() => t.classList.remove('show'), 1800);
 }
 
+// 이전 PWA 서비스워커가 예전 HTML을 계속 보여주는 문제 방지
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+    navigator.serviceWorker.getRegistrations()
+      .then(regs => regs.forEach(reg => reg.unregister()))
+      .catch(()=>{});
   });
+}
+
+if ('caches' in window) {
+  caches.keys().then(keys => keys.forEach(key => caches.delete(key))).catch(()=>{});
 }
 
 document.addEventListener('touchstart', initAudio, { once: true });
