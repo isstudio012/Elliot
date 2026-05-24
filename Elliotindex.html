@@ -11,6 +11,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>숙제 체크리스트</title>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   
@@ -29,19 +30,159 @@
   
   .container { max-width: 480px; margin: 0 auto; width: 100%; }
   
-  .header { 
-    text-align: left; 
+  /* ====== 로그인 화면 ====== */
+  .login-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    gap: 16px;
+  }
+  .login-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: #4A2F1B;
+    margin-bottom: 8px;
+  }
+  .login-sub {
+    font-family: 'Gaegu', cursive;
+    font-size: 18px;
+    color: #7C5A3A;
     margin-bottom: 16px;
-    padding-right: 0;
-    min-height: 30px;
+  }
+  .login-members {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .login-member-btn {
+    background: white;
+    border: 3px solid #4A2F1B;
+    border-radius: 18px;
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #4A2F1B;
+    transition: all 0.15s;
+    min-width: 100px;
+  }
+  .login-member-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #4A2F1B;
+  }
+  .login-member-btn .emoji { font-size: 40px; }
+  .login-member-btn .name {
+    font-family: 'Gaegu', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    color: #4A2F1B;
+  }
+  .login-pin-section {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .login-pin-section.show { display: flex; }
+  .login-pin-label {
+    font-family: 'Gaegu', cursive;
+    font-size: 18px;
+    color: #7C5A3A;
+  }
+  .login-pin-input {
+    width: 180px;
+    padding: 10px;
+    border: 3px solid #4A2F1B;
+    border-radius: 12px;
+    font-family: 'Gaegu', cursive;
+    font-size: 24px;
+    text-align: center;
+    letter-spacing: 8px;
+    outline: none;
+    background: white;
+    color: #4A2F1B;
+  }
+  .login-pin-input:focus { border-color: #B88A4A; }
+  .login-error {
+    color: #B86B6B;
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
+    min-height: 20px;
+  }
+  .login-enter-btn {
+    background: #B88A4A;
+    color: white;
+    border: 3px solid #4A2F1B;
+    border-radius: 12px;
+    padding: 10px 32px;
+    font-family: 'Gaegu', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #4A2F1B;
+  }
+  .login-enter-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #4A2F1B;
+  }
+  .top-logout-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2px;
+  }
+  .logout-btn {
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    color: #A8967C;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+  .logout-btn:active { color: #4A2F1B; }
+
+  /* ====== 헤더 - 프로필 + 타이틀 ====== */
+  .header { 
     display: flex;
     align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
     overflow: visible;
+  }
+  
+  .profile-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid #4A2F1B;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 2px 2px 0 #4A2F1B;
+  }
+  .profile-img-placeholder {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid #4A2F1B;
+    background: #EAE0C2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    box-shadow: 2px 2px 0 #4A2F1B;
   }
   
   .header h1 {
     font-family: 'Gaegu', cursive;
-    font-size: 26px;
+    font-size: 32px;
     font-weight: 700;
     letter-spacing: -1.5px;
     cursor: pointer;
@@ -58,7 +199,7 @@
   
   .header-title-input {
     font-family: 'Gaegu', cursive;
-    font-size: 26px;
+    font-size: 32px;
     font-weight: 700;
     letter-spacing: -1.5px;
     border: 2px solid #B88A4A;
@@ -105,9 +246,7 @@
     border-top: 2px solid #4A2F1B;
   }
   
-  .top-buttons button:active {
-    background: #EAE0C2;
-  }
+  .top-buttons button:active { background: #EAE0C2; }
   
   .top-bar { display: flex; gap: 8px; margin-bottom: 18px; align-items: stretch; }
   
@@ -123,15 +262,16 @@
     box-shadow: 3px 3px 0 #4A2F1B;
   }
   
-  .coin-icon { font-size: 26px; animation: spin 4s linear infinite; }
+  .coin-icon { font-size: 40px; animation: spin 4s linear infinite; }
   
   @keyframes spin {
     0%, 90%, 100% { transform: rotateY(0deg); }
     95% { transform: rotateY(360deg); }
   }
   
-  .coin-amount { font-family: 'Gaegu', cursive; font-size: 22px; font-weight: 700; color: #4A2F1B; line-height: 1; }
-  .coin-label { font-family: 'Gaegu', cursive; font-size: 12px; color: #7C2D12; margin-top: 2px; white-space: nowrap; }
+  .coin-amount { font-family: 'Gaegu', cursive; font-size: 48px; font-weight: 700; color: #4A2F1B; line-height: 1; }
+  .coin-pending { font-family: 'Gaegu', cursive; font-size: 20px; color: #7C2D12; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .coin-stack { font-size: 36px; margin-left: auto; }
   
   .shop-btn {
     background: #5A8A5E;
@@ -139,7 +279,7 @@
     border-radius: 14px;
     padding: 6px 8px;
     font-family: 'Gaegu', cursive;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     color: white;
     cursor: pointer;
@@ -181,14 +321,14 @@
     color: #4A2F1B;
   }
   
-  .cal-title { font-family: 'Gaegu', cursive; font-size: 22px; font-weight: 700; color: #4A2F1B; }
+  .cal-title { font-family: 'Gaegu', cursive; font-size: 26px; font-weight: 700; color: #4A2F1B; }
   
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
   
   .cal-day-name {
     text-align: center;
     font-family: 'Gaegu', cursive;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
     color: #7C5A3A;
     padding: 4px 0;
@@ -231,639 +371,375 @@
   .cal-cell.selected { background: #4A2F1B; color: #F5EDD7; border-color: #4A2F1B; }
   
   .cell-gauge {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    overflow: hidden;
-    transition: height 0.4s ease;
-    pointer-events: none;
-    z-index: 1;
+    position: absolute; left: 0; right: 0; bottom: 0;
+    overflow: hidden; transition: height 0.4s ease;
+    pointer-events: none; z-index: 1;
   }
-  
-  /* inner는 셀 전체 높이에 걸친 그라데이션을 가지고, cell-gauge가 overflow:hidden으로 잘라 보여줌 */
   .cell-gauge-inner {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    aspect-ratio: 1 / 1;
+    position: absolute; left: 0; right: 0; bottom: 0;
+    width: 100%; aspect-ratio: 1 / 1;
     background: linear-gradient(to top, #E53935 0%, #FB8C00 25%, #FDD835 50%, #43A047 75%, #1E88E5 100%);
   }
-  
   .cell-gauge-lines {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: 2;
-    border-radius: 10px;
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+    pointer-events: none; z-index: 2; border-radius: 10px;
   }
-  
   .cal-cell .day-num { position: relative; z-index: 3; }
-  
-  .cal-cell.has-gauge {
-    background: #2A1F14;
-  }
+  .cal-cell.has-gauge { background: #2A1F14; }
   .cal-cell.has-gauge .day-num { color: rgba(255,255,255,0.65); }
   .cal-cell.has-gauge.selected .day-num { color: rgba(255,255,255,0.65); }
-  
   .cal-cell.all-confirmed { background: #5A8A5E; color: #FFF4D6; }
   .cal-cell.all-confirmed.sun, .cal-cell.all-confirmed.sat { color: #FFF4D6; }
   .cal-cell.all-confirmed .cell-gauge { display: none; }
-  
   .cal-cell.selected.all-confirmed { background: #4A2F1B; }
-  
   .cal-cell.selected.sun, .cal-cell.selected.sat { color: #F5EDD7; }
   
   .selected-date {
-    text-align: center;
-    margin-bottom: 14px;
-    font-family: 'Gaegu', cursive;
-    font-size: 22px;
-    font-weight: 700;
-    color: #4A2F1B;
+    text-align: center; margin-bottom: 14px;
+    font-family: 'Gaegu', cursive; font-size: 26px; font-weight: 700; color: #4A2F1B;
   }
   
   .subject {
-    background: white;
-    border: 2px solid #4A2F1B;
-    border-radius: 14px;
-    margin-bottom: 10px;
-    overflow: hidden;
-    box-shadow: 3px 3px 0 #4A2F1B;
+    background: white; border: 2px solid #4A2F1B; border-radius: 14px;
+    margin-bottom: 10px; overflow: hidden; box-shadow: 3px 3px 0 #4A2F1B;
   }
-  
   .subject-header {
-    padding: 6px 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 6px 10px; display: flex; align-items: center; gap: 8px;
     border-bottom: 1px dashed #C8A47C;
   }
-  
   .subject-name-input {
-    flex: 1;
-    font-family: 'Gaegu', cursive;
-    font-size: 17px;
-    font-weight: 700;
-    border: none;
-    background: transparent;
-    outline: none;
-    padding: 2px 4px;
-    border-radius: 6px;
-    color: #4A2F1B;
-    min-width: 0;
+    flex: 1; font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700;
+    border: none; background: transparent; outline: none; padding: 2px 4px;
+    border-radius: 6px; color: #4A2F1B; min-width: 0;
   }
-  
   .subject-name-input:focus { background: rgba(255,255,255,0.7); }
-  
-  .subject-status { font-size: 13px; color: #7C2D12; font-weight: 700; font-family: 'Gaegu', cursive; }
-  
+  .subject-status { font-size: 15px; color: #7C2D12; font-weight: 700; font-family: 'Gaegu', cursive; }
   .subject-delete-btn {
-    background: transparent;
-    border: none;
-    color: #4A2F1B;
-    font-size: 22px;
-    cursor: pointer;
-    padding: 2px 8px;
-    opacity: 0.7;
-    font-weight: 700;
-    line-height: 1;
+    background: transparent; border: none; color: #4A2F1B; font-size: 22px;
+    cursor: pointer; padding: 2px 8px; opacity: 0.7; font-weight: 700; line-height: 1;
   }
-  
   .subject-delete-btn:active { opacity: 1; }
   
   .task-list { padding: 2px 0; }
-  
   .task {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 10px;
-    cursor: pointer;
-    user-select: none;
+    display: flex; align-items: center; gap: 8px; padding: 5px 10px;
+    cursor: pointer; user-select: none;
   }
-  
   .task:active { background: #F5EDD7; }
-  
   .checkbox {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #4A2F1B;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: white;
-    transition: all 0.2s;
+    width: 24px; height: 24px; border: 2px solid #4A2F1B; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background: white; transition: all 0.2s;
   }
-  
   .task.done .checkbox { background: #6B9D6F; }
-  .task.done .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 13px; }
-  
+  .task.done .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 15px; }
   .task-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    font-family: 'Gowun Dodum', sans-serif;
-    font-size: 15px;
-    color: #4A2F1B;
-    outline: none;
-    padding: 2px 0;
-    min-width: 0;
+    flex: 1; border: none; background: transparent; font-family: 'Gowun Dodum', sans-serif;
+    font-size: 17px; color: #4A2F1B; outline: none; padding: 2px 0; min-width: 0;
   }
-  
   .task.done .task-input { text-decoration: line-through; color: #A8967C; }
-  
   .delete-btn {
-    background: transparent;
-    border: none;
-    color: #4A2F1B;
-    font-size: 22px;
-    cursor: pointer;
-    padding: 2px 8px;
-    font-weight: 700;
-    flex-shrink: 0;
-    line-height: 1;
-    opacity: 0.7;
+    background: transparent; border: none; color: #4A2F1B; font-size: 22px;
+    cursor: pointer; padding: 2px 8px; font-weight: 700; flex-shrink: 0; line-height: 1; opacity: 0.7;
   }
-  
   .delete-btn:active { opacity: 1; }
   
   .add-btn {
-    width: 100%;
-    padding: 3px;
-    background: #FFFFFF;
-    border: none;
-    border-top: 1px dashed #C8A47C;
-    font-family: 'Gaegu', cursive;
-    font-size: 13px;
-    font-weight: 700;
-    color: #7C5A3A;
-    cursor: pointer;
+    width: 100%; padding: 3px; background: #FFFFFF; border: none;
+    border-top: 1px dashed #C8A47C; font-family: 'Gaegu', cursive;
+    font-size: 15px; font-weight: 700; color: #7C5A3A; cursor: pointer;
   }
-  
   .add-btn:active { background: #F5EDD7; color: #4A2F1B; }
   
   .add-subject-btn {
-    width: 100%;
-    padding: 12px;
-    background: white;
-    border: 2px dashed #7C5A3A;
-    border-radius: 14px;
-    font-family: 'Gaegu', cursive;
-    font-size: 17px;
-    font-weight: 700;
-    color: #7C5A3A;
-    cursor: pointer;
-    margin-bottom: 12px;
+    width: 100%; padding: 12px; background: white; border: 2px dashed #7C5A3A;
+    border-radius: 14px; font-family: 'Gaegu', cursive; font-size: 20px;
+    font-weight: 700; color: #7C5A3A; cursor: pointer; margin-bottom: 12px;
   }
-  
   .add-subject-btn:active { background: #EAE0C2; }
   
   .empty-subjects {
-    text-align: center;
-    padding: 24px 16px;
-    color: #7C5A3A;
-    font-family: 'Gaegu', cursive;
-    font-size: 18px;
-    background: white;
-    border: 2px dashed #7C5A3A;
-    border-radius: 14px;
-    margin-bottom: 12px;
+    text-align: center; padding: 24px 16px; color: #7C5A3A;
+    font-family: 'Gaegu', cursive; font-size: 20px; background: white;
+    border: 2px dashed #7C5A3A; border-radius: 14px; margin-bottom: 12px;
   }
   
   .mom-card {
-    background: white;
-    border: 3px solid #4A2F1B;
-    border-radius: 16px;
-    padding: 12px;
-    margin-bottom: 12px;
-    box-shadow: 4px 4px 0 #4A2F1B;
-    text-align: center;
+    background: white; border: 3px solid #4A2F1B; border-radius: 16px;
+    padding: 12px; margin-bottom: 12px; box-shadow: 4px 4px 0 #4A2F1B; text-align: center;
   }
-  
-  .mom-card.confirmed {
-    background: linear-gradient(135deg, #E8C97A, #D9B97A);
-    padding: 10px;
-  }
-  
-  .mom-title {
-    font-family: 'Gaegu', cursive;
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: #4A2F1B;
-  }
-  
+  .mom-card.confirmed { background: linear-gradient(135deg, #E8C97A, #D9B97A); padding: 10px; }
+  .mom-title { font-family: 'Gaegu', cursive; font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #4A2F1B; }
   .mom-btn {
-    background: #B88A4A;
-    color: white;
-    border: 3px solid #4A2F1B;
-    border-radius: 12px;
-    padding: 9px 22px;
-    font-family: 'Gaegu', cursive;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 3px 3px 0 #4A2F1B;
+    background: #B88A4A; color: white; border: 3px solid #4A2F1B; border-radius: 12px;
+    padding: 9px 22px; font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700;
+    cursor: pointer; box-shadow: 3px 3px 0 #4A2F1B;
   }
-  
-  .mom-btn:disabled {
-    background: #A8967C;
-    cursor: not-allowed;
-  }
-  
-  .mom-confirmed-text {
-    font-family: 'Gaegu', cursive;
-    font-size: 17px;
-    font-weight: 700;
-    color: #4A2F1B;
-    line-height: 1.3;
-  }
-  
-  .mom-confirmed-text .heart {
-    color: #B86B6B;
-    font-size: 19px;
-  }
+  .mom-btn:disabled { background: #A8967C; cursor: not-allowed; }
+  .mom-confirmed-text { font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700; color: #4A2F1B; line-height: 1.3; }
+  .mom-confirmed-text .heart { color: #B86B6B; font-size: 19px; }
   
   .dog-reward {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    border: 2px solid #4A2F1B;
-    border-radius: 14px;
-    padding: 8px 14px;
-    box-shadow: 3px 3px 0 #4A2F1B;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: opacity 0.3s;
-    z-index: 200;
-    max-width: 260px;
-    opacity: 0;
-    pointer-events: none;
-    cursor: pointer;
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    background: white; border: 2px solid #4A2F1B; border-radius: 14px;
+    padding: 8px 14px; box-shadow: 3px 3px 0 #4A2F1B;
+    display: flex; align-items: center; gap: 8px; transition: opacity 0.3s;
+    z-index: 200; max-width: 260px; opacity: 0; pointer-events: none; cursor: pointer;
   }
-  
-  .dog-reward.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  
+  .dog-reward.show { opacity: 1; pointer-events: auto; }
   .dog-face { font-size: 22px; animation: wiggle 0.5s ease infinite; }
-  
-  @keyframes wiggle {
-    0%, 100% { transform: rotate(-8deg); }
-    50% { transform: rotate(8deg); }
-  }
-  
+  @keyframes wiggle { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
   .dog-msg { font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 700; line-height: 1.2; color: #4A2F1B; }
   
   .flying-coin {
-    position: fixed;
-    font-size: 32px;
-    z-index: 199;
-    pointer-events: none;
+    position: fixed; font-size: 32px; z-index: 199; pointer-events: none;
     transition: all 0.8s cubic-bezier(0.5, -0.5, 0.5, 1);
   }
   
   .modal-bg {
-    position: fixed;
-    inset: 0;
-    background: rgba(74, 47, 27, 0.7);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 300;
-    padding: 20px;
+    position: fixed; inset: 0; background: rgba(74, 47, 27, 0.7);
+    display: none; align-items: center; justify-content: center; z-index: 300; padding: 20px;
   }
-  
   .modal-bg.show { display: flex; }
   
   .pwd-modal {
-    background: white !important;
-    border: 2px solid #4A2F1B !important;
-    border-radius: 16px !important;
-    padding: 20px !important;
-    max-width: 320px !important;
-    width: 100% !important;
+    background: white !important; border: 2px solid #4A2F1B !important;
+    border-radius: 16px !important; padding: 20px !important;
+    max-width: 320px !important; width: 100% !important;
     box-shadow: 4px 4px 0 #4A2F1B !important;
   }
-  
-  .pwd-modal-title {
-    font-family: 'Gaegu', cursive;
-    font-size: 20px;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 8px;
-    color: #4A2F1B;
-  }
-  
-  .pwd-modal-sub {
-    text-align: center;
-    margin-bottom: 10px;
-    font-family: 'Gaegu', cursive;
-    font-size: 15px;
-    color: #7C5A3A;
-  }
+  .pwd-modal-title { font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 8px; color: #4A2F1B; }
+  .pwd-modal-sub { text-align: center; margin-bottom: 10px; font-family: 'Gaegu', cursive; font-size: 15px; color: #7C5A3A; }
   
   .modal {
-    background: #F5EDD7;
-    border: 4px solid #4A2F1B;
-    border-radius: 22px;
-    padding: 24px;
-    max-width: 380px;
-    width: 100%;
-    box-shadow: 8px 8px 0 #4A2F1B;
-    max-height: 85vh;
-    overflow-y: auto;
+    background: #F5EDD7; border: 4px solid #4A2F1B; border-radius: 22px;
+    padding: 24px; max-width: 380px; width: 100%; box-shadow: 8px 8px 0 #4A2F1B;
+    max-height: 85vh; overflow-y: auto;
   }
-  
   .modal-title { font-family: 'Gaegu', cursive; font-size: 30px; font-weight: 700; text-align: center; margin-bottom: 8px; color: #4A2F1B; }
   .modal-sub { text-align: center; margin-bottom: 20px; font-family: 'Gaegu', cursive; font-size: 20px; color: #B88A4A; }
   
-  .shop-modal {
-    max-width: 360px !important;
-    padding: 18px !important;
-    background: #E8F0E0 !important;
-    border-color: #5A8A5E !important;
-    box-shadow: 4px 4px 0 #5A8A5E !important;
-  }
-  
-  .shop-modal-title {
-    font-family: 'Gaegu', cursive;
-    font-size: 20px;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 4px;
-    color: #2E5A32;
-  }
-  
-  .shop-modal-sub {
-    text-align: center;
-    margin-bottom: 12px;
-    font-family: 'Gaegu', cursive;
-    font-size: 15px;
-    color: #5A8A5E;
-    font-weight: 700;
-  }
-  
-  .shop-items-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-  
+  .shop-modal { max-width: 320px !important; padding: 14px !important; background: #E8F0E0 !important; border-color: #5A8A5E !important; box-shadow: 4px 4px 0 #5A8A5E !important; }
+  .shop-modal-title { font-family: 'Gaegu', cursive; font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 2px; color: #2E5A32; }
+  .shop-modal-sub { text-align: center; margin-bottom: 8px; font-family: 'Gaegu', cursive; font-size: 14px; color: #5A8A5E; font-weight: 700; }
+  .shop-items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
   .shop-item {
-    background: #FFFFFF;
-    border: 1.5px solid #5A8A5E;
-    border-radius: 10px;
-    padding: 10px 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    box-shadow: 2px 2px 0 #5A8A5E;
+    background: #FFFFFF; border: 1.5px solid #5A8A5E; border-radius: 8px;
+    padding: 8px 4px; display: flex; flex-direction: column; align-items: center;
+    gap: 2px; box-shadow: 2px 2px 0 #5A8A5E;
   }
-  
-  .shop-item-icon { font-size: 26px; }
-  .shop-item-name { 
-    font-family: 'Gaegu', cursive; 
-    font-size: 16px; 
-    font-weight: 700;
-    text-align: center;
-    color: #2E5A32;
-    line-height: 1.1;
-    word-break: keep-all;
-  }
-  .shop-item-price { 
-    font-family: 'Gaegu', cursive; 
-    font-size: 15px; 
-    color: #5A8A5E;
-    font-weight: 700;
-  }
-  
-  .shop-item-actions {
-    display: flex;
-    gap: 4px;
-    width: 100%;
-    margin-top: 4px;
-  }
-  
-  .buy-btn {
-    flex: 1;
-    background: #5A8A5E;
-    border: 1.5px solid #2E5A32;
-    color: white;
-    font-family: 'Gaegu', cursive;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 5px 0;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
+  .shop-item-icon { font-size: 22px; }
+  .shop-item-name { font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 700; text-align: center; color: #2E5A32; line-height: 1.1; word-break: keep-all; }
+  .shop-item-price { font-family: 'Gaegu', cursive; font-size: 13px; color: #5A8A5E; font-weight: 700; }
+  .shop-item-actions { display: flex; gap: 3px; width: 100%; margin-top: 2px; }
+  .buy-btn { flex: 1; background: #5A8A5E; border: 1.5px solid #2E5A32; color: white; font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700; padding: 4px 0; border-radius: 5px; cursor: pointer; }
   .buy-btn:disabled { background: #B0B8AC; cursor: not-allowed; }
-  
-  .shop-item-delete {
-    background: white;
-    border: 1.5px solid #5A8A5E;
-    color: #5A8A5E;
-    font-family: 'Gaegu', cursive;
-    font-size: 16px;
-    font-weight: 700;
-    padding: 0 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    line-height: 1;
-  }
-  
-  .add-shop-item-btn {
-    width: 100%;
-    padding: 9px;
-    background: white;
-    border: 2px dashed #5A8A5E;
-    border-radius: 8px;
-    font-family: 'Gaegu', cursive;
-    font-size: 14px;
-    font-weight: 700;
-    color: #2E5A32;
-    cursor: pointer;
-    margin-bottom: 8px;
-  }
-  
-  .modal-close {
-    width: 100%;
-    margin-top: 6px;
-    padding: 11px;
-    background: #2E5A32;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-family: 'Gaegu', cursive;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  
-  .owned-tickets {
-    background: #FFFFFF;
-    border: 1.5px dashed #5A8A5E;
-    border-radius: 8px;
-    padding: 8px 10px;
-    margin-bottom: 10px;
-  }
-  
-  .owned-title { font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 700; margin-bottom: 3px; color: #2E5A32; }
-  .owned-list { font-family: 'Gaegu', cursive; font-size: 13px; color: #5A8A5E; }
+  .shop-item-delete { background: white; border: 1.5px solid #5A8A5E; color: #5A8A5E; font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 700; padding: 0 6px; border-radius: 5px; cursor: pointer; line-height: 1; }
+  .add-shop-item-btn { width: 100%; padding: 7px; background: white; border: 2px dashed #5A8A5E; border-radius: 6px; font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700; color: #2E5A32; cursor: pointer; margin-bottom: 6px; }
+  .modal-close { width: 100%; margin-top: 4px; padding: 9px; background: #2E5A32; color: white; border: none; border-radius: 8px; font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .owned-tickets { background: #FFFFFF; border: 1.5px dashed #5A8A5E; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; }
+  .owned-title { font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700; margin-bottom: 2px; color: #2E5A32; }
+  .owned-list { font-family: 'Gaegu', cursive; font-size: 12px; color: #5A8A5E; }
   .owned-empty { color: #A8B0A4; font-style: italic; }
   
   .pwd-input {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #4A2F1B;
-    border-radius: 10px;
-    font-family: 'Gaegu', cursive;
-    font-size: 20px;
-    text-align: center;
-    margin-bottom: 8px;
-    letter-spacing: 6px;
-    outline: none;
-    color: #4A2F1B;
-    background: white;
+    width: 100%; padding: 10px; border: 2px solid #4A2F1B; border-radius: 10px;
+    font-family: 'Gaegu', cursive; font-size: 20px; text-align: center;
+    margin-bottom: 8px; letter-spacing: 6px; outline: none; color: #4A2F1B; background: white;
   }
-  
   .pwd-input:focus { border-color: #B88A4A; }
-  
   .text-input {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #4A2F1B;
-    border-radius: 10px;
-    font-family: 'Gaegu', cursive;
-    font-size: 18px;
-    text-align: center;
-    margin-bottom: 8px;
-    outline: none;
-    background: white;
-    color: #4A2F1B;
+    width: 100%; padding: 10px; border: 2px solid #4A2F1B; border-radius: 10px;
+    font-family: 'Gaegu', cursive; font-size: 18px; text-align: center;
+    margin-bottom: 8px; outline: none; background: white; color: #4A2F1B;
   }
-  
   .text-input:focus { border-color: #B88A4A; }
-  
   .modal-btns { display: flex; gap: 8px; margin-top: 4px; }
-  
   .modal-btn {
-    flex: 1;
-    padding: 10px;
-    border: 2px solid #4A2F1B;
-    border-radius: 10px;
-    font-family: 'Gaegu', cursive;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 2px 2px 0 #4A2F1B;
+    flex: 1; padding: 10px; border: 2px solid #4A2F1B; border-radius: 10px;
+    font-family: 'Gaegu', cursive; font-size: 17px; font-weight: 700;
+    cursor: pointer; box-shadow: 2px 2px 0 #4A2F1B;
   }
-  
-  .modal-btn:active {
-    transform: translate(1px, 1px);
-    box-shadow: 1px 1px 0 #4A2F1B;
-  }
-  
+  .modal-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #4A2F1B; }
   .modal-btn.primary { background: #B88A4A; color: white; }
   .modal-btn.danger { background: #94605E; color: white; }
   .modal-btn.cancel { background: white; color: #4A2F1B; }
-  
-  .pwd-error {
-    color: #B86B6B;
-    text-align: center;
-    font-family: 'Gaegu', cursive;
-    font-size: 14px;
-    margin-bottom: 6px;
-    min-height: 18px;
-  }
-  
-  .confirm-msg {
-    text-align: center;
-    font-family: 'Gaegu', cursive;
-    font-size: 20px;
-    margin-bottom: 16px;
-    line-height: 1.4;
-    color: #4A2F1B;
-  }
+  .pwd-error { color: #B86B6B; text-align: center; font-family: 'Gaegu', cursive; font-size: 14px; margin-bottom: 6px; min-height: 18px; }
+  .confirm-msg { text-align: center; font-family: 'Gaegu', cursive; font-size: 20px; margin-bottom: 16px; line-height: 1.4; color: #4A2F1B; }
   
   .toast {
+    position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+    background: #B88A4A; color: white; padding: 14px 22px; border: 3px solid #4A2F1B;
+    border-radius: 16px; font-family: 'Gaegu', cursive; font-size: 18px; font-weight: 700;
+    box-shadow: 4px 4px 0 #4A2F1B; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s; z-index: 400; max-width: 80%; text-align: center;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ====== 채팅 ====== */
+  .chat-fab {
     position: fixed;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #B88A4A;
-    color: white;
-    padding: 14px 22px;
-    border: 3px solid #4A2F1B;
-    border-radius: 16px;
-    font-family: 'Gaegu', cursive;
-    font-size: 18px;
-    font-weight: 700;
-    box-shadow: 4px 4px 0 #4A2F1B;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-    z-index: 400;
-    max-width: 80%;
-    text-align: center;
+    bottom: max(24px, env(safe-area-inset-bottom, 24px));
+    right: 16px;
+    width: 56px; height: 56px;
+    background: #4A2F1B;
+    border: 3px solid #F5EDD7;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    cursor: pointer;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
+    z-index: 250;
+    transition: transform 0.2s;
+  }
+  .chat-fab:active { transform: scale(0.9); }
+  .chat-fab .badge {
+    position: absolute; top: -4px; right: -4px;
+    background: #E53935; color: white;
+    font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+  }
+  .chat-fab .badge.show { display: flex; }
+
+  .chat-panel {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 65vh; max-height: 500px;
+    background: #F5EDD7;
+    border-top: 3px solid #4A2F1B;
+    border-radius: 18px 18px 0 0;
+    z-index: 280;
+    display: flex; flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  }
+  .chat-panel.open { transform: translateY(0); }
+  
+  .chat-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 2px solid #4A2F1B;
+    background: white; border-radius: 18px 18px 0 0;
+  }
+  .chat-header-title { font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700; color: #4A2F1B; }
+  .chat-close-btn {
+    background: none; border: none; font-size: 24px; cursor: pointer; color: #4A2F1B; padding: 4px;
   }
   
-  .toast.show { opacity: 1; }
+  .chat-messages {
+    flex: 1; overflow-y: auto; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .chat-msg {
+    max-width: 80%; padding: 8px 12px; border-radius: 14px;
+    font-family: 'Gowun Dodum', sans-serif; font-size: 14px;
+    line-height: 1.4; word-break: break-word;
+  }
+  .chat-msg.mine {
+    align-self: flex-end; background: #4A2F1B; color: #F5EDD7;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-msg.other {
+    align-self: flex-start; background: white; color: #4A2F1B;
+    border: 1.5px solid #C8A47C; border-bottom-left-radius: 4px;
+  }
+  .chat-msg .msg-sender {
+    font-family: 'Gaegu', cursive; font-size: 12px; font-weight: 700;
+    margin-bottom: 2px; opacity: 0.7;
+  }
+  .chat-msg .msg-time {
+    font-family: 'Gaegu', cursive; font-size: 11px; opacity: 0.5;
+    margin-top: 2px; text-align: right;
+  }
+  
+  .chat-input-bar {
+    display: flex; gap: 8px; padding: 10px 14px;
+    border-top: 1px solid #C8A47C; background: white;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .chat-input {
+    flex: 1; border: 2px solid #4A2F1B; border-radius: 12px;
+    padding: 8px 12px; font-family: 'Gowun Dodum', sans-serif; font-size: 15px;
+    outline: none; background: white; color: #4A2F1B;
+  }
+  .chat-input:focus { border-color: #B88A4A; }
+  .chat-send-btn {
+    background: #B88A4A; color: white; border: 2px solid #4A2F1B;
+    border-radius: 12px; padding: 8px 14px; font-family: 'Gaegu', cursive;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  .chat-send-btn:active { background: #9A7340; }
+
+  /* 앱 영역 숨김 */
+  .app-main { display: none; }
+  .app-main.show { display: block; }
+
+  /* 로딩 */
+  .loading-overlay {
+    position: fixed; inset: 0; background: #F5EDD7;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999; font-family: 'Gaegu', cursive; font-size: 24px; color: #4A2F1B;
+  }
+  .loading-overlay.hide { display: none; }
 </style>
 </head>
 <body>
 
+<div class="loading-overlay" id="loadingOverlay">불러오는 중...</div>
+
 <div class="container">
-  <div class="header">
-    <h1 id="appTitle" onclick="editAppTitle()"></h1>
+  <!-- 로그인 화면 -->
+  <div class="login-screen" id="loginScreen" style="display:none;">
+    <div class="login-sub">누구세요?</div>
+    <div class="login-members" id="loginMembers"></div>
+    <div class="login-pin-section" id="loginPinSection">
+      <div class="login-pin-label" id="loginPinLabel">비밀번호 (4자리)</div>
+      <input type="password" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
+      <div class="login-error" id="loginError"></div>
+      <button class="login-enter-btn" onclick="doLogin()">들어가기</button>
+    </div>
   </div>
-  
-  <div class="top-bar">
-    <div class="coin-display">
-      <span class="coin-icon">🪙</span>
-      <div style="flex:1;">
+
+  <!-- 메인 앱 -->
+  <div class="app-main" id="appMain">
+    <div class="top-logout-row">
+      <button class="logout-btn" id="loggedInAs" onclick="logout()"></button>
+    </div>
+    
+    <div class="header">
+      <img src="profile.jpg" class="profile-img" id="profileImg" onerror="this.style.display='none';document.getElementById('profilePlaceholder').style.display='flex';">
+      <div class="profile-img-placeholder" id="profilePlaceholder" style="display:none;">📚</div>
+      <h1 id="appTitle" onclick="editAppTitle()"></h1>
+    </div>
+    
+    <div class="top-bar">
+      <div class="coin-display">
+        <span class="coin-icon">💰</span>
         <div class="coin-amount" id="coinAmount">0</div>
-        <div class="coin-label">내 코인 <span id="pendingLabel" style="color:#7C2D12;"></span></div>
+        <div class="coin-pending" id="pendingLabel"></div>
+        <div class="coin-stack">🔸</div>
+      </div>
+      <button class="shop-btn" onclick="openShop()">🎁<br>상점</button>
+      <div class="top-buttons">
+        <button id="settingsBtn" onclick="openSettings()" title="설정">설정</button>
+        <button id="soundToggle" onclick="toggleSound()" title="소리">소리</button>
       </div>
     </div>
-    <button class="shop-btn" onclick="openShop()">🎁<br>상점</button>
-    <div class="top-buttons">
-      <button id="settingsBtn" onclick="openSettings()" title="설정">설정</button>
-      <button id="soundToggle" onclick="toggleSound()" title="소리">소리</button>
+    
+    <div class="calendar-card">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+        <div class="cal-title" id="calTitle"></div>
+        <button class="cal-nav" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
     </div>
+    
+    <div class="selected-date" id="selectedDate"></div>
+    <div id="subjects"></div>
+    <button class="add-subject-btn" onclick="openAddSubject()">+ 과목 추가</button>
+    <div id="momSection"></div>
   </div>
-  
-  <div class="calendar-card">
-    <div class="cal-header">
-      <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
-      <div class="cal-title" id="calTitle"></div>
-      <button class="cal-nav" onclick="changeMonth(1)">›</button>
-    </div>
-    <div class="cal-grid" id="calGrid"></div>
-  </div>
-  
-  <div class="selected-date" id="selectedDate"></div>
-  
-  <div id="subjects"></div>
-  
-  <button class="add-subject-btn" onclick="openAddSubject()">+ 과목 추가</button>
-  
-  <div id="momSection"></div>
 </div>
 
 <div class="dog-reward" id="dogReward" onclick="hideDogMsg()">
@@ -871,26 +747,41 @@
   <div class="dog-msg" id="dogMsg"></div>
 </div>
 
+<!-- 채팅 FAB -->
+<div class="chat-fab" id="chatFab" onclick="toggleChat()" style="display:none;">
+  💬
+  <div class="badge" id="chatBadge">0</div>
+</div>
+
+<!-- 채팅 패널 -->
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <span class="chat-header-title">💬 가족 채팅</span>
+    <button class="chat-close-btn" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-bar">
+    <input type="text" class="chat-input" id="chatInput" placeholder="메시지 입력..." maxlength="200">
+    <button class="chat-send-btn" onclick="sendChat()">전송</button>
+  </div>
+</div>
+
 <!-- 상점 -->
 <div class="modal-bg" id="shopModal" onclick="if(event.target===this)closeShop()">
   <div class="modal shop-modal">
     <div class="shop-modal-title">🎁 코인 상점</div>
-    <div class="shop-modal-sub">내 코인: <span id="modalCoin">0</span> 🪙</div>
-    
+    <div class="shop-modal-sub">내 코인: <span id="modalCoin">0</span> 💰</div>
     <div class="owned-tickets">
       <div class="owned-title">🎟️ 보유 이용권</div>
       <div class="owned-list" id="ownedList"></div>
     </div>
-    
     <div class="shop-items-grid" id="shopItemsGrid"></div>
-    
-    <button class="add-shop-item-btn" onclick="openAddShopItem()">+ 상품 추가</button>
-    
+    <button class="add-shop-item-btn" id="addShopItemTrigger" onclick="openAddShopItem()">+ 상품 추가</button>
     <button class="modal-close" onclick="closeShop()">닫기</button>
   </div>
 </div>
 
-<!-- 상품 추가 (비번 필요) -->
+<!-- 상품 추가 -->
 <div class="modal-bg" id="addShopItemModal" onclick="if(event.target===this)closeAddShopItem()">
   <div class="modal pwd-modal">
     <div class="pwd-modal-title">상품 추가</div>
@@ -898,8 +789,6 @@
     <input type="text" class="text-input" id="newShopItemName" maxlength="20" placeholder="예: 치킨">
     <div class="pwd-modal-sub" style="margin-top:6px;">가격 (코인)</div>
     <input type="number" class="text-input" id="newShopItemPrice" min="1" max="999" placeholder="20">
-    <div class="pwd-modal-sub" style="margin-top:6px;">비밀번호</div>
-    <input type="password" class="pwd-input" id="newShopItemPwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
     <div class="pwd-error" id="addShopItemError"></div>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="closeAddShopItem()">취소</button>
@@ -908,10 +797,10 @@
   </div>
 </div>
 
-<!-- 엄마 확인 비밀번호 입력 -->
+<!-- 확인 비밀번호 -->
 <div class="modal-bg" id="momPwdModal" onclick="if(event.target===this)closeMomPwd()">
   <div class="modal pwd-modal">
-    <div class="pwd-modal-title">엄마 확인</div>
+    <div class="pwd-modal-title">부모 확인</div>
     <div class="pwd-modal-sub">비밀번호를 입력하세요</div>
     <input type="password" class="pwd-input" id="momPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
     <div class="pwd-error" id="momPwdError"></div>
@@ -935,25 +824,6 @@
       <button class="modal-btn cancel" onclick="closeSettings()">취소</button>
       <button class="modal-btn primary" onclick="changePwd()">변경</button>
     </div>
-    <div style="margin-top:14px;text-align:center;">
-      <button onclick="openResetPwd()" style="background:none;border:none;color:#7C5A3A;font-family:'Gaegu',cursive;font-size:15px;text-decoration:underline;cursor:pointer;">
-        비밀번호를 잊어버렸어요
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- 비밀번호 초기화 -->
-<div class="modal-bg" id="resetPwdModal" onclick="if(event.target===this)closeResetPwd()">
-  <div class="modal pwd-modal">
-    <div class="pwd-modal-title">비밀번호 초기화</div>
-    <div class="pwd-modal-sub">마스터 코드를 입력하세요</div>
-    <input type="password" class="pwd-input" id="masterCodeInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
-    <div class="pwd-error" id="resetPwdError"></div>
-    <div class="modal-btns">
-      <button class="modal-btn cancel" onclick="closeResetPwd()">취소</button>
-      <button class="modal-btn primary" onclick="resetPwd()">초기화</button>
-    </div>
   </div>
 </div>
 
@@ -971,7 +841,7 @@
   </div>
 </div>
 
-<!-- 과목 삭제 -->
+<!-- 과목 삭제 (부모만) -->
 <div class="modal-bg" id="deleteSubjectModal" onclick="if(event.target===this)closeDeleteSubject()">
   <div class="modal pwd-modal">
     <div class="pwd-modal-title" id="deleteSubjectMsg"></div>
@@ -988,6 +858,33 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ====== Supabase 초기화 ====== */
+const SUPABASE_URL = 'https://keyplmiiyknlpzpfdkuk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtleXBsbWlpeWtubHB6cGZka3VrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzkzODksImV4cCI6MjA5NTExNTM4OX0.15UFo2n9g-nfBjuP7eAttSAEBs5FpTEY_qmYMms7274';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ====== 상태 ====== */
+let currentUser = null; // { id, name, role, pin }
+let cachedSubjects = [];
+let cachedTasks = [];
+let cachedCoins = { amount: 0, pending: {} };
+let cachedConfirmations = {};
+let cachedShopItems = [];
+let cachedTickets = {};
+let cachedMembers = [];
+
+let viewYear, viewMonth, selectedDate;
+let dogTimer = null;
+let pendingDeleteSubjectId = null;
+let chatOpen = false;
+let chatMessages = [];
+let lastSeenChatId = 0;
+
+const SUBJECT_COLORS = [
+  '#F0DCDC', '#DCE4F0', '#F0E8D0', '#DCEEDC', '#E5DCEC',
+  '#F0E0D0', '#D8E8F0', '#F0E4DC', '#DCEEE5', '#F0EADC'
+];
+
 /* ====== 사운드 ====== */
 let audioCtx = null;
 let soundOn = true;
@@ -998,41 +895,21 @@ function initAudio() {
   }
   if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 }
-
 function playTone(freq, duration, type = 'sine', volume = 0.15) {
-  if (!soundOn) return;
-  initAudio();
-  if (!audioCtx) return;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = type;
-  osc.frequency.value = freq;
+  if (!soundOn) return; initAudio(); if (!audioCtx) return;
+  const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+  osc.type = type; osc.frequency.value = freq;
   gain.gain.setValueAtTime(volume, audioCtx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime + duration);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + duration);
 }
-
-function soundCheck() {
-  playTone(1200, 0.15, 'sine', 0.2);
-  setTimeout(() => playTone(1600, 0.2, 'sine', 0.15), 80);
-}
-function soundCoin() {
-  playTone(800, 0.08, 'square', 0.1);
-  setTimeout(() => playTone(1200, 0.1, 'square', 0.1), 60);
-  setTimeout(() => playTone(1600, 0.15, 'square', 0.08), 120);
-}
-function soundFanfare() {
-  [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'triangle', 0.18), i * 100));
-}
-function soundBonus() {
-  [523, 659, 784, 880, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.15, 'sine', 0.15), i * 80));
-}
+function soundCheck() { playTone(1200, 0.15, 'sine', 0.2); setTimeout(() => playTone(1600, 0.2, 'sine', 0.15), 80); }
+function soundCoin() { playTone(800, 0.08, 'square', 0.1); setTimeout(() => playTone(1200, 0.1, 'square', 0.1), 60); setTimeout(() => playTone(1600, 0.15, 'square', 0.08), 120); }
+function soundFanfare() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'triangle', 0.18), i * 100)); }
+function soundBonus() { [523, 659, 784, 880, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.15, 'sine', 0.15), i * 80)); }
 function soundClick() { playTone(600, 0.05, 'sine', 0.08); }
 function soundError() { playTone(300, 0.2, 'sawtooth', 0.1); }
-
 function toggleSound() {
   soundOn = !soundOn;
   document.getElementById('soundToggle').textContent = soundOn ? '소리' : '무음';
@@ -1040,177 +917,221 @@ function toggleSound() {
   if (soundOn) soundClick();
 }
 
-/* ====== 데이터 ====== */
-const STORAGE_KEY = 'hw-app-v5-each-date-separate';
+/* ====== 유틸 ====== */
+function dateKey(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function todayKey() { const t = new Date(); return dateKey(t.getFullYear(), t.getMonth(), t.getDate()); }
+function randomColor() { return SUBJECT_COLORS[Math.floor(Math.random() * SUBJECT_COLORS.length)]; }
+function genId() { return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function isParent() { return currentUser && currentUser.role === 'parent'; }
 
-let state = {
-  appTitle: '숙제 체크리스트',
-  subjects: [],
-  daySubjects: {},
-  tasks: {},
-  coins: 0,
-  pendingCoins: {},
-  tickets: {},
-  shopItems: [
-    { id: 'samgyup', name: '삼겹살', icon: '🥓', price: 30 },
-    { id: 'pcbang', name: 'PC방', icon: '🎮', price: 20 }
-  ],
-  bonusGiven: {},
-  momConfirmed: {},
-  momPassword: '0000'
-};
-
-let viewYear, viewMonth, selectedDate;
-let dogTimer = null;
-let pendingDeleteSubjectId = null;
-let pendingBuyItem = null;
-
-const SUBJECT_COLORS = [
-  '#F0DCDC', '#DCE4F0', '#F0E8D0', '#DCEEDC', '#E5DCEC',
-  '#F0E0D0', '#D8E8F0', '#F0E4DC', '#DCEEE5', '#F0EADC'
-];
-
-function dateKey(y, m, d) {
-  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-}
-function todayKey() {
-  const t = new Date();
-  return dateKey(t.getFullYear(), t.getMonth(), t.getDate());
-}
-function randomSubjectColor() {
-  return SUBJECT_COLORS[Math.floor(Math.random() * SUBJECT_COLORS.length)];
-}
-function genId() {
-  return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 1800);
 }
 
-function getSubjectsForDate(key = selectedDate) {
-  if (!state.daySubjects || typeof state.daySubjects !== 'object' || Array.isArray(state.daySubjects)) {
-    state.daySubjects = {};
-  }
-  if (!Array.isArray(state.daySubjects[key])) {
-    state.daySubjects[key] = [];
-  }
-  return state.daySubjects[key];
+function showDogMsg(msg, duration = 2200) {
+  if (dogTimer) { clearTimeout(dogTimer); dogTimer = null; }
+  const el = document.getElementById('dogReward');
+  document.getElementById('dogMsg').innerHTML = msg;
+  el.classList.add('show');
+  dogTimer = setTimeout(() => { el.classList.remove('show'); dogTimer = null; }, duration);
+}
+function hideDogMsg() {
+  document.getElementById('dogReward').classList.remove('show');
+  if (dogTimer) { clearTimeout(dogTimer); dogTimer = null; }
 }
 
-function setSubjectsForDate(key, subjects) {
-  if (!state.daySubjects || typeof state.daySubjects !== 'object' || Array.isArray(state.daySubjects)) {
-    state.daySubjects = {};
-  }
-  state.daySubjects[key] = subjects;
-}
-
-function load() {
-  try {
-    // 기존 hw-app-v2 / v3 데이터가 이미 날짜별로 섞여 있을 수 있어서
-    // 이번 최종 버전은 완전히 새 저장소로 시작합니다.
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) state = Object.assign(state, JSON.parse(raw));
-  } catch (e) {}
-  
-  if (!state.subjects) state.subjects = [];
-  if (!state.daySubjects || typeof state.daySubjects !== 'object' || Array.isArray(state.daySubjects)) state.daySubjects = {};
-  if (!state.shopItems || !Array.isArray(state.shopItems) || state.shopItems.length === 0) {
-    state.shopItems = [
-      { id: 'samgyup', name: '삼겹살', icon: '🥓', price: 30 },
-      { id: 'pcbang', name: 'PC방', icon: '🎮', price: 20 }
-    ];
-  }
-  Object.keys(state.daySubjects).forEach(dk => {
-    getSubjectsForDate(dk).forEach(s => { if (!s.color) s.color = randomSubjectColor(); });
-  });
-  if (!state.tasks || typeof state.tasks !== 'object' || Array.isArray(state.tasks)) state.tasks = {};
-  if (!state.tickets) state.tickets = {};
-  if (!state.bonusGiven) state.bonusGiven = {};
-  if (!state.momConfirmed) state.momConfirmed = {};
-  if (!state.pendingCoins) state.pendingCoins = {};
-  if (!state.momPassword) state.momPassword = '0000';
-  if (!state.appTitle) state.appTitle = '숙제 체크리스트';
-  if (typeof state.coins !== 'number') state.coins = 0;
-
-  // 날짜별 데이터 강제 정리: 각 날짜/과목 배열을 독립 배열로 재생성
-  Object.keys(state.tasks).forEach(dk => {
-    const day = state.tasks[dk];
-    if (!day || typeof day !== 'object' || Array.isArray(day)) {
-      state.tasks[dk] = {};
-      return;
-    }
-
-    Object.keys(day).forEach(sid => {
-      if (!Array.isArray(day[sid])) {
-        day[sid] = [];
+/* ====== 로그인 ====== */
+async function initApp() {
+  const saved = localStorage.getItem('currentUser');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      // DB에서 멤버 정보 재확인
+      const { data } = await sb.from('members').select('*').eq('id', currentUser.id).single();
+      if (data) {
+        currentUser = data;
+        showMainApp();
         return;
       }
+    } catch(e) {}
+  }
+  showLoginScreen();
+}
 
-      day[sid] = day[sid]
-        .filter(t => !(t && t.text === '숙제 내용 입력...' && !t.done))
-        .map(t => ({ text: String(t.text || ''), done: !!t.done }));
-    });
+async function showLoginScreen() {
+  document.getElementById('loadingOverlay').classList.add('hide');
+  document.getElementById('loginScreen').style.display = '';
+  document.getElementById('appMain').classList.remove('show');
+  document.getElementById('chatFab').style.display = 'none';
+  
+  const { data: members } = await sb.from('members').select('*');
+  cachedMembers = members || [];
+  
+  const container = document.getElementById('loginMembers');
+  container.innerHTML = '';
+  
+  const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
+  cachedMembers.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'login-member-btn';
+    btn.innerHTML = `<span class="emoji">${emojis[m.id] || '👤'}</span><span class="name">${esc(m.name)}</span>`;
+    btn.onclick = () => selectMember(m);
+    container.appendChild(btn);
   });
-  save();
+}
+
+let selectedMember = null;
+
+function selectMember(member) {
+  soundClick();
+  selectedMember = member;
+  document.getElementById('loginPinLabel').textContent = `${member.name} 비밀번호 (4자리)`;
+  document.getElementById('loginPinInput').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginPinSection').classList.add('show');
+  setTimeout(() => document.getElementById('loginPinInput').focus(), 100);
+}
+
+function doLogin() {
+  const pin = document.getElementById('loginPinInput').value;
+  if (pin !== selectedMember.pin) {
+    document.getElementById('loginError').textContent = '비밀번호가 틀려요 ❌';
+    soundError();
+    document.getElementById('loginPinInput').value = '';
+    return;
+  }
+  currentUser = selectedMember;
+  localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  soundFanfare();
+  showMainApp();
+}
+
+function logout() {
+  if (!confirm('로그아웃 할까요?')) return;
+  currentUser = null;
+  localStorage.removeItem('currentUser');
+  chatOpen = false;
+  document.getElementById('chatPanel').classList.remove('open');
+  showLoginScreen();
+}
+
+document.getElementById('loginPinInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+/* ====== 메인 앱 ====== */
+async function showMainApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appMain').classList.add('show');
+  document.getElementById('chatFab').style.display = '';
+  
+  const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
+  document.getElementById('loggedInAs').textContent = 
+    `${emojis[currentUser.id] || '👤'} ${currentUser.name} · 로그아웃`;
   
   const savedSound = localStorage.getItem('soundOn');
-  if (savedSound !== null) {
-    soundOn = savedSound === 'true';
-    document.getElementById('soundToggle').textContent = soundOn ? '소리' : '무음';
-  }
-  
-  document.getElementById('appTitle').textContent = state.appTitle;
+  if (savedSound !== null) { soundOn = savedSound === 'true'; }
+  document.getElementById('soundToggle').textContent = soundOn ? '소리' : '무음';
   
   const t = new Date();
   viewYear = t.getFullYear();
   viewMonth = t.getMonth();
   selectedDate = todayKey();
   
-  ensureDay(selectedDate);
+  // 데이터 로드
+  await loadAllData();
   renderAll();
+  
+  // 실시간 구독
+  setupRealtime();
+  
+  // 채팅 로드
+  await loadChat();
+  
+  document.getElementById('loadingOverlay').classList.add('hide');
 }
 
-function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-}
-
-function ensureDay(key) {
-  if (!state.tasks || typeof state.tasks !== 'object' || Array.isArray(state.tasks)) {
-    state.tasks = {};
+/* ====== 데이터 로드 ====== */
+async function loadAllData() {
+  const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes] = await Promise.all([
+    sb.from('subjects').select('*').order('sort_order'),
+    sb.from('tasks').select('*').order('sort_order'),
+    sb.from('coins').select('*').eq('member_id', 'elliot').single(),
+    sb.from('confirmations').select('*'),
+    sb.from('shop_items').select('*'),
+    sb.from('tickets').select('*'),
+    sb.from('app_settings').select('*')
+  ]);
+  
+  cachedSubjects = subRes.data || [];
+  cachedTasks = taskRes.data || [];
+  if (coinRes.data) cachedCoins = { amount: coinRes.data.amount, pending: coinRes.data.pending || {} };
+  cachedConfirmations = {};
+  (confRes.data || []).forEach(c => { cachedConfirmations[c.date_key] = c; });
+  cachedShopItems = shopRes.data || [];
+  cachedTickets = {};
+  (tickRes.data || []).forEach(t => { cachedTickets[t.item_id] = t.count; });
+  
+  const settings = {};
+  (settRes.data || []).forEach(s => { settings[s.key] = s.value; });
+  if (settings.app_title) {
+    document.getElementById('appTitle').textContent = settings.app_title;
   }
-  if (!state.tasks[key] || typeof state.tasks[key] !== 'object' || Array.isArray(state.tasks[key])) {
-    state.tasks[key] = {};
-  }
-
-  getSubjectsForDate(key).forEach(s => {
-    if (!Array.isArray(state.tasks[key][s.id])) {
-      state.tasks[key][s.id] = [];
-    } else {
-      // 날짜별 배열과 task 객체를 새로 복제해서 다른 날짜와 참조가 섞이지 않게 고정
-      state.tasks[key][s.id] = state.tasks[key][s.id].map(t => ({
-        text: String((t && t.text) || ''),
-        done: !!(t && t.done)
-      }));
-    }
-  });
 }
 
-function getDayStats(key) {
-  const day = state.tasks[key];
-  if (!day) return { done: 0, total: 0 };
+function getSubjectsForDate(dk) {
+  return cachedSubjects.filter(s => s.date_key === dk);
+}
+function getTasksForSubject(dk, subjectId) {
+  return cachedTasks.filter(t => t.date_key === dk && t.subject_id === subjectId).sort((a,b) => a.sort_order - b.sort_order);
+}
+function getDayStats(dk) {
+  const subs = getSubjectsForDate(dk);
   let done = 0, total = 0;
-  getSubjectsForDate(key).forEach(s => {
-    const list = day[s.id] || [];
-    total += list.length;
-    done += list.filter(t => t.done).length;
+  subs.forEach(s => {
+    const tasks = getTasksForSubject(dk, s.id);
+    total += tasks.length;
+    done += tasks.filter(t => t.done).length;
   });
   return { done, total };
 }
-
-function hasRealTaskOnDay(key) {
-  if (!state.tasks[key]) return false;
-  return getSubjectsForDate(key).some(s => 
-    (state.tasks[key][s.id] || []).some(t => t.text !== '숙제 내용 입력...' || t.done)
-  );
+function hasRealTask(dk) {
+  const subs = getSubjectsForDate(dk);
+  return subs.some(s => getTasksForSubject(dk, s.id).length > 0);
 }
 
+/* ====== 실시간 구독 ====== */
+function setupRealtime() {
+  sb.channel('app-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'subjects' }, () => refreshData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => refreshData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'confirmations' }, () => refreshData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'coins' }, () => refreshData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'shop_items' }, () => refreshData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, () => refreshData())
+    .subscribe();
+
+  sb.channel('chat-channel')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
+      onNewChatMessage(payload.new);
+    })
+    .subscribe();
+}
+
+let refreshTimer = null;
+function refreshData() {
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(async () => {
+    await loadAllData();
+    renderAll();
+  }, 300);
+}
+
+/* ====== 렌더링 ====== */
 function renderAll() {
   renderCalendar();
   renderTasks();
@@ -1219,18 +1140,25 @@ function renderAll() {
 }
 
 function renderCoins() {
-  document.getElementById('coinAmount').textContent = state.coins;
-  document.getElementById('modalCoin').textContent = state.coins;
+  document.getElementById('coinAmount').textContent = cachedCoins.amount;
+  document.getElementById('modalCoin').textContent = cachedCoins.amount;
   
   let pendingTotal = 0;
-  Object.keys(state.pendingCoins).forEach(k => {
-    if (!state.momConfirmed[k]) {
-      pendingTotal += state.pendingCoins[k] || 0;
-    }
+  Object.keys(cachedCoins.pending || {}).forEach(k => {
+    if (!cachedConfirmations[k]) pendingTotal += cachedCoins.pending[k] || 0;
   });
+  document.getElementById('pendingLabel').textContent = 
+    pendingTotal > 0 ? `+${pendingTotal}` : '';
   
-  const label = document.getElementById('pendingLabel');
-  label.textContent = pendingTotal > 0 ? ` (예비 ${pendingTotal})` : '';
+  // 금화 스택 - 코인 양에 따라 쌓임
+  const amt = cachedCoins.amount + pendingTotal;
+  let stack = '🔸';
+  if (amt >= 5) stack = '🔸🔸';
+  if (amt >= 15) stack = '🔶🔶🔶';
+  if (amt >= 30) stack = '💎🔶🔶';
+  if (amt >= 50) stack = '💎💎🔶';
+  if (amt >= 100) stack = '👑💎💎';
+  document.querySelector('.coin-stack').textContent = stack;
 }
 
 function renderCalendar() {
@@ -1268,37 +1196,31 @@ function renderCalendar() {
     const dow = new Date(viewYear, viewMonth, d).getDay();
     if (dow === 0) cell.classList.add('sun');
     if (dow === 6) cell.classList.add('sat');
-    
     if (key === today) cell.classList.add('today');
     if (key === selectedDate) cell.classList.add('selected');
     
     const stats = getDayStats(key);
-    const hasReal = hasRealTaskOnDay(key);
+    const hasReal = hasRealTask(key);
     
     let html = `<span class="day-num">${d}</span>`;
     
     if (hasReal && stats.total > 0) {
       const allDone = stats.done === stats.total;
-      const momOk = state.momConfirmed[key];
+      const confirmed = cachedConfirmations[key];
       
-      if (allDone && momOk) {
+      if (allDone && confirmed) {
         cell.classList.add('all-confirmed');
       } else {
         const pct = Math.round((stats.done / stats.total) * 100);
         if (pct > 0) {
           cell.classList.add('has-gauge');
           const radius = pct >= 100 ? '10px' : '0 0 10px 10px';
-          // 그라데이션은 셀 전체 높이 기준 — inner의 높이를 100%로 고정하고 cell-gauge가 잘라서 보여줌
-          html += `<div class="cell-gauge" style="height:${pct}%;border-radius:${radius};">
-            <div class="cell-gauge-inner"></div>
-          </div>`;
-          
-          // 구분선 — 검정에 가깝게, 또렷하게
+          html += `<div class="cell-gauge" style="height:${pct}%;border-radius:${radius};"><div class="cell-gauge-inner"></div></div>`;
           if (stats.total > 1) {
             const lines = [];
             for (let i = 1; i < stats.total; i++) {
-              const linePct = (i / stats.total) * 100;
-              lines.push(`linear-gradient(to bottom, transparent calc(${linePct}% - 2px), rgba(0,0,0,0.85) ${linePct}%, transparent calc(${linePct}% + 2px))`);
+              const lp = (i / stats.total) * 100;
+              lines.push(`linear-gradient(to bottom, transparent calc(${lp}% - 2px), rgba(0,0,0,0.85) ${lp}%, transparent calc(${lp}% + 2px))`);
             }
             html += `<div class="cell-gauge-lines" style="background-image:${lines.join(',')}"></div>`;
           }
@@ -1307,16 +1229,9 @@ function renderCalendar() {
     }
     
     cell.innerHTML = html;
-    cell.onclick = () => { soundClick(); selectDate(key); };
+    cell.onclick = () => { soundClick(); selectedDate = key; renderAll(); };
     grid.appendChild(cell);
   }
-}
-
-function selectDate(key) {
-  selectedDate = key;
-  ensureDay(selectedDate);
-  save();
-  renderAll();
 }
 
 function changeMonth(delta) {
@@ -1328,74 +1243,73 @@ function changeMonth(delta) {
 }
 
 function renderTasks() {
-  const currentDateKey = selectedDate;
-  ensureDay(currentDateKey);
-
-  const [y, m, d] = currentDateKey.split('-').map(Number);
+  const dk = selectedDate;
+  const [y, m, d] = dk.split('-').map(Number);
   const dt = new Date(y, m-1, d);
   const days = ['일','월','화','수','목','금','토'];
-  document.getElementById('selectedDate').textContent = 
-    `📅 ${m}월 ${d}일 (${days[dt.getDay()]})`;
+  document.getElementById('selectedDate').textContent = `${m}월 ${d}일 (${days[dt.getDay()]})`;
   
   const container = document.getElementById('subjects');
   container.innerHTML = '';
   
-  const subjectsForThisDate = getSubjectsForDate(currentDateKey);
-
-  if (subjectsForThisDate.length === 0) {
+  const subs = getSubjectsForDate(dk);
+  
+  if (subs.length === 0) {
     container.innerHTML = '<div class="empty-subjects">아직 과목이 없어요.<br>아래 "+ 과목 추가" 버튼을 눌러주세요!</div>';
     return;
   }
   
-  subjectsForThisDate.forEach(s => {
-    const tasks = state.tasks[currentDateKey][s.id] || [];
+  subs.forEach(s => {
+    const tasks = getTasksForSubject(dk, s.id);
     const done = tasks.filter(t => t.done).length;
     
     const sEl = document.createElement('div');
     sEl.className = 'subject';
+    
+    // 삭제 버튼은 부모만 보이게
+    const deleteBtn = isParent() 
+      ? `<button class="subject-delete-btn" title="과목 삭제">−</button>` 
+      : '';
+    
     sEl.innerHTML = `
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};">
-        <input type="text" class="subject-name-input" value="${esc(s.name)}" 
-               maxlength="20"
-               data-subject-id="${s.id}"
-               onfocus="this.select()">
+        <input type="text" class="subject-name-input" value="${esc(s.name)}" maxlength="20" onfocus="this.select()">
         <span class="subject-status">${done}/${tasks.length}</span>
-        <button class="subject-delete-btn" data-subject-id="${s.id}" title="과목 삭제">−</button>
+        ${deleteBtn}
       </div>
       <div class="task-list" id="list-${s.id}"></div>
-      <button class="add-btn" data-subject-id="${s.id}">+ 숙제 추가</button>
+      <button class="add-btn">+ 숙제 추가</button>
     `;
     container.appendChild(sEl);
     
-    // 이벤트 바인딩 (현재 날짜를 함께 고정해서 다른 날짜에 영향이 가지 않게 함)
-    sEl.querySelector('.subject-name-input').addEventListener('change', e => {
-      updateSubjectName(s.id, e.target.value);
-    });
-    sEl.querySelector('.subject-delete-btn').addEventListener('click', () => {
-      openDeleteSubject(s.id);
-    });
-    sEl.querySelector('.add-btn').addEventListener('click', () => {
-      addTask(s.id, currentDateKey);
-    });
+    sEl.querySelector('.subject-name-input').addEventListener('change', e => updateSubjectName(s.id, e.target.value));
+    if (isParent()) {
+      const delBtn = sEl.querySelector('.subject-delete-btn');
+      if (delBtn) delBtn.addEventListener('click', () => openDeleteSubject(s.id));
+    }
+    sEl.querySelector('.add-btn').addEventListener('click', () => addTask(s.id, dk));
     
     const list = sEl.querySelector(`#list-${s.id}`);
     tasks.forEach((task, idx) => {
       const tEl = document.createElement('div');
       tEl.className = 'task' + (task.done ? ' done' : '');
+      
+      // 삭제 버튼은 부모만
+      const taskDel = isParent() 
+        ? `<button class="delete-btn" title="삭제">−</button>` 
+        : '';
+      
       tEl.innerHTML = `
         <div class="checkbox"></div>
         <input type="text" class="task-input" value="${esc(task.text)}" onfocus="this.select()">
-        <button class="delete-btn" title="삭제">−</button>
+        ${taskDel}
       `;
-      tEl.querySelector('.checkbox').addEventListener('click', (e) => {
-        toggleTask(s.id, idx, e.currentTarget, currentDateKey);
-      });
-      tEl.querySelector('.task-input').addEventListener('change', e => {
-        updateText(s.id, idx, e.target.value, currentDateKey);
-      });
-      tEl.querySelector('.delete-btn').addEventListener('click', () => {
-        deleteTask(s.id, idx, currentDateKey);
-      });
+      tEl.querySelector('.checkbox').addEventListener('click', () => toggleTask(task));
+      tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
+      if (isParent()) {
+        const db = tEl.querySelector('.delete-btn');
+        if (db) db.addEventListener('click', () => deleteTask(task.id, dk));
+      }
       list.appendChild(tEl);
     });
   });
@@ -1403,76 +1317,214 @@ function renderTasks() {
 
 function renderMomSection() {
   const container = document.getElementById('momSection');
-  const stats = getDayStats(selectedDate);
-  const hasReal = hasRealTaskOnDay(selectedDate);
-  const allDone = hasReal && stats.done === stats.total;
-  const confirmed = state.momConfirmed[selectedDate];
+  const subs = getSubjectsForDate(selectedDate);
   
-  if (getSubjectsForDate(selectedDate).length === 0) {
-    container.innerHTML = '';
-    return;
-  }
+  if (subs.length === 0) { container.innerHTML = ''; return; }
+  
+  const stats = getDayStats(selectedDate);
+  const hasReal = hasRealTask(selectedDate);
+  const allDone = hasReal && stats.total > 0 && stats.done === stats.total;
+  const confirmed = cachedConfirmations[selectedDate];
   
   if (confirmed) {
+    const confirmer = cachedMembers.find(m => m.id === confirmed.confirmed_by);
+    const cName = confirmer ? confirmer.name : '부모';
     container.innerHTML = `
       <div class="mom-card confirmed">
         <div class="mom-confirmed-text">
-          참 잘했어요 아들 <span class="heart">💕</span><br>
-          <span style="font-size:14px;">엄마가 확인했어요 👩</span>
+          참 잘했어요 엘리엇 <span class="heart">💕</span><br>
+          <span style="font-size:14px;">${esc(cName)}가 확인했어요 👩</span>
         </div>
       </div>
     `;
-  } else {
+  } else if (isParent()) {
     container.innerHTML = `
       <div class="mom-card">
-        <div class="mom-title">👩 엄마 확인</div>
-        <button class="mom-btn" id="momBtn" onclick="openMomPwd()" ${allDone ? '' : 'disabled'}>
-          ${allDone ? '엄마 확인 받기' : '숙제 먼저 완료하기'}
+        <div class="mom-title">👩 부모 확인</div>
+        <button class="mom-btn" onclick="doConfirm()" ${allDone ? '' : 'disabled'}>
+          ${allDone ? '확인 승인하기' : '숙제 먼저 완료하기'}
         </button>
       </div>
     `;
+  } else {
+    if (allDone) {
+      container.innerHTML = `
+        <div class="mom-card">
+          <div class="mom-title">👩 부모 확인</div>
+          <button class="mom-btn" onclick="requestConfirm()">
+            ✋ 승인 요청하기
+          </button>
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="mom-card">
+          <div class="mom-title">👩 부모 확인</div>
+          <button class="mom-btn" disabled>숙제 먼저 완료하기</button>
+        </div>
+      `;
+    }
   }
 }
 
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ====== DB 조작 ====== */
+
+async function requestConfirm() {
+  soundClick();
+  const [y, m, d] = selectedDate.split('-').map(Number);
+  const msg = `📢 ${m}월 ${d}일 숙제 다 했어요! 확인해주세요 🙏`;
+  await sb.from('chat_messages').insert({
+    sender_id: currentUser.id,
+    sender_name: currentUser.name,
+    message: msg
+  });
+  showToast('📢 엄마 아빠에게 요청했어요!');
+  showDogMsg('요청 완료! 🙏', 1500);
 }
 
-/* ====== 앱 제목 수정 ====== */
-function editAppTitle() {
-  const h1 = document.getElementById('appTitle');
-  const cur = state.appTitle;
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.className = 'header-title-input';
-  input.value = cur;
-  input.maxLength = 12;
+async function addSubject() {
+  const name = document.getElementById('newSubjectInput').value.trim();
+  const err = document.getElementById('addSubjectError');
   
-  const updateWidth = () => {
-    const len = Math.max(input.value.length, 8);
-    input.style.width = (len + 1.5) + 'ch';
-  };
+  if (!name) { err.textContent = '과목 이름을 입력하세요'; soundError(); return; }
   
-  h1.replaceWith(input);
-  updateWidth();
-  input.focus();
-  input.select();
-  
-  input.addEventListener('input', () => {
-    if (input.value.length > 12) input.value = input.value.slice(0, 12);
-    updateWidth();
+  const id = genId();
+  const { error } = await sb.from('subjects').insert({
+    id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000
   });
   
-  const finish = () => {
+  if (error) { err.textContent = '오류: ' + error.message; soundError(); return; }
+  
+  soundFanfare();
+  closeAddSubject();
+  showToast(`✨ "${name}" 과목 추가됨`);
+  await refreshData();
+}
+
+async function updateSubjectName(subjectId, newName) {
+  const trimmed = newName.trim();
+  if (!trimmed) return;
+  await sb.from('subjects').update({ name: trimmed.slice(0, 20) }).eq('id', subjectId);
+}
+
+async function confirmDeleteSubject() {
+  if (!isParent()) return;
+  const pwd = document.getElementById('deleteSubjectPwd').value;
+  
+  if (pwd !== currentUser.pin) {
+    document.getElementById('deleteSubjectError').textContent = '비밀번호가 틀려요 ❌';
+    soundError();
+    document.getElementById('deleteSubjectPwd').value = '';
+    return;
+  }
+  
+  await sb.from('subjects').delete().eq('id', pendingDeleteSubjectId);
+  // tasks는 ON DELETE CASCADE로 자동 삭제
+  
+  soundFanfare();
+  closeDeleteSubject();
+  showToast('🗑️ 과목이 삭제되었어요');
+  await refreshData();
+}
+
+async function addTask(subjectId, dk) {
+  soundClick();
+  const { error } = await sb.from('tasks').insert({
+    subject_id: subjectId, date_key: dk, text: '새 숙제', done: false, sort_order: Date.now() % 2000000000
+  });
+  if (!error) {
+    showToast('✏️ 숙제가 추가됐어요');
+    // 확인 취소
+    await sb.from('confirmations').delete().eq('date_key', dk);
+    await refreshData();
+  }
+}
+
+async function toggleTask(task) {
+  const newDone = !task.done;
+  await sb.from('tasks').update({ done: newDone }).eq('id', task.id);
+  
+  if (newDone) {
+    soundCheck();
+    setTimeout(() => soundCoin(), 200);
+    // 예비 코인 추가
+    const pending = { ...(cachedCoins.pending || {}) };
+    pending[task.date_key] = (pending[task.date_key] || 0) + 1;
+    await sb.from('coins').update({ pending }).eq('member_id', 'elliot');
+    showDogMsg('+1 💰', 1500);
+  } else {
+    soundClick();
+    // 코인 회수
+    const confirmed = cachedConfirmations[task.date_key];
+    if (confirmed) {
+      await sb.from('coins').update({ amount: Math.max(0, cachedCoins.amount - 1) }).eq('member_id', 'elliot');
+      await sb.from('confirmations').delete().eq('date_key', task.date_key);
+      showDogMsg('확인 취소', 1500);
+    } else {
+      const pending = { ...(cachedCoins.pending || {}) };
+      pending[task.date_key] = Math.max(0, (pending[task.date_key] || 0) - 1);
+      await sb.from('coins').update({ pending }).eq('member_id', 'elliot');
+      showDogMsg('-1 💰', 1500);
+    }
+  }
+  
+  await refreshData();
+}
+
+async function updateTaskText(taskId, text) {
+  await sb.from('tasks').update({ text }).eq('id', taskId);
+}
+
+async function deleteTask(taskId, dk) {
+  if (!isParent()) { showToast('부모만 삭제할 수 있어요'); return; }
+  soundClick();
+  if (!confirm('이 숙제를 지울까요?')) return;
+  await sb.from('tasks').delete().eq('id', taskId);
+  await sb.from('confirmations').delete().eq('date_key', dk);
+  showToast('🗑️ 숙제가 삭제됐어요');
+  await refreshData();
+}
+
+async function doConfirm() {
+  if (!isParent()) return;
+  
+  const pending = cachedCoins.pending[selectedDate] || 0;
+  const newAmount = cachedCoins.amount + pending;
+  const newPending = { ...(cachedCoins.pending || {}) };
+  delete newPending[selectedDate];
+  
+  await Promise.all([
+    sb.from('confirmations').upsert({ date_key: selectedDate, confirmed_by: currentUser.id }),
+    sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('member_id', 'elliot')
+  ]);
+  
+  soundFanfare();
+  if (pending > 0) showDogMsg(`💕 +${pending} 💰`, 1800);
+  else showDogMsg('💕 참 잘했어요', 1500);
+  
+  await refreshData();
+}
+
+/* ====== 제목 수정 ====== */
+function editAppTitle() {
+  if (!isParent()) return;
+  const h1 = document.getElementById('appTitle');
+  const cur = h1.textContent;
+  const input = document.createElement('input');
+  input.type = 'text'; input.className = 'header-title-input';
+  input.value = cur; input.maxLength = 12;
+  
+  const updateWidth = () => { input.style.width = (Math.max(input.value.length, 8) + 1.5) + 'ch'; };
+  h1.replaceWith(input); updateWidth(); input.focus(); input.select();
+  input.addEventListener('input', () => { if (input.value.length > 12) input.value = input.value.slice(0, 12); updateWidth(); });
+  
+  const finish = async () => {
     let val = input.value.trim();
     if (val.length > 12) val = val.slice(0, 12);
     if (!val) val = '숙제 체크리스트';
-    state.appTitle = val;
-    save();
+    await sb.from('app_settings').upsert({ key: 'app_title', value: val });
     const newH1 = document.createElement('h1');
-    newH1.id = 'appTitle';
-    newH1.textContent = val;
-    newH1.onclick = editAppTitle;
+    newH1.id = 'appTitle'; newH1.textContent = val; newH1.onclick = editAppTitle;
     input.replaceWith(newH1);
   };
   
@@ -1483,7 +1535,7 @@ function editAppTitle() {
   });
 }
 
-/* ====== 과목 관리 ====== */
+/* ====== 모달들 ====== */
 function openAddSubject() {
   soundClick();
   document.getElementById('newSubjectInput').value = '';
@@ -1491,45 +1543,13 @@ function openAddSubject() {
   document.getElementById('addSubjectModal').classList.add('show');
   setTimeout(() => document.getElementById('newSubjectInput').focus(), 100);
 }
-
-function closeAddSubject() {
-  document.getElementById('addSubjectModal').classList.remove('show');
-}
-
-function addSubject() {
-  const name = document.getElementById('newSubjectInput').value.trim();
-  const err = document.getElementById('addSubjectError');
-  
-  if (!name) { err.textContent = '과목 이름을 입력하세요'; soundError(); return; }
-  if (name.length > 20) { err.textContent = '20자 이내로 입력하세요'; soundError(); return; }
-  const subjectsForThisDate = getSubjectsForDate(selectedDate);
-  if (subjectsForThisDate.some(s => s.name === name)) {
-    err.textContent = '같은 이름의 과목이 있어요'; soundError(); return;
-  }
-  
-  const id = genId();
-  subjectsForThisDate.push({ id, name, color: randomSubjectColor() });
-  ensureDay(selectedDate);
-  save();
-  soundFanfare();
-  closeAddSubject();
-  renderAll();
-  showToast(`✨ "${name}" 과목 추가됨`);
-}
-
-function updateSubjectName(subjectId, newName) {
-  const trimmed = newName.trim();
-  const s = getSubjectsForDate(selectedDate).find(x => x.id === subjectId);
-  if (!s) return;
-  if (!trimmed) { renderAll(); return; }
-  s.name = trimmed.slice(0, 20);
-  save();
-}
+function closeAddSubject() { document.getElementById('addSubjectModal').classList.remove('show'); }
 
 function openDeleteSubject(subjectId) {
+  if (!isParent()) { showToast('부모만 삭제할 수 있어요'); return; }
   soundClick();
   pendingDeleteSubjectId = subjectId;
-  const s = getSubjectsForDate(selectedDate).find(x => x.id === subjectId);
+  const s = cachedSubjects.find(x => x.id === subjectId);
   if (!s) return;
   document.getElementById('deleteSubjectMsg').textContent = `"${s.name}" 과목 삭제`;
   document.getElementById('deleteSubjectPwd').value = '';
@@ -1537,258 +1557,11 @@ function openDeleteSubject(subjectId) {
   document.getElementById('deleteSubjectModal').classList.add('show');
   setTimeout(() => document.getElementById('deleteSubjectPwd').focus(), 100);
 }
+function closeDeleteSubject() { document.getElementById('deleteSubjectModal').classList.remove('show'); pendingDeleteSubjectId = null; }
 
-function closeDeleteSubject() {
-  document.getElementById('deleteSubjectModal').classList.remove('show');
-  pendingDeleteSubjectId = null;
-}
-
-function confirmDeleteSubject() {
-  const pwd = document.getElementById('deleteSubjectPwd').value;
-  const err = document.getElementById('deleteSubjectError');
-  
-  if (pwd !== state.momPassword) {
-    err.textContent = '비밀번호가 틀려요 ❌';
-    soundError();
-    document.getElementById('deleteSubjectPwd').value = '';
-    return;
-  }
-  
-  if (!pendingDeleteSubjectId) return;
-  
-  const subjectsForThisDate = getSubjectsForDate(selectedDate)
-    .filter(s => s.id !== pendingDeleteSubjectId);
-  setSubjectsForDate(selectedDate, subjectsForThisDate);
-
-  if (state.tasks[selectedDate] && state.tasks[selectedDate][pendingDeleteSubjectId]) {
-    delete state.tasks[selectedDate][pendingDeleteSubjectId];
-  }
-  
-  save();
-  soundFanfare();
-  closeDeleteSubject();
-  renderAll();
-  showToast('🗑️ 과목이 삭제되었어요');
-}
-
-/* ====== 숙제 (코인 로직 정리됨) ====== */
-function toggleTask(subjectId, idx, checkboxEl, dateKeyForTask = selectedDate) {
-  ensureDay(dateKeyForTask);
-  const task = state.tasks[dateKeyForTask][subjectId][idx];
-  if (!task) return;
-
-  const wasDone = task.done;
-  task.done = !task.done;
-  
-  if (!wasDone && task.done) {
-    // 체크 ✓
-    soundCheck();
-    setTimeout(() => soundCoin(), 200);
-    addPendingCoin(dateKeyForTask, 1, checkboxEl);
-    showDogMsg('+1 🪙', 1500);
-  } else if (wasDone && !task.done) {
-    // 체크 해제
-    soundClick();
-    revokeCoin(dateKeyForTask, 1);
-    let msg = '-1 🪙';
-    
-    if (state.momConfirmed[dateKeyForTask]) {
-      delete state.momConfirmed[dateKeyForTask];
-      msg = '확인 취소';
-    }
-    
-    showDogMsg(msg, 1500);
-  }
-  
-  save();
-  renderAll();
-}
-
-// 코인 회수: confirmed면 실 코인에서, 아니면 pending에서
-function revokeCoin(dateKey, amount) {
-  if (state.momConfirmed[dateKey]) {
-    state.coins = Math.max(0, state.coins - amount);
-  } else {
-    const cur = state.pendingCoins[dateKey] || 0;
-    state.pendingCoins[dateKey] = Math.max(0, cur - amount);
-  }
-}
-
-function addPendingCoin(dateKey, amount, fromEl) {
-  state.pendingCoins[dateKey] = (state.pendingCoins[dateKey] || 0) + amount;
-  
-  if (fromEl) {
-    const rect = fromEl.getBoundingClientRect();
-    const coinDisplay = document.querySelector('.coin-display').getBoundingClientRect();
-    
-    for (let i = 0; i < Math.min(amount, 3); i++) {
-      setTimeout(() => {
-        const coin = document.createElement('div');
-        coin.className = 'flying-coin';
-        coin.textContent = '🪙';
-        coin.style.left = rect.left + 'px';
-        coin.style.top = rect.top + 'px';
-        document.body.appendChild(coin);
-        
-        requestAnimationFrame(() => {
-          coin.style.left = coinDisplay.left + 'px';
-          coin.style.top = coinDisplay.top + 'px';
-          coin.style.transform = 'scale(0.5) rotate(720deg)';
-          coin.style.opacity = '0';
-        });
-        
-        setTimeout(() => coin.remove(), 900);
-      }, i * 100);
-    }
-  }
-}
-
-function showDogMsg(msg, duration = 2200) {
-  if (dogTimer) { clearTimeout(dogTimer); dogTimer = null; }
-  const dogReward = document.getElementById('dogReward');
-  document.getElementById('dogMsg').innerHTML = msg;
-  dogReward.classList.add('show');
-  dogTimer = setTimeout(() => {
-    dogReward.classList.remove('show');
-    dogTimer = null;
-  }, duration);
-}
-
-function hideDogMsg() {
-  const dogReward = document.getElementById('dogReward');
-  dogReward.classList.remove('show');
-  if (dogTimer) { clearTimeout(dogTimer); dogTimer = null; }
-}
-
-function updateText(subjectId, idx, text, dateKeyForTask = selectedDate) {
-  ensureDay(dateKeyForTask);
-  if (!state.tasks[dateKeyForTask][subjectId] || !state.tasks[dateKeyForTask][subjectId][idx]) return;
-  state.tasks[dateKeyForTask][subjectId][idx].text = text;
-  save();
-}
-
-function addTask(subjectId, dateKeyForTask = selectedDate) {
-  soundClick();
-  ensureDay(dateKeyForTask);
-  state.tasks[dateKeyForTask][subjectId].push({ text: '새 숙제', done: false });
-  delete state.bonusGiven[dateKeyForTask];
-  delete state.momConfirmed[dateKeyForTask];
-  save();
-  renderAll();
-  showToast('✏️ 숙제가 추가됐어요');
-  setTimeout(() => {
-    const list = document.getElementById(`list-${subjectId}`);
-    const inputs = list ? list.querySelectorAll('.task-input') : [];
-    const last = inputs[inputs.length - 1];
-    if (last) { last.focus(); last.select(); }
-  }, 50);
-}
-
-function deleteTask(subjectId, idx, dateKeyForTask = selectedDate) {
-  soundClick();
-  ensureDay(dateKeyForTask);
-
-  if (!state.tasks[dateKeyForTask][subjectId]) return;
-
-  state.tasks[dateKeyForTask][subjectId].splice(idx, 1);
-
-  delete state.bonusGiven[dateKeyForTask];
-  delete state.momConfirmed[dateKeyForTask];
-
-  save();
-  renderAll();
-}
-
-/* ====== 엄마 확인 ====== */
-function openMomPwd() {
-  soundClick();
-  document.getElementById('momPwdInput').value = '';
-  document.getElementById('momPwdError').textContent = '';
-  document.getElementById('momPwdModal').classList.add('show');
-  setTimeout(() => document.getElementById('momPwdInput').focus(), 100);
-}
-
-function closeMomPwd() {
-  document.getElementById('momPwdModal').classList.remove('show');
-}
-
-function checkMomPwd() {
-  const input = document.getElementById('momPwdInput').value;
-  const err = document.getElementById('momPwdError');
-  
-  if (input === state.momPassword) {
-    state.momConfirmed[selectedDate] = true;
-    const pending = state.pendingCoins[selectedDate] || 0;
-    state.coins += pending;
-    
-    // 주간 보너스 체크 (금요일에 월~금 5일 모두 엄마 확인 완료 시)
-    const weeklyBonus = checkWeeklyBonus(selectedDate);
-    
-    save();
-    soundFanfare();
-    closeMomPwd();
-    
-    if (weeklyBonus) {
-      // 주간 보너스 +5 지급
-      state.coins += 5;
-      state.weeklyBonusGiven = state.weeklyBonusGiven || {};
-      state.weeklyBonusGiven[selectedDate] = true;
-      save();
-      setTimeout(() => {
-        soundBonus();
-        showDogMsg('🎉 한주 완성! +5 🪙', 2200);
-        renderAll();
-      }, 1200);
-      if (pending > 0) {
-        showDogMsg(`💕 +${pending} 🪙`, 1100);
-      } else {
-        showDogMsg('💕 참 잘했어요', 1100);
-      }
-    } else if (pending > 0) {
-      showDogMsg(`💕 +${pending} 🪙`, 1800);
-    } else {
-      showDogMsg('💕 참 잘했어요', 1500);
-    }
-    renderAll();
-  } else {
-    err.textContent = '비밀번호가 틀려요 ❌';
-    soundError();
-    document.getElementById('momPwdInput').value = '';
-  }
-}
-
-// 금요일에 호출됐고 그 주 월~금 모두 momConfirmed면 true
-function checkWeeklyBonus(dateStr) {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  // 금요일이 아니면 X (0=일, 1=월, ..., 5=금)
-  if (dt.getDay() !== 5) return false;
-  
-  // 이미 이번주에 받았으면 X
-  state.weeklyBonusGiven = state.weeklyBonusGiven || {};
-  if (state.weeklyBonusGiven[dateStr]) return false;
-  
-  // 월~금 5일 모두 momConfirmed인지 확인
-  for (let i = 0; i < 5; i++) {
-    const day = new Date(dt);
-    day.setDate(dt.getDate() - (4 - i)); // 월(-4) → 금(0)
-    const key = dateKey(day.getFullYear(), day.getMonth(), day.getDate());
-    if (!state.momConfirmed[key]) return false;
-  }
-  return true;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('momPwdInput').addEventListener('keypress', e => {
-    if (e.key === 'Enter') checkMomPwd();
-  });
-  document.getElementById('newSubjectInput').addEventListener('keypress', e => {
-    if (e.key === 'Enter') addSubject();
-  });
-  document.getElementById('deleteSubjectPwd').addEventListener('keypress', e => {
-    if (e.key === 'Enter') confirmDeleteSubject();
-  });
-});
+function openMomPwd() { /* 미사용 - 부모 로그인 시 바로 확인 */ }
+function closeMomPwd() { document.getElementById('momPwdModal').classList.remove('show'); }
+function checkMomPwd() { /* 미사용 */ }
 
 /* ====== 설정 ====== */
 function openSettings() {
@@ -1798,63 +1571,22 @@ function openSettings() {
   document.getElementById('settingsError').textContent = '';
   document.getElementById('settingsModal').classList.add('show');
 }
+function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
 
-function closeSettings() {
-  document.getElementById('settingsModal').classList.remove('show');
-}
-
-function changePwd() {
+async function changePwd() {
   const cur = document.getElementById('curPwdInput').value;
   const newP = document.getElementById('newPwdInput').value;
   const err = document.getElementById('settingsError');
   
-  if (cur !== state.momPassword) {
-    err.textContent = '현재 비밀번호가 틀려요 ❌';
-    soundError(); return;
-  }
-  if (!/^\d{4}$/.test(newP)) {
-    err.textContent = '새 비밀번호는 4자리 숫자여야 해요';
-    soundError(); return;
-  }
+  if (cur !== currentUser.pin) { err.textContent = '현재 비밀번호가 틀려요 ❌'; soundError(); return; }
+  if (!/^\d{4}$/.test(newP)) { err.textContent = '새 비밀번호는 4자리 숫자여야 해요'; soundError(); return; }
   
-  state.momPassword = newP;
-  save();
+  await sb.from('members').update({ pin: newP }).eq('id', currentUser.id);
+  currentUser.pin = newP;
+  localStorage.setItem('currentUser', JSON.stringify(currentUser));
   soundFanfare();
   closeSettings();
   showToast('🔐 비밀번호가 변경됐어요!');
-}
-
-/* ====== 비밀번호 초기화 ====== */
-const MASTER_CODE = '1225';
-
-function openResetPwd() {
-  soundClick();
-  closeSettings();
-  document.getElementById('masterCodeInput').value = '';
-  document.getElementById('resetPwdError').textContent = '';
-  document.getElementById('resetPwdModal').classList.add('show');
-  setTimeout(() => document.getElementById('masterCodeInput').focus(), 100);
-}
-
-function closeResetPwd() {
-  document.getElementById('resetPwdModal').classList.remove('show');
-}
-
-function resetPwd() {
-  const input = document.getElementById('masterCodeInput').value;
-  const err = document.getElementById('resetPwdError');
-  
-  if (input === MASTER_CODE) {
-    state.momPassword = '0000';
-    save();
-    soundFanfare();
-    closeResetPwd();
-    showToast('🔐 비밀번호가 0000으로 초기화됐어요!');
-  } else {
-    err.textContent = '마스터 코드가 틀려요 ❌';
-    soundError();
-    document.getElementById('masterCodeInput').value = '';
-  }
 }
 
 /* ====== 상점 ====== */
@@ -1862,116 +1594,134 @@ function openShop() {
   soundClick();
   renderShopItems();
   renderOwned();
+  // 상품 추가는 부모만
+  document.getElementById('addShopItemTrigger').style.display = isParent() ? '' : 'none';
   document.getElementById('shopModal').classList.add('show');
 }
-
-function closeShop() {
-  soundClick();
-  document.getElementById('shopModal').classList.remove('show');
-}
+function closeShop() { soundClick(); document.getElementById('shopModal').classList.remove('show'); }
 
 function renderShopItems() {
   const grid = document.getElementById('shopItemsGrid');
   grid.innerHTML = '';
-  if (!state.shopItems || state.shopItems.length === 0) {
+  if (cachedShopItems.length === 0) {
     grid.innerHTML = '<div style="grid-column:span 2;text-align:center;font-family:Gaegu,cursive;color:#A8967C;padding:10px;">상품이 없어요</div>';
     return;
   }
-  state.shopItems.forEach(item => {
+  cachedShopItems.forEach(item => {
     const el = document.createElement('div');
     el.className = 'shop-item';
+    const delBtn = isParent() ? `<button class="shop-item-delete" title="삭제">−</button>` : '';
     el.innerHTML = `
       <span class="shop-item-icon">${item.icon || '🎁'}</span>
       <div class="shop-item-name"></div>
-      <div class="shop-item-price">${item.price} 🪙</div>
+      <div class="shop-item-price">${item.price} 💰</div>
       <div class="shop-item-actions">
-        <button class="buy-btn" ${state.coins < item.price ? 'disabled' : ''}>구매</button>
-        <button class="shop-item-delete" title="삭제">−</button>
+        <button class="buy-btn" ${cachedCoins.amount < item.price ? 'disabled' : ''}>구매</button>
+        ${delBtn}
       </div>
     `;
-    // 이름은 textContent로 (XSS/따옴표 안전)
     el.querySelector('.shop-item-name').textContent = item.name;
-    // 이벤트 바인딩
-    el.querySelector('.buy-btn').addEventListener('click', () => {
-      buyItem(item.id, item.price, `${item.icon || '🎁'} ${item.name}`);
-    });
-    el.querySelector('.shop-item-delete').addEventListener('click', () => {
-      deleteShopItem(item.id);
-    });
+    el.querySelector('.buy-btn').addEventListener('click', () => buyItem(item));
+    if (isParent()) {
+      const db = el.querySelector('.shop-item-delete');
+      if (db) db.addEventListener('click', () => deleteShopItem(item.id));
+    }
     grid.appendChild(el);
   });
 }
 
 function renderOwned() {
-  const ownedEl = document.getElementById('ownedList');
+  const el = document.getElementById('ownedList');
   const items = [];
-  state.shopItems.forEach(item => {
-    const cnt = state.tickets[item.id] || 0;
+  cachedShopItems.forEach(item => {
+    const cnt = cachedTickets[item.id] || 0;
     if (cnt > 0) items.push(`${item.icon || '🎁'} ${item.name} ${cnt}장`);
   });
-  Object.keys(state.tickets).forEach(tid => {
-    if (state.tickets[tid] > 0 && !state.shopItems.some(s => s.id === tid)) {
-      items.push(`(삭제됨) ${tid} ${state.tickets[tid]}장`);
-    }
+  el.innerHTML = items.length === 0 
+    ? '<span class="owned-empty">아직 없어요</span>' 
+    : items.join(' · ');
+}
+
+async function buyItem(item) {
+  if (cachedCoins.amount < item.price) return;
+  if (!confirm(`${item.icon || '🎁'} ${item.name} 을(를) 구매할까요? (${item.price} 💰)`)) return;
+  
+  const newAmount = cachedCoins.amount - item.price;
+  const newCount = (cachedTickets[item.id] || 0) + 1;
+  
+  await Promise.all([
+    sb.from('coins').update({ amount: newAmount }).eq('member_id', 'elliot'),
+    sb.from('tickets').upsert({ item_id: item.id, member_id: 'elliot', count: newCount })
+  ]);
+  
+  // 채팅으로 요청 메시지 자동 전송
+  const reqMsg = `${item.icon || '🎁'} ${item.name} 이용권을 사용하고 싶어요!`;
+  await sb.from('chat_messages').insert({
+    sender_id: currentUser.id,
+    sender_name: currentUser.name,
+    message: reqMsg
   });
   
-  if (items.length === 0) {
-    ownedEl.innerHTML = '<span class="owned-empty">아직 없어요</span>';
-  } else {
-    ownedEl.textContent = items.join(' · ');
-  }
-}
-
-function buyItem(id, price, name) {
-  if (state.coins < price) return;
-  state.coins -= price;
-  state.tickets[id] = (state.tickets[id] || 0) + 1;
-  save();
   soundFanfare();
-  renderCoins();
+  showToast(`🎉 ${item.icon || '🎁'} ${item.name} 구매 완료!`);
+  await refreshData();
   renderShopItems();
   renderOwned();
-  showToast(`🎉 ${name} 구매 완료!`);
 }
 
-function deleteShopItem(id) {
+async function deleteShopItem(id) {
+  if (!isParent()) return;
   soundClick();
-  state.shopItems = state.shopItems.filter(s => s.id !== id);
-  save();
+  if (!confirm('이 상품을 지울까요?')) return;
+  await sb.from('shop_items').delete().eq('id', id);
+  await refreshData();
   renderShopItems();
   renderOwned();
   showToast('🗑️ 상품이 삭제됐어요');
 }
 
-/* ===== 상품 추가 ===== */
 function openAddShopItem() {
+  if (!isParent()) return;
   soundClick();
   document.getElementById('newShopItemName').value = '';
   document.getElementById('newShopItemPrice').value = '';
-  document.getElementById('newShopItemPwd').value = '';
   document.getElementById('addShopItemError').textContent = '';
   document.getElementById('addShopItemModal').classList.add('show');
   setTimeout(() => document.getElementById('newShopItemName').focus(), 100);
 }
+function closeAddShopItem() { document.getElementById('addShopItemModal').classList.remove('show'); }
 
-function closeAddShopItem() {
-  document.getElementById('addShopItemModal').classList.remove('show');
+function guessIcon(name) {
+  const map = {
+    '치킨': '🍗', '삼겹살': '🥩', 'pc방': '🎮', 'PC방': '🎮', '피시방': '🎮',
+    '용돈': '💵', '아이스크림': '🍦', '피자': '🍕', '햄버거': '🍔', '라면': '🍜',
+    '떡볶이': '🌶️', '영화': '🎬', '게임': '🕹️', '장난감': '🧸', '과자': '🍪',
+    '초콜릿': '🍫', '케이크': '🎂', '빵': '🍞', '족발': '🦶', '커피': '☕',
+    '음료': '🥤', '스티커': '⭐', '간식': '🍿', '놀이공원': '🎡', '수영': '🏊'
+  };
+  for (const [key, icon] of Object.entries(map)) {
+    if (name.toLowerCase().includes(key.toLowerCase())) return icon;
+  }
+  return '🎁';
 }
 
-function addShopItem() {
+async function addShopItem() {
   const name = document.getElementById('newShopItemName').value.trim();
   const priceStr = document.getElementById('newShopItemPrice').value.trim();
-  const pwd = document.getElementById('newShopItemPwd').value;
   const err = document.getElementById('addShopItemError');
   
   if (!name) { err.textContent = '상품 이름을 입력하세요'; soundError(); return; }
   const price = parseInt(priceStr);
   if (isNaN(price) || price < 1) { err.textContent = '가격을 올바로 입력하세요'; soundError(); return; }
-  if (pwd !== state.momPassword) { err.textContent = '비밀번호가 틀려요 ❌'; soundError(); return; }
   
   const id = 'item_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-  state.shopItems.push({ id, name, icon: '🎁', price });
-  save();
+  const icon = guessIcon(name);
+  await sb.from('shop_items').insert({ id, name, icon, price });
+  
+  // 데이터 먼저 새로고침
+  const { data: freshItems } = await sb.from('shop_items').select('*');
+  cachedShopItems = freshItems || [];
+  
   soundFanfare();
   closeAddShopItem();
   renderShopItems();
@@ -1979,31 +1729,110 @@ function addShopItem() {
   showToast(`✨ "${name}" 추가됨`);
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+/* ====== 채팅 ====== */
+async function loadChat() {
+  const { data } = await sb.from('chat_messages')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  
+  chatMessages = (data || []).reverse();
+  if (chatMessages.length > 0) {
+    lastSeenChatId = chatMessages[chatMessages.length - 1].id;
+  }
+  renderChatMessages();
 }
 
-// 이전 PWA 서비스워커가 예전 HTML을 계속 보여주는 문제 방지
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.getRegistrations()
-      .then(regs => regs.forEach(reg => reg.unregister()))
-      .catch(()=>{});
+function onNewChatMessage(msg) {
+  chatMessages.push(msg);
+  if (chatMessages.length > 100) chatMessages = chatMessages.slice(-50);
+  
+  if (!chatOpen) {
+    updateChatBadge();
+  } else {
+    lastSeenChatId = msg.id;
+  }
+  renderChatMessages();
+}
+
+function updateChatBadge() {
+  const unseen = chatMessages.filter(m => m.id > lastSeenChatId && m.sender_id !== currentUser.id).length;
+  const badge = document.getElementById('chatBadge');
+  if (unseen > 0) {
+    badge.textContent = unseen > 9 ? '9+' : unseen;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chatPanel').classList.toggle('open', chatOpen);
+  if (chatOpen) {
+    if (chatMessages.length > 0) lastSeenChatId = chatMessages[chatMessages.length - 1].id;
+    document.getElementById('chatBadge').classList.remove('show');
+    renderChatMessages();
+    setTimeout(() => {
+      const el = document.getElementById('chatMessages');
+      el.scrollTop = el.scrollHeight;
+      document.getElementById('chatInput').focus();
+    }, 350);
+  }
+}
+
+function renderChatMessages() {
+  const container = document.getElementById('chatMessages');
+  container.innerHTML = '';
+  
+  chatMessages.forEach(msg => {
+    const isMine = msg.sender_id === currentUser.id;
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + (isMine ? 'mine' : 'other');
+    
+    const time = new Date(msg.created_at);
+    const timeStr = `${time.getHours()}:${String(time.getMinutes()).padStart(2,'0')}`;
+    
+    div.innerHTML = `
+      ${!isMine ? `<div class="msg-sender">${esc(msg.sender_name)}</div>` : ''}
+      <div>${esc(msg.message)}</div>
+      <div class="msg-time">${timeStr}</div>
+    `;
+    container.appendChild(div);
+  });
+  
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  input.value = '';
+  
+  await sb.from('chat_messages').insert({
+    sender_id: currentUser.id,
+    sender_name: currentUser.name,
+    message: text
   });
 }
 
-if ('caches' in window) {
-  caches.keys().then(keys => keys.forEach(key => caches.delete(key))).catch(()=>{});
-}
+document.getElementById('chatInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') sendChat();
+});
+
+/* ====== 키보드 이벤트 ====== */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('newSubjectInput').addEventListener('keypress', e => { if (e.key === 'Enter') addSubject(); });
+  document.getElementById('deleteSubjectPwd').addEventListener('keypress', e => { if (e.key === 'Enter') confirmDeleteSubject(); });
+});
 
 document.addEventListener('touchstart', initAudio, { once: true });
 document.addEventListener('click', initAudio, { once: true });
 
-load();
+/* ====== 시작 ====== */
+initApp();
 </script>
 
 </body>
