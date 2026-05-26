@@ -48,8 +48,9 @@
   }
   .login-sub {
     font-family: 'Gaegu', cursive;
-    font-size: 15px;
-    color: #7C5A3A;
+    font-size: 18px;
+    font-weight: 700;
+    color: #5A3A2A;
     margin-bottom: 6px;
   }
   .login-members {
@@ -77,11 +78,14 @@
     box-shadow: 1px 1px 0 #4A2F1B;
   }
   .login-member-btn.selected {
-    background: #5A8A5E;
-    border-color: #2E5A32;
-    box-shadow: 2px 2px 0 #2E5A32;
+    border-color: #333;
+    box-shadow: 2px 2px 0 #333;
   }
   .login-member-btn.selected .name { color: white; }
+  .login-member-btn.selected-elliot { background: #4A78C0; border-color: #2E5080; box-shadow: 2px 2px 0 #2E5080; }
+  .login-member-btn.selected-mom { background: #FFD9E0; border-color: #D4889A; box-shadow: 2px 2px 0 #D4889A; }
+  .login-member-btn.selected-mom .name { color: #4A2F1B; }
+  .login-member-btn.selected-dad { background: #5A8A5E; border-color: #2E5A32; box-shadow: 2px 2px 0 #2E5A32; }
   .login-member-btn .emoji { font-size: 22px; }
   .login-member-btn .name {
     font-family: 'Gaegu', cursive;
@@ -105,7 +109,7 @@
   .login-pin-input {
     width: 130px;
     padding: 6px;
-    border: 2px solid #4A2F1B;
+    border: 2px solid #555555;
     border-radius: 8px;
     font-family: 'Gaegu', cursive;
     font-size: 18px;
@@ -115,7 +119,7 @@
     background: white;
     color: #4A2F1B;
   }
-  .login-pin-input:focus { border-color: #B88A4A; }
+  .login-pin-input:focus { border-color: #333333; }
   .login-error {
     color: #B86B6B;
     font-family: 'Gaegu', cursive;
@@ -123,20 +127,20 @@
     min-height: 14px;
   }
   .login-enter-btn {
-    background: #B88A4A;
+    background: #555555;
     color: white;
-    border: 2px solid #4A2F1B;
+    border: 2px solid #333333;
     border-radius: 8px;
     padding: 6px 20px;
     font-family: 'Gaegu', cursive;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 2px 2px 0 #4A2F1B;
+    box-shadow: 2px 2px 0 #333333;
   }
   .login-enter-btn:active {
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 #4A2F1B;
+    box-shadow: 1px 1px 0 #333333;
   }
   .logout-btn {
     font-family: 'Gaegu', cursive;
@@ -154,8 +158,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    padding: 6px 4px;
+    margin-bottom: 8px;
+    padding: 2px 4px 4px;
     border-bottom: 1px solid #C8A47C;
   }
   .top-nav-btn {
@@ -231,17 +235,17 @@
   }
   .profile-msg h1 {
     font-family: 'Gaegu', cursive;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
     letter-spacing: -1px;
     cursor: pointer;
     padding: 2px 4px;
     border-radius: 6px;
     transition: background 0.2s;
-    color: #4A2F1B;
+    color: #3A2010;
     word-break: break-all;
     line-height: 1.2;
-    -webkit-text-stroke: 0.3px #4A2F1B;
+    -webkit-text-stroke: 0.5px #3A2010;
   }
   .profile-msg h1:hover { background: rgba(74,47,27,0.08); }
 
@@ -540,7 +544,7 @@
     background: #5A8A5E;
     border: 2px solid #4A2F1B;
     border-radius: 12px;
-    padding: 4px 14px;
+    padding: 4px 10px;
     font-family: 'Gaegu', cursive;
     font-size: 14px;
     font-weight: 700;
@@ -550,11 +554,11 @@
     line-height: 1.1;
     flex-shrink: 0;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    min-width: 72px;
+    gap: 0px;
+    min-width: 52px;
   }
   
   .shop-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #4A2F1B; }
@@ -686,10 +690,10 @@
     overflow: hidden;
   }
   .subject-name-input {
-    flex: 1; font-family: 'Gaegu', cursive; font-size: 18px; font-weight: 700;
+    flex: 1; font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700;
     border: none; background: transparent; outline: none; padding: 2px 4px;
-    border-radius: 6px; color: #4A2F1B; min-width: 0;
-    -webkit-text-stroke: 0.3px #4A2F1B;
+    border-radius: 6px; color: #3A2010; min-width: 0;
+    -webkit-text-stroke: 0.5px #3A2010;
   }
   .subject-name-input:focus { background: rgba(255,255,255,0.7); }
   .subject-status { font-size: 14px; color: #7C2D12; font-weight: 700; font-family: 'Gaegu', cursive; }
@@ -758,21 +762,21 @@
   .mom-card.confirmed { background: linear-gradient(135deg, #E8C97A, #D9B97A); padding: 10px; }
   .mom-title { font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #4A2F1B; }
   .mom-btn {
-    background: linear-gradient(180deg, #EDE0A0 0%, #D4B860 40%, #B89830 100%);
-    color: #5A3A10;
-    border: 2px solid #9A8020;
+    background: linear-gradient(180deg, #B89AD8 0%, #9B7EC8 40%, #7A5EA8 100%);
+    color: white;
+    border: 2px solid #6B4E98;
     border-radius: 24px;
     padding: 10px 28px;
     font-family: 'Gaegu', cursive;
     font-size: 17px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.4);
-    text-shadow: 0 1px 1px rgba(255,255,255,0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.3);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
     transition: all 0.15s;
   }
   .mom-btn:active { transform: scale(0.96); box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-  .mom-btn:disabled { background: linear-gradient(180deg, #D0C8B0 0%, #B8B0A0 100%); color: #8A8070; border-color: #A09888; cursor: not-allowed; box-shadow: none; }
+  .mom-btn:disabled { background: linear-gradient(180deg, #D0C8B0 0%, #B8B0A0 100%); color: #8A8070; border-color: #A09888; cursor: not-allowed; box-shadow: none; text-shadow: none; }
   .mom-confirmed-text { font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; color: #4A2F1B; line-height: 1.3; }
   .mom-confirmed-text .heart { color: #B86B6B; font-size: 19px; }
   
@@ -866,9 +870,9 @@
   
   .toast {
     position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-    background: #B88A4A; color: white; padding: 14px 22px; border: 3px solid #4A2F1B;
+    background: #9B7EC8; color: white; padding: 14px 22px; border: 3px solid #6B4E98;
     border-radius: 16px; font-family: 'Gaegu', cursive; font-size: 18px; font-weight: 700;
-    box-shadow: 4px 4px 0 #4A2F1B; opacity: 0; pointer-events: none;
+    box-shadow: 4px 4px 0 #6B4E98; opacity: 0; pointer-events: none;
     transition: opacity 0.3s; z-index: 400; max-width: 80%; text-align: center;
   }
   .toast.show { opacity: 1; }
@@ -879,8 +883,8 @@
     bottom: max(16px, env(safe-area-inset-bottom, 16px));
     right: 12px;
     width: 44px; height: 44px;
-    background: #E8750A;
-    border: 2px solid #C06008;
+    background: #5A8A5E;
+    border: 2px solid #2E5A32;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 20px;
@@ -918,6 +922,11 @@
   .chat-close-btn {
     background: none; border: none; font-size: 20px; cursor: pointer; color: #4A2F1B; padding: 2px;
   }
+  .chat-reset-btn {
+    background: none; border: none; font-size: 18px; cursor: pointer; padding: 2px;
+    color: #5A8A5E; font-weight: 700;
+  }
+  .chat-reset-btn:active { opacity: 0.7; }
   
   .chat-messages {
     flex: 1; overflow-y: auto; padding: 8px 10px;
@@ -933,6 +942,18 @@
     align-self: flex-end; background: #5A8A5E; color: white;
     border-bottom-right-radius: 4px;
   }
+  .chat-msg.from-elliot {
+    align-self: flex-start; background: white; color: #222222;
+    border: 1.5px solid #D0D0D0; border-bottom-left-radius: 4px;
+  }
+  .chat-msg.from-dad {
+    align-self: flex-start; background: #5A8A5E; color: white;
+    border-bottom-left-radius: 4px;
+  }
+  .chat-msg.from-mom {
+    align-self: flex-start; background: #FFD9E0; color: #222222;
+    border: 1.5px solid #D4889A; border-bottom-left-radius: 4px;
+  }
   .chat-msg.other {
     align-self: flex-start; background: white; color: #222222;
     border: 1.5px solid #D0D0D0; border-bottom-left-radius: 4px;
@@ -941,6 +962,8 @@
     font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700;
     margin-bottom: 2px; color: #5A8A5E;
   }
+  .chat-msg.from-dad .msg-sender { color: rgba(255,255,255,0.7); }
+  .chat-msg.from-mom .msg-sender { color: #C06080; }
   .chat-msg.mine .msg-sender { color: rgba(255,255,255,0.7); }
   .chat-msg .msg-time {
     font-family: 'Gaegu', cursive; font-size: 11px; opacity: 0.5;
@@ -951,21 +974,24 @@
   }
   
   .chat-input-bar {
-    display: flex; gap: 6px; padding: 6px 10px;
+    display: flex; gap: 4px; padding: 6px 8px;
     border-top: 1px solid #C8A47C; background: white;
     padding-bottom: max(6px, env(safe-area-inset-bottom));
     align-items: center;
   }
   .chat-input {
     flex: 1; border: 2px solid #5A8A5E; border-radius: 10px;
-    padding: 6px 10px; font-family: 'Gowun Dodum', sans-serif; font-size: 14px;
-    outline: none; background: white; color: #222222;
+    padding: 6px 8px; font-family: 'Gowun Dodum', sans-serif; font-size: 14px;
+    outline: none; background: white; color: #222222; min-width: 0;
   }
   .chat-input:focus { border-color: #3D6B40; }
   .chat-photo-btn {
-    background: none; border: none; font-size: 22px; cursor: pointer; padding: 2px 4px;
-    flex-shrink: 0;
+    background: none; border: 1.5px solid #999; border-radius: 6px;
+    width: 32px; height: 32px; cursor: pointer;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    padding: 0;
   }
+  .chat-photo-btn svg { width: 18px; height: 18px; }
   .chat-send-btn {
     background: #5A8A5E; color: white; border: 2px solid #2E5A32;
     border-radius: 10px; padding: 6px 12px; font-family: 'Gaegu', cursive;
@@ -1035,7 +1061,7 @@
         <div class="coin-amount" id="coinAmount">0</div>
         <div class="coin-pending" id="pendingLabel"></div>
       </div>
-      <button class="shop-btn" onclick="openShop()"><span style="font-size:20px;">🎁</span> 상점</button>
+      <button class="shop-btn" onclick="openShop()"><span style="font-size:26px;">🎁</span><br><span style="font-size:13px;">상점</span></button>
       <div class="top-buttons">
         <button id="settingsBtn" onclick="openSettings()" title="설정">설정</button>
         <button id="soundToggle" onclick="toggleSound()" title="소리">소리</button>
@@ -1089,14 +1115,19 @@
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <span class="chat-header-title">💬 가족 채팅</span>
-    <button class="chat-close-btn" onclick="toggleChat()">✕</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="chat-reset-btn" id="chatResetBtn" onclick="resetChat()" style="display:none;">➖</button>
+      <button class="chat-close-btn" onclick="toggleChat()">✕</button>
+    </div>
   </div>
   <div class="chat-messages" id="chatMessages"></div>
   <div class="chat-input-bar">
-    <button class="chat-photo-btn" onclick="document.getElementById('chatPhotoInput').click();" title="사진">📷</button>
-    <input type="file" id="chatPhotoInput" accept="image/*" style="display:none;" onchange="sendChatPhoto(event)">
     <input type="text" class="chat-input" id="chatInput" placeholder="메시지 입력..." maxlength="200">
     <button class="chat-send-btn" onclick="sendChat()">전송</button>
+    <button class="chat-photo-btn" onclick="document.getElementById('chatPhotoInput').click();" title="사진">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h7a2 2 0 012 2z"/></svg>
+    </button>
+    <input type="file" id="chatPhotoInput" accept="image/*" style="display:none;" onchange="sendChatPhoto(event)">
   </div>
 </div>
 
@@ -1209,15 +1240,13 @@
 
 <!-- 코인 리셋 모달 -->
 <div class="modal-bg" id="coinResetModal" onclick="if(event.target===this)closeCoinReset()">
-  <div class="modal pwd-modal">
-    <div class="pwd-modal-title">🔄 코인 리셋</div>
-    <div class="pwd-modal-sub">코인을 0으로 초기화합니다</div>
-    <div class="confirm-msg">정말 리셋할까요?<br>비밀번호를 입력하세요</div>
-    <input type="password" class="pwd-input" id="coinResetPwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
+  <div class="modal pwd-modal" style="padding:14px;">
+    <div class="confirm-msg" style="font-size:16px;margin-bottom:8px;">코인을 리셋할까요?<br>비밀번호를 입력하세요</div>
+    <input type="password" class="pwd-input" id="coinResetPwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="margin-bottom:6px;">
     <div class="pwd-error" id="coinResetError"></div>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="closeCoinReset()">취소</button>
-      <button class="modal-btn danger" onclick="confirmCoinReset()">리셋</button>
+      <button class="modal-btn danger" onclick="confirmCoinReset()" style="background:#9B7EC8;border-color:#6B4E98;">리셋</button>
     </div>
   </div>
 </div>
@@ -1632,9 +1661,12 @@ let selectedMember = null;
 function selectMember(member) {
   soundClick();
   selectedMember = member;
-  // 선택된 버튼 녹색
-  document.querySelectorAll('.login-member-btn').forEach(b => b.classList.remove('selected'));
-  event.currentTarget.classList.add('selected');
+  document.querySelectorAll('.login-member-btn').forEach(b => {
+    b.classList.remove('selected','selected-elliot','selected-mom','selected-dad');
+  });
+  const btn = event.currentTarget;
+  btn.classList.add('selected');
+  btn.classList.add('selected-' + member.id);
   document.getElementById('loginPinLabel').textContent = `${member.name} 비밀번호 (4자리)`;
   document.getElementById('loginPinInput').value = '';
   document.getElementById('loginError').textContent = '';
@@ -2454,6 +2486,9 @@ function toggleChat() {
   if (chatOpen) {
     if (chatMessages.length > 0) lastSeenChatId = chatMessages[chatMessages.length - 1].id;
     document.getElementById('chatBadge').classList.remove('show');
+    // 리셋 버튼 부모만
+    const resetBtn = document.getElementById('chatResetBtn');
+    if (resetBtn) resetBtn.style.display = isParent() ? '' : 'none';
     renderChatMessages();
     setTimeout(() => {
       const el = document.getElementById('chatMessages');
@@ -2463,19 +2498,55 @@ function toggleChat() {
   }
 }
 
+async function resetChat() {
+  if (!confirm('모든 채팅 메시지를 삭제할까요?\n이 작업은 되돌릴 수 없어요.')) return;
+  try {
+    await sb.from('chat_messages').delete().neq('id', 0);
+    chatMessages = [];
+    renderChatMessages();
+    showToast('채팅이 초기화되었습니다 🗑️');
+  } catch(e) { console.log('chat reset error', e); showToast('삭제 실패'); }
+}
+
 function renderChatMessages() {
   const container = document.getElementById('chatMessages');
   container.innerHTML = '';
   
+  const dayNames = ['일','월','화','수','목','금','토'];
+  let lastDateStr = '';
+  
   chatMessages.forEach(msg => {
+    // 날짜 구분선
+    const msgDate = new Date(msg.created_at);
+    const dateStr = `${msgDate.getMonth()+1}월 ${msgDate.getDate()}일 (${dayNames[msgDate.getDay()]})`;
+    if (dateStr !== lastDateStr) {
+      const sep = document.createElement('div');
+      sep.style.cssText = 'text-align:center;padding:8px 0 4px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;color:#A8967C;';
+      sep.textContent = `— ${dateStr} —`;
+      container.appendChild(sep);
+      lastDateStr = dateStr;
+    }
+    
     const isMine = msg.sender_id === currentUser.id;
     const div = document.createElement('div');
-    div.className = 'chat-msg ' + (isMine ? 'mine' : 'other');
+    
+    let cls = 'chat-msg ';
+    if (isMine) {
+      cls += 'mine';
+    } else if (msg.sender_id === 'elliot') {
+      cls += 'from-elliot';
+    } else if (msg.sender_id === 'dad') {
+      cls += 'from-dad';
+    } else if (msg.sender_id === 'mom') {
+      cls += 'from-mom';
+    } else {
+      cls += 'other';
+    }
+    div.className = cls;
     
     const time = new Date(msg.created_at);
     const timeStr = `${time.getHours()}:${String(time.getMinutes()).padStart(2,'0')}`;
     
-    // 이미지 메시지 체크 (message가 [img]URL[/img] 형식)
     let content = '';
     const imgMatch = msg.message.match(/^\[img\](.*)\[\/img\]$/);
     if (imgMatch) {
@@ -2489,10 +2560,33 @@ function renderChatMessages() {
       <div>${content}</div>
       <div class="msg-time">${timeStr}</div>
     `;
+    
+    // 본인 메시지 길게 누르면 삭제
+    if (isMine) {
+      let holdTimer = null;
+      div.addEventListener('touchstart', () => {
+        holdTimer = setTimeout(() => { confirmDeleteMsg(msg.id); }, 600);
+      });
+      div.addEventListener('touchend', () => clearTimeout(holdTimer));
+      div.addEventListener('touchmove', () => clearTimeout(holdTimer));
+      // PC용
+      div.addEventListener('contextmenu', (e) => { e.preventDefault(); confirmDeleteMsg(msg.id); });
+    }
+    
     container.appendChild(div);
   });
   
   container.scrollTop = container.scrollHeight;
+}
+
+async function confirmDeleteMsg(msgId) {
+  if (!confirm('이 메시지를 삭제할까요?')) return;
+  try {
+    await sb.from('chat_messages').delete().eq('id', msgId);
+    chatMessages = chatMessages.filter(m => m.id !== msgId);
+    renderChatMessages();
+    showToast('메시지 삭제됨 🗑️');
+  } catch(e) { console.log('delete error', e); }
 }
 
 async function sendChat() {
