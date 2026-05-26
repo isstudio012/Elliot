@@ -371,6 +371,11 @@
     background: #FFFFFF; border: 3px solid #4A2F1B; border-radius: 16px;
     width: 100%; max-width: 380px; max-height: 85vh; display: flex; flex-direction: column;
     box-shadow: 6px 6px 0 #4A2F1B; overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .note-modal.fullscreen {
+    max-width: 100%; max-height: 100vh; border-radius: 0;
+    width: 100%; height: 100%; box-shadow: none; border: none;
   }
   .note-modal-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -749,6 +754,27 @@
     box-shadow: 2px 2px 0 #2E5A8A;
   }
   .add-subject-btn:active { background: #3A7BC0; transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A8A; }
+  
+  .preset-subject-btn {
+    position: relative;
+    padding: 8px 16px; border-radius: 20px;
+    font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700;
+    cursor: pointer; border: 2px solid #4A2F1B;
+    background: white; color: #4A2F1B;
+    box-shadow: 2px 2px 0 #4A2F1B; transition: all 0.15s;
+  }
+  .preset-subject-btn.active {
+    background: #5A8A5E; color: white; border-color: #2E5A32;
+    box-shadow: 2px 2px 0 #2E5A32;
+  }
+  .preset-subject-btn:active { transform: translate(1px,1px); }
+  .preset-delete {
+    position: absolute; top: -6px; right: -6px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #E53935; color: white; border: none;
+    font-size: 11px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; line-height: 1;
+  }
   
   .empty-subjects {
     text-align: center; padding: 16px 12px; color: #7C5A3A;
@@ -1225,14 +1251,20 @@
 
 <!-- 과목 추가 -->
 <div class="modal-bg" id="addSubjectModal" onclick="if(event.target===this)closeAddSubject()">
-  <div class="modal pwd-modal">
-    <div class="pwd-modal-title">과목 추가</div>
-    <div class="pwd-modal-sub">과목 이름을 입력하세요</div>
-    <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="예: 수학">
-    <div class="pwd-error" id="addSubjectError"></div>
-    <div class="modal-btns">
-      <button class="modal-btn cancel" onclick="closeAddSubject()">취소</button>
-      <button class="modal-btn primary" onclick="addSubject()">추가</button>
+  <div class="modal pwd-modal" style="max-width:340px;">
+    <div class="pwd-modal-title">과목 선택</div>
+    <div class="pwd-modal-sub" style="font-size:14px;">탭해서 오늘 과목을 선택하세요</div>
+    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;"></div>
+    <div style="border-top:1px dashed #ccc;padding-top:8px;margin-top:4px;">
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="새 과목 입력" style="flex:1;padding:8px 10px;font-size:15px;">
+        <button class="preset-subject-btn" onclick="addPresetSubject()" style="padding:8px 16px;white-space:nowrap;background:#4A90D9;color:white;border-color:#2E6AAA;box-shadow:2px 2px 0 #2E6AAA;">등록</button>
+      </div>
+      <div class="pwd-error" id="addSubjectError"></div>
+    </div>
+    <div class="modal-btns" style="margin-top:8px;">
+      <button class="modal-btn cancel" onclick="closeAddSubject()">닫기</button>
+      <button class="modal-btn primary" id="bulkDeleteSubjectsBtn" onclick="bulkDeleteSubjects()" style="display:none;background:#E53935;border-color:#B71C1C;">선택 과목 삭제</button>
     </div>
   </div>
 </div>
@@ -1255,8 +1287,11 @@
 <div class="note-modal-bg" id="noteModal" onclick="if(event.target===this)closeNoteModal()">
   <div class="note-modal">
     <div class="note-modal-header">
-      <span class="note-modal-title" id="noteModalTitle">📝 숙제노트</span>
-      <button class="note-modal-close" onclick="closeNoteModal()">✕</button>
+      <span class="note-modal-title" id="noteModalTitle">숙제노트</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="note-modal-close" onclick="toggleNoteFullscreen()" id="noteFullscreenBtn">⤢</button>
+        <button class="note-modal-close" onclick="closeNoteModal()">✕</button>
+      </div>
     </div>
     <div class="note-modal-body" id="noteModalBody"></div>
     <button class="note-modal-add" onclick="addNoteLineFromModal()">+ 메모 추가</button>
@@ -1326,6 +1361,7 @@ function addNoteLine() {
 }
 
 function deleteNoteLine(idx) {
+  if (!confirm('지울까요?')) return;
   noteLines.splice(idx, 1);
   renderNoteLines();
   saveNoteLines();
@@ -1334,18 +1370,18 @@ function deleteNoteLine(idx) {
 function renderNoteLines() {
   const container = document.getElementById('homeworkNoteContent');
   if (noteLines.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:12px;color:#AAAAAA;font-family:Gaegu,cursive;font-size:14px;">메모를 추가해보세요</div>';
-    return;
+    noteLines.push('');
+    saveNoteLines();
   }
   container.innerHTML = noteLines.map((text, i) => `
     <div class="note-line">
+      <span style="font-family:Gaegu,cursive;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>
       <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
         oninput="noteLines[${i}]=this.value; autoResize(this); debounceSaveNotes();"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); noteLineEnter(${i},'inline');}">${escapeHTML(text)}</textarea>
-      <button class="note-delete-btn" onclick="deleteNoteLine(${i})">✕</button>
+      ${noteLines.length > 1 ? `<button class="note-delete-btn" onclick="deleteNoteLine(${i})">✕</button>` : ''}
     </div>
   `).join('');
-  // 초기 높이 맞춤
   container.querySelectorAll('.note-input').forEach(el => autoResize(el));
 }
 
@@ -1456,7 +1492,7 @@ function loadProfilePhoto() {
 /* ====== 숙제노트 팝업 모달 ====== */
 function openNoteModal() {
   const title = document.getElementById('homeworkNoteTitle').value || '숙제노트';
-  document.getElementById('noteModalTitle').textContent = '📝 ' + title;
+  document.getElementById('noteModalTitle').textContent = title;
   renderNoteModal();
   document.getElementById('noteModal').classList.add('show');
   // textarea 높이 재조정
@@ -1467,22 +1503,31 @@ function openNoteModal() {
 
 function closeNoteModal() {
   document.getElementById('noteModal').classList.remove('show');
-  // 인라인도 동기화
+  document.querySelector('.note-modal').classList.remove('fullscreen');
+  document.getElementById('noteFullscreenBtn').textContent = '⤢';
   renderNoteLines();
+}
+
+function toggleNoteFullscreen() {
+  const modal = document.querySelector('.note-modal');
+  const btn = document.getElementById('noteFullscreenBtn');
+  modal.classList.toggle('fullscreen');
+  btn.textContent = modal.classList.contains('fullscreen') ? '⤡' : '⤢';
 }
 
 function renderNoteModal() {
   const body = document.getElementById('noteModalBody');
   if (noteLines.length === 0) {
-    body.innerHTML = '<div style="text-align:center;padding:20px;color:#AAAAAA;font-family:Gaegu,cursive;font-size:16px;">메모를 추가해보세요</div>';
-    return;
+    noteLines.push('');
+    saveNoteLines();
   }
   body.innerHTML = noteLines.map((text, i) => `
     <div class="note-line">
+      <span style="font-family:Gaegu,cursive;font-size:15px;font-weight:700;color:#999;min-width:22px;">${i+1}.</span>
       <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
         oninput="noteLines[${i}]=this.value; autoResize(this); debounceSaveNotes();"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); noteLineEnter(${i},'modal');}">${escapeHTML(text)}</textarea>
-      <button class="note-delete-btn" onclick="deleteNoteLineFromModal(${i})">✕</button>
+      ${noteLines.length > 1 ? `<button class="note-delete-btn" onclick="deleteNoteLineFromModal(${i})">✕</button>` : ''}
     </div>
   `).join('');
   body.querySelectorAll('.note-input').forEach(el => autoResize(el));
@@ -1499,6 +1544,7 @@ function addNoteLineFromModal() {
 }
 
 function deleteNoteLineFromModal(idx) {
+  if (!confirm('지울까요?')) return;
   noteLines.splice(idx, 1);
   renderNoteModal();
   saveNoteLines();
@@ -2251,10 +2297,109 @@ function openAddSubject() {
   soundClick();
   document.getElementById('newSubjectInput').value = '';
   document.getElementById('addSubjectError').textContent = '';
+  const bulkBtn = document.getElementById('bulkDeleteSubjectsBtn');
+  if (bulkBtn) bulkBtn.style.display = isParent() ? '' : 'none';
+  renderPresetList();
   document.getElementById('addSubjectModal').classList.add('show');
-  setTimeout(() => document.getElementById('newSubjectInput').focus(), 100);
 }
 function closeAddSubject() { document.getElementById('addSubjectModal').classList.remove('show'); }
+
+function getPresets() {
+  try {
+    return JSON.parse(localStorage.getItem('subject_presets') || '[]');
+  } catch(e) { return []; }
+}
+function savePresets(list) {
+  localStorage.setItem('subject_presets', JSON.stringify(list));
+}
+
+function renderPresetList() {
+  const container = document.getElementById('presetSubjectList');
+  const presets = getPresets();
+  const todaySubjects = getSubjectsForDate(selectedDate).map(s => s.name.trim().toLowerCase());
+  
+  if (presets.length === 0) {
+    container.innerHTML = '<div style="color:#aaa;font-family:Gaegu,cursive;font-size:14px;padding:8px;">아래에서 과목을 등록하세요</div>';
+    return;
+  }
+  
+  container.innerHTML = presets.map((name, i) => {
+    const isActive = todaySubjects.includes(name.trim().toLowerCase());
+    return `
+      <div style="position:relative;display:inline-block;">
+        <button class="preset-subject-btn ${isActive ? 'active' : ''}" onclick="togglePresetSubject('${escapeHTML(name)}')">
+          ${escapeHTML(name)}
+        </button>
+        <button class="preset-delete" onclick="event.stopPropagation();deletePreset(${i})">✕</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function addPresetSubject() {
+  const input = document.getElementById('newSubjectInput');
+  const name = input.value.trim();
+  const err = document.getElementById('addSubjectError');
+  if (!name) { err.textContent = '과목 이름을 입력하세요'; return; }
+  
+  const presets = getPresets();
+  if (presets.some(p => p.toLowerCase() === name.toLowerCase())) {
+    err.textContent = '이미 등록된 과목이에요';
+    return;
+  }
+  presets.push(name);
+  savePresets(presets);
+  input.value = '';
+  err.textContent = '';
+  renderPresetList();
+  soundClick();
+}
+
+function deletePreset(idx) {
+  if (!confirm('이 과목을 목록에서 삭제할까요?')) return;
+  const presets = getPresets();
+  presets.splice(idx, 1);
+  savePresets(presets);
+  renderPresetList();
+}
+
+async function togglePresetSubject(name) {
+  const subs = getSubjectsForDate(selectedDate);
+  const existing = subs.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase());
+  
+  if (existing) {
+    await sb.from('tasks').delete().eq('subject_id', existing.id);
+    await sb.from('subjects').delete().eq('id', existing.id);
+    showToast(`"${name}" 제거됨`);
+  } else {
+    const id = genId();
+    await sb.from('subjects').insert({
+      id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000
+    });
+    soundCheck();
+    showToast(`"${name}" 추가됨 ✨`);
+  }
+  
+  await refreshData();
+  renderPresetList();
+}
+
+async function bulkDeleteSubjects() {
+  const subs = getSubjectsForDate(selectedDate);
+  if (subs.length === 0) { showToast('삭제할 과목이 없어요'); return; }
+  
+  const activeNames = subs.map(s => s.name).join(', ');
+  if (!confirm(`오늘 선택된 과목을 모두 삭제할까요?\n(${activeNames})`)) return;
+  
+  for (const s of subs) {
+    await sb.from('tasks').delete().eq('subject_id', s.id);
+    await sb.from('subjects').delete().eq('id', s.id);
+  }
+  
+  showToast('선택 과목 모두 삭제됨 🗑️');
+  await refreshData();
+  renderPresetList();
+}
 
 function openDeleteSubject(subjectId) {
   if (!isParent()) { showToast('부모만 삭제할 수 있어요'); return; }
@@ -2706,7 +2851,7 @@ function insertEmoji(emoji) {
 
 /* ====== 키보드 이벤트 ====== */
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('newSubjectInput').addEventListener('keypress', e => { if (e.key === 'Enter') addSubject(); });
+  document.getElementById('newSubjectInput').addEventListener('keypress', e => { if (e.key === 'Enter') addPresetSubject(); });
   document.getElementById('deleteSubjectPwd').addEventListener('keypress', e => { if (e.key === 'Enter') confirmDeleteSubject(); });
 });
 
