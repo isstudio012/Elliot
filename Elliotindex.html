@@ -1250,11 +1250,12 @@
 </div>
 
 <!-- 과목 추가 -->
-<div class="modal-bg" id="addSubjectModal" onclick="if(event.target===this)closeAddSubject()">
-  <div class="modal pwd-modal" style="max-width:340px;">
-    <div class="pwd-modal-title">과목 선택</div>
+<div id="addSubjectModal" style="display:none;position:fixed;z-index:300;">
+  <div class="modal pwd-modal" id="subjectModalInner" style="max-width:320px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;">
+    <button onclick="closeAddSubject()" style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:#4A2F1B;color:white;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;">✕</button>
+    <div class="pwd-modal-title" id="subjectModalDragHandle" style="cursor:grab;padding-right:30px;user-select:none;">과목 선택</div>
     <div class="pwd-modal-sub" style="font-size:14px;">탭해서 오늘 과목을 선택하세요</div>
-    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;"></div>
+    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;min-height:40px;"></div>
     <div style="border-top:1px dashed #ccc;padding-top:8px;margin-top:4px;">
       <div style="display:flex;gap:6px;align-items:center;">
         <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="새 과목 입력" style="flex:1;padding:8px 10px;font-size:15px;">
@@ -1262,9 +1263,8 @@
       </div>
       <div class="pwd-error" id="addSubjectError"></div>
     </div>
-    <div class="modal-btns" style="margin-top:8px;">
-      <button class="modal-btn cancel" onclick="closeAddSubject()">닫기</button>
-      <button class="modal-btn primary" id="bulkDeleteSubjectsBtn" onclick="bulkDeleteSubjects()" style="display:none;background:#E53935;border-color:#B71C1C;">선택 과목 삭제</button>
+    <div style="margin-top:6px;text-align:center;">
+      <button id="bulkDeleteSubjectsBtn" onclick="bulkDeleteSubjects()" style="display:none;background:#E53935;color:white;border:1.5px solid #B71C1C;border-radius:8px;padding:4px 14px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">선택 과목 삭제</button>
     </div>
   </div>
 </div>
@@ -2300,9 +2300,56 @@ function openAddSubject() {
   const bulkBtn = document.getElementById('bulkDeleteSubjectsBtn');
   if (bulkBtn) bulkBtn.style.display = isParent() ? '' : 'none';
   renderPresetList();
-  document.getElementById('addSubjectModal').classList.add('show');
+  const modal = document.getElementById('subjectModalInner');
+  modal.style.top = '80px';
+  modal.style.left = '50%';
+  modal.style.transform = 'translateX(-50%)';
+  document.getElementById('addSubjectModal').style.display = 'block';
 }
-function closeAddSubject() { document.getElementById('addSubjectModal').classList.remove('show'); }
+
+// 과목 선택 모달 드래그
+(function() {
+  let dragging = false, offX = 0, offY = 0;
+  
+  function onStart(cx, cy) {
+    const modal = document.getElementById('subjectModalInner');
+    if (!modal) return;
+    dragging = true;
+    const rect = modal.getBoundingClientRect();
+    offX = cx - rect.left;
+    offY = cy - rect.top;
+    modal.style.transform = 'none';
+    modal.style.transition = 'none';
+  }
+  function onMove(cx, cy) {
+    if (!dragging) return;
+    const modal = document.getElementById('subjectModalInner');
+    modal.style.left = (cx - offX) + 'px';
+    modal.style.top = (cy - offY) + 'px';
+  }
+  function onEnd() { dragging = false; }
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    const handle = document.getElementById('subjectModalDragHandle');
+    if (!handle) return;
+    handle.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      onStart(e.touches[0].clientX, e.touches[0].clientY);
+    }, {passive: false});
+    document.addEventListener('touchmove', (e) => {
+      if (dragging) { e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); }
+    }, {passive: false});
+    document.addEventListener('touchend', onEnd);
+    // PC
+    handle.addEventListener('mousedown', (e) => { onStart(e.clientX, e.clientY); });
+    document.addEventListener('mousemove', (e) => { onMove(e.clientX, e.clientY); });
+    document.addEventListener('mouseup', onEnd);
+  });
+  
+  window.closeAddSubject = function() {
+    document.getElementById('addSubjectModal').style.display = 'none';
+  };
+})();
 
 function getPresets() {
   try {
@@ -2368,20 +2415,27 @@ async function togglePresetSubject(name) {
   const existing = subs.find(s => s.name.trim().toLowerCase() === name.trim().toLowerCase());
   
   if (existing) {
-    await sb.from('tasks').delete().eq('subject_id', existing.id);
-    await sb.from('subjects').delete().eq('id', existing.id);
+    // 즉시 캐시에서 제거
+    cachedSubjects = cachedSubjects.filter(s => s.id !== existing.id);
+    cachedTasks = cachedTasks.filter(t => t.subject_id !== existing.id);
+    renderAll();
+    renderPresetList();
     showToast(`"${name}" 제거됨`);
+    // 백그라운드 DB 삭제
+    sb.from('tasks').delete().eq('subject_id', existing.id).then(() => {});
+    sb.from('subjects').delete().eq('id', existing.id).then(() => {});
   } else {
     const id = genId();
-    await sb.from('subjects').insert({
-      id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000
-    });
-    soundCheck();
+    const newSub = { id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000 };
+    // 즉시 캐시에 추가
+    cachedSubjects.push(newSub);
+    renderAll();
+    renderPresetList();
+    soundClick();
     showToast(`"${name}" 추가됨 ✨`);
+    // 백그라운드 DB 추가
+    sb.from('subjects').insert(newSub).then(() => {});
   }
-  
-  await refreshData();
-  renderPresetList();
 }
 
 async function bulkDeleteSubjects() {
