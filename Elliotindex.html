@@ -758,20 +758,20 @@
   .mom-card.confirmed { background: linear-gradient(135deg, #E8C97A, #D9B97A); padding: 10px; }
   .mom-title { font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #4A2F1B; }
   .mom-btn {
-    background: linear-gradient(180deg, #F5E88C 0%, #E8C94A 40%, #C9A020 100%);
+    background: linear-gradient(180deg, #EDE0A0 0%, #D4B860 40%, #B89830 100%);
     color: #5A3A10;
-    border: 2px solid #A07818;
+    border: 2px solid #9A8020;
     border-radius: 24px;
     padding: 10px 28px;
     font-family: 'Gaegu', cursive;
     font-size: 17px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 2px rgba(255,255,255,0.5);
-    text-shadow: 0 1px 1px rgba(255,255,255,0.4);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.4);
+    text-shadow: 0 1px 1px rgba(255,255,255,0.3);
     transition: all 0.15s;
   }
-  .mom-btn:active { transform: scale(0.96); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+  .mom-btn:active { transform: scale(0.96); box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
   .mom-btn:disabled { background: linear-gradient(180deg, #D0C8B0 0%, #B8B0A0 100%); color: #8A8070; border-color: #A09888; cursor: not-allowed; box-shadow: none; }
   .mom-confirmed-text { font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; color: #4A2F1B; line-height: 1.3; }
   .mom-confirmed-text .heart { color: #B86B6B; font-size: 19px; }
@@ -879,8 +879,8 @@
     bottom: max(16px, env(safe-area-inset-bottom, 16px));
     right: 12px;
     width: 44px; height: 44px;
-    background: #4A2F1B;
-    border: 2px solid #F5EDD7;
+    background: #E8750A;
+    border: 2px solid #C06008;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 20px;
@@ -924,45 +924,54 @@
     display: flex; flex-direction: column; gap: 6px;
   }
   .chat-msg {
-    max-width: 72%; padding: 6px 10px; border-radius: 12px;
-    font-family: 'Gowun Dodum', sans-serif; font-size: 13px;
+    max-width: 78%; padding: 8px 12px; border-radius: 12px;
+    font-family: 'Gowun Dodum', sans-serif; font-size: 15px;
     font-weight: 700;
-    line-height: 1.3; word-break: break-word;
+    line-height: 1.4; word-break: break-word;
   }
   .chat-msg.mine {
     align-self: flex-end; background: #5A8A5E; color: white;
     border-bottom-right-radius: 4px;
   }
   .chat-msg.other {
-    align-self: flex-start; background: #5A8A5E; color: white;
-    border: none; border-bottom-left-radius: 4px;
+    align-self: flex-start; background: white; color: #222222;
+    border: 1.5px solid #D0D0D0; border-bottom-left-radius: 4px;
   }
   .chat-msg .msg-sender {
-    font-family: 'Gaegu', cursive; font-size: 12px; font-weight: 700;
-    margin-bottom: 2px; opacity: 0.7;
+    font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700;
+    margin-bottom: 2px; color: #5A8A5E;
   }
+  .chat-msg.mine .msg-sender { color: rgba(255,255,255,0.7); }
   .chat-msg .msg-time {
     font-family: 'Gaegu', cursive; font-size: 11px; opacity: 0.5;
     margin-top: 2px; text-align: right;
+  }
+  .chat-msg img.chat-photo {
+    max-width: 100%; border-radius: 8px; margin-top: 4px; cursor: pointer;
   }
   
   .chat-input-bar {
     display: flex; gap: 6px; padding: 6px 10px;
     border-top: 1px solid #C8A47C; background: white;
     padding-bottom: max(6px, env(safe-area-inset-bottom));
+    align-items: center;
   }
   .chat-input {
-    flex: 1; border: 2px solid #4A2F1B; border-radius: 10px;
-    padding: 6px 10px; font-family: 'Gowun Dodum', sans-serif; font-size: 13px;
-    outline: none; background: white; color: #4A2F1B;
+    flex: 1; border: 2px solid #5A8A5E; border-radius: 10px;
+    padding: 6px 10px; font-family: 'Gowun Dodum', sans-serif; font-size: 14px;
+    outline: none; background: white; color: #222222;
   }
-  .chat-input:focus { border-color: #B88A4A; }
+  .chat-input:focus { border-color: #3D6B40; }
+  .chat-photo-btn {
+    background: none; border: none; font-size: 22px; cursor: pointer; padding: 2px 4px;
+    flex-shrink: 0;
+  }
   .chat-send-btn {
-    background: #B88A4A; color: white; border: 2px solid #4A2F1B;
-    border-radius: 10px; padding: 6px 10px; font-family: 'Gaegu', cursive;
+    background: #5A8A5E; color: white; border: 2px solid #2E5A32;
+    border-radius: 10px; padding: 6px 12px; font-family: 'Gaegu', cursive;
     font-size: 14px; font-weight: 700; cursor: pointer;
   }
-  .chat-send-btn:active { background: #9A7340; }
+  .chat-send-btn:active { background: #3D6B40; }
 
   /* 앱 영역 숨김 */
   .app-main { display: none; }
@@ -1084,6 +1093,8 @@
   </div>
   <div class="chat-messages" id="chatMessages"></div>
   <div class="chat-input-bar">
+    <button class="chat-photo-btn" onclick="document.getElementById('chatPhotoInput').click();" title="사진">📷</button>
+    <input type="file" id="chatPhotoInput" accept="image/*" style="display:none;" onchange="sendChatPhoto(event)">
     <input type="text" class="chat-input" id="chatInput" placeholder="메시지 입력..." maxlength="200">
     <button class="chat-send-btn" onclick="sendChat()">전송</button>
   </div>
@@ -2207,6 +2218,7 @@ function checkMomPwd() { /* 미사용 */ }
 
 /* ====== 설정 ====== */
 function openSettings() {
+  if (!isParent()) { showToast('부모만 설정할 수 있어요 🔒'); return; }
   soundClick();
   document.getElementById('curPwdInput').value = '';
   document.getElementById('newPwdInput').value = '';
@@ -2463,9 +2475,18 @@ function renderChatMessages() {
     const time = new Date(msg.created_at);
     const timeStr = `${time.getHours()}:${String(time.getMinutes()).padStart(2,'0')}`;
     
+    // 이미지 메시지 체크 (message가 [img]URL[/img] 형식)
+    let content = '';
+    const imgMatch = msg.message.match(/^\[img\](.*)\[\/img\]$/);
+    if (imgMatch) {
+      content = `<img class="chat-photo" src="${imgMatch[1]}" onclick="window.open(this.src,'_blank')" alt="사진">`;
+    } else {
+      content = esc(msg.message);
+    }
+    
     div.innerHTML = `
       ${!isMine ? `<div class="msg-sender">${esc(msg.sender_name)}</div>` : ''}
-      <div>${esc(msg.message)}</div>
+      <div>${content}</div>
       <div class="msg-time">${timeStr}</div>
     `;
     container.appendChild(div);
@@ -2486,6 +2507,54 @@ async function sendChat() {
     sender_name: currentUser.name,
     message: text
   });
+}
+
+async function sendChatPhoto(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // 파일 크기 제한 (3MB)
+  if (file.size > 3 * 1024 * 1024) {
+    showToast('사진은 3MB 이하만 가능해요 📷');
+    event.target.value = '';
+    return;
+  }
+  
+  showToast('사진 보내는 중... 📷');
+  
+  try {
+    // 고유 파일명 생성
+    const ext = file.name.split('.').pop() || 'jpg';
+    const fileName = `chat/${currentUser.id}_${Date.now()}.${ext}`;
+    
+    // Supabase Storage에 업로드
+    const { data, error } = await sb.storage
+      .from('chat-photos')
+      .upload(fileName, file, { cacheControl: '3600', upsert: false });
+    
+    if (error) throw error;
+    
+    // 공개 URL 가져오기
+    const { data: urlData } = sb.storage
+      .from('chat-photos')
+      .getPublicUrl(fileName);
+    
+    const photoUrl = urlData.publicUrl;
+    
+    // 채팅 메시지로 이미지 URL 전송
+    await sb.from('chat_messages').insert({
+      sender_id: currentUser.id,
+      sender_name: currentUser.name,
+      message: `[img]${photoUrl}[/img]`
+    });
+    
+    showToast('사진을 보냈어요! 📷');
+  } catch(e) {
+    console.log('photo upload error', e);
+    showToast('사진 전송 실패 😢');
+  }
+  
+  event.target.value = '';
 }
 
 document.getElementById('chatInput').addEventListener('keypress', e => {
