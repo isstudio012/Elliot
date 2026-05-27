@@ -1962,7 +1962,8 @@ function toggleSound() {
   soundOn = !soundOn;
   const btn = document.getElementById('soundToggle');
   btn.textContent = soundOn ? '소리' : '무음';
-  btn.style.color = soundOn ? '' : '#555';
+  btn.style.color = soundOn ? '#4A2F1B' : '#888';
+  btn.style.background = soundOn ? 'white' : '#ddd';
   localStorage.setItem('soundOn', soundOn);
   if (soundOn) soundClick();
 }
@@ -2097,6 +2098,46 @@ function moveLoginButton(btn, x, y, save = true) {
   btn.style.left = nextX + 'px';
   btn.style.top = nextY + 'px';
   if (save) saveLoginPosition(btn.dataset.memberId, nextX, nextY);
+  // 충돌 감지 + 밀어내기
+  if (btn.classList.contains('dragging')) {
+    resolveCollisions(btn);
+  }
+}
+
+function resolveCollisions(draggedBtn) {
+  const container = draggedBtn.parentElement;
+  const btns = Array.from(container.querySelectorAll('.login-member-btn'));
+  const r = draggedBtn.offsetWidth / 2;
+  const cx1 = parseFloat(draggedBtn.style.left) + r;
+  const cy1 = parseFloat(draggedBtn.style.top) + r;
+  
+  btns.forEach(other => {
+    if (other === draggedBtn) return;
+    const or = other.offsetWidth / 2;
+    const cx2 = parseFloat(other.style.left) + or;
+    const cy2 = parseFloat(other.style.top) + or;
+    const dx = cx2 - cx1;
+    const dy = cy2 - cy1;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const minDist = r + or + 4;
+    
+    if (dist < minDist && dist > 0) {
+      const overlap = minDist - dist;
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const pushX = nx * overlap;
+      const pushY = ny * overlap;
+      const maxX = Math.max(0, container.clientWidth - other.offsetWidth);
+      const maxY = Math.max(0, container.clientHeight - other.offsetHeight - 8);
+      const newX = Math.min(Math.max(0, parseFloat(other.style.left) + pushX), maxX);
+      const newY = Math.min(Math.max(0, parseFloat(other.style.top) + pushY), maxY);
+      other.style.transition = 'left 0.3s ease-out, top 0.3s ease-out';
+      other.style.left = newX + 'px';
+      other.style.top = newY + 'px';
+      saveLoginPosition(other.dataset.memberId, newX, newY);
+      setTimeout(() => { other.style.transition = ''; }, 350);
+    }
+  });
 }
 
 function makeLoginMemberDraggable(btn, member) {
@@ -2146,7 +2187,7 @@ function makeLoginMemberDraggable(btn, member) {
       // 관성 애니메이션
       const curLeft = parseFloat(btn.style.left) || 0;
       const curTop = parseFloat(btn.style.top) || 0;
-      const friction = 0.92;
+      const friction = 0.95;
       let vx = velX, vy = velY;
       let px = curLeft, py = curTop;
       function inertiaStep() {
@@ -2241,7 +2282,8 @@ async function showMainApp() {
   const savedSound = localStorage.getItem('soundOn');
   if (savedSound !== null) { soundOn = savedSound === 'true'; }
   document.getElementById('soundToggle').textContent = soundOn ? '소리' : '무음';
-  document.getElementById('soundToggle').style.color = soundOn ? '' : '#555';
+  document.getElementById('soundToggle').style.color = soundOn ? '#4A2F1B' : '#888';
+  document.getElementById('soundToggle').style.background = soundOn ? 'white' : '#ddd';
   
   const t = new Date();
   viewYear = t.getFullYear();
