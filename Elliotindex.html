@@ -35,9 +35,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: 50vh;
+    justify-content: flex-start;
+    position: relative;
+    min-height: calc(100vh - 70px);
     gap: 10px;
+    padding-top: 58px;
   }
   .login-title {
     font-family: 'Gaegu', cursive;
@@ -54,51 +56,90 @@
     margin-bottom: 6px;
   }
   .login-members {
-    display: flex;
-    gap: 10px;
-    flex-wrap: nowrap;
-    justify-content: center;
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 118px;
+    bottom: 0;
+    width: 100%;
+    min-height: 520px;
+    touch-action: none;
   }
   .login-member-btn {
+    position: absolute;
     background: white;
     border: 2px solid #4A2F1B;
-    border-radius: 10px;
-    padding: 8px 14px;
+    padding: 7px 6px 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    cursor: pointer;
-    box-shadow: 2px 2px 0 #4A2F1B;
-    transition: all 0.15s;
-    min-width: 68px;
+    justify-content: center;
+    gap: 2px;
+    cursor: grab;
+    box-shadow: 3px 3px 0 #4A2F1B;
+    transition: box-shadow 0.15s;
+    width: 74px;
+    height: 74px;
+    min-width: 74px;
+    max-width: 74px;
+    min-height: 74px;
+    max-height: 74px;
+    border-radius: 50%;
+    overflow: hidden;
+    user-select: none;
+    touch-action: none;
   }
+  .login-member-btn.dragging { cursor: grabbing; box-shadow: 4px 4px 8px rgba(0,0,0,0.3); z-index: 100; }
+  .login-member-btn.drag-over { transform: translateY(-3px); }
   .login-member-btn:active {
     transform: translate(1px, 1px);
     box-shadow: 1px 1px 0 #4A2F1B;
   }
   .login-member-btn.selected {
-    border-color: #333;
-    box-shadow: 2px 2px 0 #333;
+    background: white;
+    filter: brightness(0.97);
   }
-  .login-member-btn.selected .name { color: white; }
-  .login-member-btn.selected-elliot { background: #4A78C0; border-color: #2E5080; box-shadow: 2px 2px 0 #2E5080; }
-  .login-member-btn.selected-mom { background: #FFD9E0; border-color: #D4889A; box-shadow: 2px 2px 0 #D4889A; }
+  .login-member-btn.selected .name { color: #4A2F1B; }
+  .login-member-btn.selected-elliot { background: white; }
+  .login-member-btn.selected-mom { background: white; }
   .login-member-btn.selected-mom .name { color: #4A2F1B; }
-  .login-member-btn.selected-dad { background: #5A8A5E; border-color: #2E5A32; box-shadow: 2px 2px 0 #2E5A32; }
-  .login-member-btn .emoji { font-size: 22px; }
+  .login-member-btn.selected-dad { background: white; }
+  .login-member-btn .emoji { font-size: 30px; line-height: 1; }
+  .login-member-photo {
+    display: block;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    max-width: 44px;
+    max-height: 44px;
+    border-radius: 2px;
+    border: none;
+    object-fit: cover;
+    background: #EAE0C2;
+    flex: 0 0 auto;
+  }
   .login-member-btn .name {
     font-family: 'Gaegu', cursive;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     color: #4A2F1B;
+    line-height: 1.1;
+    max-width: 54px;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .login-pin-section {
     display: none;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    margin-top: 6px;
+    position: relative;
+    z-index: 20;
+    margin-top: 250px;
   }
   .login-pin-section.show { display: flex; }
   .login-pin-label {
@@ -141,6 +182,188 @@
   .login-enter-btn:active {
     transform: translate(2px, 2px);
     box-shadow: 1px 1px 0 #333333;
+  }
+  .login-pin-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .login-pin-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid #4A2F1B;
+    background: white;
+    color: #4A2F1B;
+    font-family: 'Gaegu', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #4A2F1B;
+  }
+  .settings-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 22px 28px;
+    background: #F5EDD7;
+  }
+  .settings-view { display: none; }
+  .settings-view.show { display: block; }
+  .settings-menu-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 14px 4px;
+    border: none;
+    background: transparent;
+    color: #1F1711;
+    font-family: 'Gaegu', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+  }
+  .settings-menu-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #5A8A5E;
+    flex: 0 0 auto;
+  }
+  .settings-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 22px;
+    box-shadow: none;
+  }
+  .settings-card-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2E5A32;
+    margin-bottom: 8px;
+  }
+  #settingsTitleView .settings-card-title { display: none; }
+  #settingsPasswordView .settings-card-title { display: none; }
+  .settings-line-label {
+    width: 80px;
+    color: #111;
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    flex: 0 0 auto;
+  }
+  .settings-simple-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    padding: 10px 28px;
+  }
+  .settings-simple-row input {
+    min-height: 32px;
+  }
+  .member-index-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Gaegu', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+    flex: 0 0 auto;
+  }
+  .member-color-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .member-color-trigger {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Gaegu', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .member-icon-btn {
+    border: none;
+    background: transparent;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    padding: 0;
+  }
+  .member-delete-btn {
+    border: none;
+    background: transparent;
+    color: #111;
+    font-family: 'Gaegu', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 6px;
+  }
+  .member-add-btn {
+    width: 44px;
+    height: 44px;
+    margin-top: 10px;
+    padding: 0;
+    background: transparent;
+    color: #5A8A5E;
+    border: none;
+    font-family: 'Gaegu', cursive;
+    font-size: 34px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .member-add-wrap {
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin-left: 30px;
+  }
+  .member-add-label {
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+  }
+  .member-save-btn {
+    display: block;
+    margin: 22px auto 0;
+    padding: 7px 28px;
+    background: #5A8A5E;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
   }
   .logout-btn {
     font-family: 'Gaegu', cursive;
@@ -951,8 +1174,31 @@
     background: white; border-radius: 0;
   }
   .chat-header-title { font-family: 'Gaegu', cursive; font-size: 16px; font-weight: 700; color: #4A2F1B; }
+  .settings-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .settings-title-gear {
+    color: white;
+    font-size: 16px;
+    line-height: 1;
+  }
   .chat-close-btn {
     background: none; border: none; font-size: 20px; cursor: pointer; color: #4A2F1B; padding: 2px;
+  }
+  .settings-header {
+    background: #5A8A5E !important;
+    border-bottom: 2px solid #2E5A32 !important;
+  }
+  .settings-header .chat-header-title,
+  .settings-header .chat-close-btn {
+    color: white !important;
+  }
+  .settings-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
   .chat-reset-btn {
     background: none; border: none; font-size: 14px; cursor: pointer; padding: 2px;
@@ -1072,7 +1318,10 @@
       <div class="login-pin-label" id="loginPinLabel">비밀번호 (4자리)</div>
       <input type="password" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
       <div class="login-error" id="loginError"></div>
-      <button class="login-enter-btn" onclick="doLogin()">들어가기</button>
+      <div class="login-pin-actions">
+        <button class="login-enter-btn" onclick="doLogin()">들어가기</button>
+        <button class="login-pin-close" onclick="closeLoginPin()" title="닫기">×</button>
+      </div>
     </div>
   </div>
 
@@ -1235,37 +1484,44 @@
 <!-- 설정 -->
 <!-- 설정 페이지 (전체창) -->
 <div class="chat-panel" id="settingsPanel">
-  <div class="chat-header" style="background:#E8F0E0;border-bottom:2px solid #2E5A32;">
-    <span class="chat-header-title" style="color:#2E5A32;">⚙️ 설정</span>
-    <button class="chat-close-btn" style="color:#2E5A32;" onclick="closeSettings()">✕</button>
-  </div>
-  <div style="flex:1;overflow-y:auto;padding:12px 14px;background:#F5EDD7;">
-    <!-- 제목 바꾸기 -->
-    <div style="background:#E8F0E0;border:2px solid #5A8A5E;border-radius:10px;padding:10px 12px;margin-bottom:10px;box-shadow:2px 2px 0 #2E5A32;">
-      <div style="font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#2E5A32;margin-bottom:8px;">📝 제목 바꾸기</div>
-      <div style="margin-bottom:8px;">
-        <div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-bottom:3px;">메인화면 제목</div>
-        <input type="text" id="settingsAppTitle" maxlength="30" placeholder="메인화면 제목" style="width:100%;padding:6px 8px;border:1.5px solid #5A8A5E;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#4A2F1B;">
-      </div>
-      <div style="margin-bottom:6px;">
-        <div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-bottom:3px;">숙제노트 제목</div>
-        <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="width:100%;padding:6px 8px;border:1.5px solid #5A8A5E;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#4A2F1B;">
-      </div>
-      <button onclick="saveTitleSettings()" style="width:100%;padding:6px;background:#5A8A5E;color:white;border:1.5px solid #2E5A32;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+  <div class="chat-header settings-header">
+    <span class="chat-header-title settings-title-wrap"><span class="settings-title-gear">⚙</span><span id="settingsHeaderTitle">설정</span></span>
+    <div class="settings-header-actions">
+      <button class="chat-close-btn" id="settingsBackBtn" style="font-size:24px;" onclick="settingsBack()">&lt;</button>
+      <button class="chat-close-btn" onclick="closeSettings()">✕</button>
     </div>
-    <!-- 비밀번호 변경 -->
-    <div style="background:#E8F0E0;border:2px solid #5A8A5E;border-radius:10px;padding:10px 12px;margin-bottom:10px;box-shadow:2px 2px 0 #2E5A32;">
-      <div style="font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#2E5A32;margin-bottom:8px;">🔐 비밀번호 변경</div>
-      <div style="margin-bottom:6px;">
-        <div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-bottom:3px;">현재 비밀번호</div>
-        <input type="password" id="curPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="width:100%;padding:5px 8px;border:1.5px solid #5A8A5E;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;text-align:center;letter-spacing:6px;outline:none;background:white;color:#4A2F1B;">
+  </div>
+  <div class="settings-body">
+    <div class="settings-view show" id="settingsMenuView">
+      <button class="settings-menu-btn" onclick="showSettingsSection('login')"><span class="settings-menu-dot"></span><span>로그인 사진 이름 바꾸기</span></button>
+      <button class="settings-menu-btn" onclick="showSettingsSection('title')"><span class="settings-menu-dot"></span><span>제목 바꾸기 · 메인화면 · 숙제노트</span></button>
+      <button class="settings-menu-btn" onclick="showSettingsSection('password')"><span class="settings-menu-dot"></span><span>비밀번호 변경</span></button>
+      <button class="settings-menu-btn" onclick="openCoinReset()"><span class="settings-menu-dot"></span><span>코인 리셋</span></button>
+    </div>
+    <div class="settings-view" id="settingsTitleView">
+    <div class="settings-card">
+      <div class="settings-card-title">제목 바꾸기</div>
+      <div class="settings-simple-row">
+        <div class="settings-line-label">메인화면</div>
+        <input type="text" id="settingsAppTitle" maxlength="30" placeholder="메인화면 제목" style="width:100%;padding:6px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
       </div>
-      <div style="margin-bottom:6px;">
-        <div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-bottom:3px;">새 비밀번호 (4자리)</div>
-        <input type="password" id="newPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="width:100%;padding:5px 8px;border:1.5px solid #5A8A5E;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;text-align:center;letter-spacing:6px;outline:none;background:white;color:#4A2F1B;">
+      <div class="settings-simple-row">
+        <div class="settings-line-label">숙제노트</div>
+        <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="width:100%;padding:6px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
       </div>
-      <div class="pwd-error" id="settingsError" style="min-height:16px;"></div>
-      <button onclick="changePwd()" style="width:100%;padding:6px;background:#5A8A5E;color:white;border:1.5px solid #2E5A32;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">변경</button>
+      <button class="member-save-btn" onclick="saveTitleSettings()">저장</button>
+    </div>
+    </div>
+    <div class="settings-view" id="settingsLoginView">
+      <div id="memberSettingsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <div class="member-add-wrap">
+        <button class="member-add-btn" onclick="addLoginProfile()">+</button>
+        <div class="member-add-label">프로필추가</div>
+      </div>
+      <button class="member-save-btn" onclick="saveMemberSettings()">저장</button>
+    </div>
+    <div class="settings-view" id="settingsPasswordView">
+      <div id="passwordSettingsList" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
   </div>
 </div>
@@ -1360,7 +1616,9 @@
 /* ====== Supabase 초기화 ====== */
 const SUPABASE_URL = 'https://keyplmiiyknlpzpfdkuk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtleXBsbWlpeWtubHB6cGZka3VrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzkzODksImV4cCI6MjA5NTExNTM4OX0.15UFo2n9g-nfBjuP7eAttSAEBs5FpTEY_qmYMms7274';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = (window.supabase && window.supabase.createClient)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
 
 /* ====== 상태 ====== */
 let currentUser = null; // { id, name, role, pin }
@@ -1373,6 +1631,7 @@ let cachedTickets = {};
 let cachedMembers = [];
 let noteLines = [];
 let noteTitle = '숙제노트';
+let taskTogglePending = new Set();
 
 /* ====== 앱 닫기 ====== */
 function closeApp() {
@@ -1712,6 +1971,35 @@ function genId() { return 's_' + Date.now().toString(36) + Math.random().toStrin
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function isParent() { return currentUser && currentUser.role === 'parent'; }
 
+function getMemberPhoto(memberId) {
+  try { return localStorage.getItem('member_photo_' + memberId) || ''; }
+  catch(e) { return ''; }
+}
+
+function setMemberPhoto(memberId, dataUrl) {
+  try { localStorage.setItem('member_photo_' + memberId, dataUrl); }
+  catch(e) { showToast('사진이 너무 커서 저장하지 못했어요'); }
+}
+
+function getLoginPositions() {
+  try { return JSON.parse(localStorage.getItem('login_member_positions') || '{}'); }
+  catch(e) { return {}; }
+}
+
+function saveLoginPosition(memberId, x, y) {
+  const positions = getLoginPositions();
+  positions[memberId] = { x, y };
+  localStorage.setItem('login_member_positions', JSON.stringify(positions));
+}
+
+function defaultLoginPosition(index, total, container, btn) {
+  const gap = 16;
+  const width = btn.offsetWidth || 84;
+  const totalWidth = total * width + (total - 1) * gap;
+  const start = Math.max(0, (container.clientWidth - totalWidth) / 2);
+  return { x: start + index * (width + gap), y: 42 };
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -1733,6 +2021,11 @@ function hideDogMsg() {
 
 /* ====== 로그인 ====== */
 async function initApp() {
+  if (!sb) {
+    const loading = document.getElementById('loadingOverlay');
+    if (loading) loading.textContent = '인터넷 연결 확인 후 다시 열어주세요.';
+    return;
+  }
   const saved = localStorage.getItem('currentUser');
   if (saved) {
     try {
@@ -1746,7 +2039,13 @@ async function initApp() {
       }
     } catch(e) {}
   }
-  showLoginScreen();
+  try {
+    await showLoginScreen();
+  } catch (e) {
+    console.log('init/showLoginScreen error', e);
+    const loading = document.getElementById('loadingOverlay');
+    if (loading) loading.textContent = '데이터 연결 실패. 잠시 후 다시 시도해주세요.';
+  }
 }
 
 async function showLoginScreen() {
@@ -1755,25 +2054,93 @@ async function showLoginScreen() {
   document.getElementById('appMain').classList.remove('show');
   document.getElementById('chatFab').style.display = 'none';
   
-  const { data: members } = await sb.from('members').select('*');
+  const { data: members, error } = await sb.from('members').select('*');
+  if (error) {
+    throw error;
+  }
   cachedMembers = members || [];
   
   const container = document.getElementById('loginMembers');
   container.innerHTML = '';
   
   const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
+  const positions = getLoginPositions();
   cachedMembers.forEach(m => {
     const btn = document.createElement('button');
     btn.className = 'login-member-btn';
-    btn.innerHTML = `<span class="emoji">${emojis[m.id] || '👤'}</span><span class="name">${esc(m.name)}</span>`;
-    btn.onclick = () => selectMember(m);
+    const photo = getMemberPhoto(m.id);
+    btn.innerHTML = `${photo ? `<img class="login-member-photo" src="${photo}" alt="">` : `<span class="emoji">${emojis[m.id] || '👤'}</span>`}<span class="name">${esc(m.name)}</span>`;
+    btn.dataset.memberId = m.id;
+    btn.style.borderColor = '#4A2F1B';
+    btn.style.boxShadow = '3px 3px 0 #4A2F1B';
+    btn.addEventListener('click', e => selectMember(m, e));
+    makeLoginMemberDraggable(btn, m);
     container.appendChild(btn);
+    requestAnimationFrame(() => {
+      const saved = positions[m.id];
+      const pos = saved || defaultLoginPosition(cachedMembers.indexOf(m), cachedMembers.length, container, btn);
+      moveLoginButton(btn, pos.x, pos.y, false);
+    });
   });
+}
+
+function moveLoginButton(btn, x, y, save = true) {
+  const container = btn.parentElement;
+  const maxX = Math.max(0, container.clientWidth - btn.offsetWidth);
+  const maxY = Math.max(0, container.clientHeight - btn.offsetHeight - 8);
+  const nextX = Math.min(Math.max(0, x), maxX);
+  const nextY = Math.min(Math.max(0, y), maxY);
+  btn.style.left = nextX + 'px';
+  btn.style.top = nextY + 'px';
+  if (save) saveLoginPosition(btn.dataset.memberId, nextX, nextY);
+}
+
+function makeLoginMemberDraggable(btn, member) {
+  let startX = 0;
+  let startY = 0;
+  let startLeft = 0;
+  let startTop = 0;
+  let moved = false;
+
+  btn.addEventListener('pointerdown', e => {
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = parseFloat(btn.style.left) || 0;
+    startTop = parseFloat(btn.style.top) || 0;
+    moved = false;
+    btn.dataset.dragged = '';
+    btn.classList.add('dragging');
+    btn.setPointerCapture(e.pointerId);
+  });
+
+  btn.addEventListener('pointermove', e => {
+    if (!btn.classList.contains('dragging')) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.abs(dx) + Math.abs(dy) > 4) {
+      moved = true;
+      btn.dataset.dragged = '1';
+    }
+    moveLoginButton(btn, startLeft + dx, startTop + dy);
+  });
+
+  const stopDrag = e => {
+    if (!btn.classList.contains('dragging')) return;
+    btn.classList.remove('dragging');
+    try { btn.releasePointerCapture(e.pointerId); } catch(err) {}
+    if (moved) {
+      setTimeout(() => { btn.dataset.dragged = ''; }, 0);
+    }
+  };
+
+  btn.addEventListener('pointerup', stopDrag);
+  btn.addEventListener('pointercancel', stopDrag);
 }
 
 let selectedMember = null;
 
-function selectMember(member) {
+function selectMember(member, event) {
+  if (event.currentTarget.dataset.dragged === '1') return;
   soundClick();
   selectedMember = member;
   document.querySelectorAll('.login-member-btn').forEach(b => {
@@ -1782,6 +2149,8 @@ function selectMember(member) {
   const btn = event.currentTarget;
   btn.classList.add('selected');
   btn.classList.add('selected-' + member.id);
+  btn.style.borderColor = '#4A2F1B';
+  btn.style.boxShadow = '3px 3px 0 #4A2F1B';
   document.getElementById('loginPinLabel').textContent = `${member.name} 비밀번호 (4자리)`;
   document.getElementById('loginPinInput').value = '';
   document.getElementById('loginError').textContent = '';
@@ -1789,8 +2158,22 @@ function selectMember(member) {
   setTimeout(() => document.getElementById('loginPinInput').focus(), 100);
 }
 
+function closeLoginPin() {
+  selectedMember = null;
+  document.querySelectorAll('.login-member-btn').forEach(b => {
+    b.classList.remove('selected','selected-elliot','selected-mom','selected-dad');
+  });
+  document.getElementById('loginPinInput').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginPinSection').classList.remove('show');
+}
+
 function doLogin() {
   const pin = document.getElementById('loginPinInput').value;
+  if (!selectedMember) {
+    document.getElementById('loginError').textContent = '먼저 이름을 선택해 주세요';
+    return;
+  }
   if (pin !== selectedMember.pin) {
     document.getElementById('loginError').textContent = '비밀번호가 틀려요 ❌';
     soundError();
@@ -1842,20 +2225,26 @@ async function showMainApp() {
   // 코인 리셋 버튼 (부모만)
   showCoinResetBtn();
   
-  // 데이터 로드
-  await loadAllData();
-  renderAll();
-  
-  // 숙제노트 로드
-  await loadNotes();
-  
-  // 실시간 구독
-  setupRealtime();
-  
-  // 채팅 로드
-  await loadChat();
-  
-  document.getElementById('loadingOverlay').classList.add('hide');
+  try {
+    // 데이터 로드
+    await loadAllData();
+    renderAll();
+    
+    // 숙제노트 로드
+    await loadNotes();
+    
+    // 실시간 구독
+    setupRealtime();
+    
+    // 채팅 로드
+    await loadChat();
+    
+    document.getElementById('loadingOverlay').classList.add('hide');
+  } catch (e) {
+    console.log('showMainApp load error', e);
+    document.getElementById('loadingOverlay').classList.remove('hide');
+    document.getElementById('loadingOverlay').textContent = '데이터 연결 실패. 잠시 후 다시 시도해주세요.';
+  }
 }
 
 /* ====== 데이터 로드 ====== */
@@ -2110,7 +2499,15 @@ function renderTasks() {
         <input type="text" class="task-input" value="${esc(task.text)}" onfocus="this.select()">
         ${taskDel}
       `;
-      tEl.querySelector('.checkbox').addEventListener('click', () => toggleTask(task));
+      const checkboxEl = tEl.querySelector('.checkbox');
+      checkboxEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleTask(task);
+      });
+      tEl.addEventListener('click', (e) => {
+        if (e.target.closest('.task-input') || e.target.closest('.delete-btn') || e.target.closest('.checkbox')) return;
+        toggleTask(task);
+      });
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
       if (isParent()) {
         const db = tEl.querySelector('.delete-btn');
@@ -2242,37 +2639,60 @@ async function addTask(subjectId, dk) {
 }
 
 async function toggleTask(task) {
-  const newDone = !task.done;
-  const updateData = { done: newDone };
-  if (newDone) updateData.done_at = new Date().toISOString();
-  else updateData.done_at = null;
-  await sb.from('tasks').update(updateData).eq('id', task.id);
-  
-  if (newDone) {
-    soundCheck();
-    setTimeout(() => soundCoin(), 200);
-    // 예비 코인 추가
-    const pending = { ...(cachedCoins.pending || {}) };
-    pending[task.date_key] = (pending[task.date_key] || 0) + 1;
-    await sb.from('coins').update({ pending }).eq('member_id', 'elliot');
-    showDogMsg('+1 💰', 1500);
-  } else {
-    soundClick();
-    // 코인 회수
-    const confirmed = cachedConfirmations[task.date_key];
-    if (confirmed) {
-      await sb.from('coins').update({ amount: Math.max(0, cachedCoins.amount - 1) }).eq('member_id', 'elliot');
-      await sb.from('confirmations').delete().eq('date_key', task.date_key);
-      showDogMsg('확인 취소', 1500);
-    } else {
-      const pending = { ...(cachedCoins.pending || {}) };
-      pending[task.date_key] = Math.max(0, (pending[task.date_key] || 0) - 1);
-      await sb.from('coins').update({ pending }).eq('member_id', 'elliot');
-      showDogMsg('-1 💰', 1500);
+  if (taskTogglePending.has(task.id)) return;
+  taskTogglePending.add(task.id);
+  try {
+    const newDone = !task.done;
+    const updateData = { done: newDone };
+    if (newDone) updateData.done_at = new Date().toISOString();
+    else updateData.done_at = null;
+    const { data: updatedRows, error: taskErr } = await sb
+      .from('tasks')
+      .update(updateData)
+      .eq('id', task.id)
+      .select('id')
+      .limit(1);
+    if (taskErr || !updatedRows || updatedRows.length === 0) {
+      if (taskErr && taskErr.code === '42501') showToast('체크 권한이 없어요. 엘리엇으로 로그인해서 확인해줘요.');
+      else showToast('체크 저장이 막혀 있어요. 로그인 계정 확인해줘요.');
+      return;
     }
+    
+    if (newDone) {
+      soundCheck();
+      setTimeout(() => soundCoin(), 200);
+      // 예비 코인 추가
+      const pending = { ...(cachedCoins.pending || {}) };
+      pending[task.date_key] = (pending[task.date_key] || 0) + 1;
+      const { error: coinErr } = await sb.from('coins').update({ pending }).eq('member_id', 'elliot');
+      if (coinErr) console.log('coin pending update error', coinErr);
+      showDogMsg('+1 💰', 1500);
+    } else {
+      soundClick();
+      // 코인 회수
+      const confirmed = cachedConfirmations[task.date_key];
+      if (confirmed) {
+        const { error: coinErr } = await sb.from('coins').update({ amount: Math.max(0, cachedCoins.amount - 1) }).eq('member_id', 'elliot');
+        const { error: confErr } = await sb.from('confirmations').delete().eq('date_key', task.date_key);
+        if (coinErr) console.log('coin confirm rollback error', coinErr);
+        if (confErr) console.log('confirm rollback error', confErr);
+        showDogMsg('확인 취소', 1500);
+      } else {
+        const pending = { ...(cachedCoins.pending || {}) };
+        pending[task.date_key] = Math.max(0, (pending[task.date_key] || 0) - 1);
+        const { error: coinErr } = await sb.from('coins').update({ pending }).eq('member_id', 'elliot');
+        if (coinErr) console.log('coin pending rollback error', coinErr);
+        showDogMsg('-1 💰', 1500);
+      }
+    }
+    
+    await refreshData();
+  } catch (e) {
+    console.log('toggle task error', e);
+    showToast('체크 처리 중 오류가 났어요.');
+  } finally {
+    taskTogglePending.delete(task.id);
   }
-  
-  await refreshData();
 }
 
 async function updateTaskText(taskId, text) {
@@ -2520,17 +2940,257 @@ function closeMomPwd() { document.getElementById('momPwdModal').classList.remove
 function checkMomPwd() { /* 미사용 */ }
 
 /* ====== 설정 ====== */
-function openSettings() {
+function memberOrderId(id) {
+  return id === 'elliot' ? 1 : id === 'mom' ? 2 : id === 'dad' ? 3 : 0;
+}
+
+function memberColor(id) {
+  try {
+    const saved = JSON.parse(localStorage.getItem('member_colors') || '{}');
+    if (saved[id]) return saved[id];
+  } catch(e) {}
+  return id === 'elliot' ? '#2F66C8' : id === 'mom' ? '#C95F83' : id === 'dad' ? '#3F7F4A' : '#5A5A5A';
+}
+
+function darkenColor(hex, amount = 35) {
+  const clean = String(hex || '#555555').replace('#', '');
+  const full = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean;
+  const n = parseInt(full, 16);
+  if (Number.isNaN(n)) return '#333333';
+  const r = Math.max(0, ((n >> 16) & 255) - amount);
+  const g = Math.max(0, ((n >> 8) & 255) - amount);
+  const b = Math.max(0, (n & 255) - amount);
+  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+
+function saveMemberColor(id, color) {
+  try {
+    const saved = JSON.parse(localStorage.getItem('member_colors') || '{}');
+    saved[id] = color;
+    localStorage.setItem('member_colors', JSON.stringify(saved));
+  } catch(e) {}
+}
+
+function orderedMembers() {
+  return [...cachedMembers].sort((a, b) => {
+    const ao = memberOrderId(a.id) || 99;
+    const bo = memberOrderId(b.id) || 99;
+    return ao - bo || String(a.name).localeCompare(String(b.name));
+  });
+}
+
+async function openSettings() {
   if (!isParent()) { showToast('부모만 설정할 수 있어요 🔒'); return; }
   soundClick();
-  document.getElementById('curPwdInput').value = '';
-  document.getElementById('newPwdInput').value = '';
-  document.getElementById('settingsError').textContent = '';
+  if (!cachedMembers.length) {
+    const { data: members } = await sb.from('members').select('*');
+    cachedMembers = members || [];
+  }
   document.getElementById('settingsAppTitle').value = document.getElementById('appTitle').textContent || '';
   document.getElementById('settingsNoteTitle').value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
+  renderMemberSettings();
+  renderPasswordSettings();
+  showSettingsMenu();
   document.getElementById('settingsPanel').classList.add('open');
 }
 function closeSettings() { document.getElementById('settingsPanel').classList.remove('open'); }
+
+function showSettingsMenu() {
+  document.querySelectorAll('#settingsPanel .settings-view').forEach(v => v.classList.remove('show'));
+  document.getElementById('settingsMenuView').classList.add('show');
+  document.getElementById('settingsBackBtn').style.display = '';
+  document.getElementById('settingsHeaderTitle').textContent = '설정';
+}
+
+function settingsBack() {
+  const menu = document.getElementById('settingsMenuView');
+  if (menu && menu.classList.contains('show')) {
+    closeSettings();
+  } else {
+    showSettingsMenu();
+  }
+}
+
+function showSettingsSection(section) {
+  document.querySelectorAll('#settingsPanel .settings-view').forEach(v => v.classList.remove('show'));
+  const titleMap = { login: '로그인 프로필', title: '제목 바꾸기', password: '비밀번호 변경' };
+  document.getElementById(`settings${section[0].toUpperCase() + section.slice(1)}View`).classList.add('show');
+  document.getElementById('settingsBackBtn').style.display = '';
+  document.getElementById('settingsHeaderTitle').textContent = titleMap[section] || '설정';
+}
+
+function renderMemberSettings() {
+  const list = document.getElementById('memberSettingsList');
+  if (!list) return;
+  const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
+  list.innerHTML = orderedMembers().map((m, idx) => {
+    const photo = getMemberPhoto(m.id);
+    const n = memberOrderId(m.id) || idx + 1;
+    const color = memberColor(m.id);
+    const photoHtml = photo
+      ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:44px;height:44px;border-radius:4px;border:none;object-fit:cover;">`
+      : `<div id="memberPhotoPreview-${m.id}" style="width:44px;height:44px;border-radius:4px;background:#EAE0C2;display:flex;align-items:center;justify-content:center;font-size:22px;">${emojis[m.id] || '👤'}</div>`;
+    return `
+      <div style="display:grid;grid-template-columns:34px 48px 1fr auto auto;gap:8px;align-items:center;background:transparent;border:none;padding:8px 0;">
+        <button class="member-color-trigger" style="background:${color};" onclick="document.getElementById('memberColor-${m.id}').click();" title="색 변경">${n}</button>
+        <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" oninput="applyMemberColor('${m.id}')" onchange="applyMemberColor('${m.id}')">
+        ${photoHtml}
+        <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="min-width:0;width:100%;padding:6px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+        <button class="member-icon-btn" onclick="document.getElementById('memberPhotoFile-${m.id}').click();" title="사진">▱</button>
+        <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제">-</button>
+        <input type="file" id="memberPhotoFile-${m.id}" accept="image/*" style="display:none;" onchange="handleMemberPhotoUpload(event,'${m.id}')">
+      </div>
+    `;
+  }).join('');
+}
+
+function renderPasswordSettings() {
+  const list = document.getElementById('passwordSettingsList');
+  if (!list) return;
+  list.innerHTML = orderedMembers().map((m, idx) => {
+    const n = memberOrderId(m.id) || idx + 1;
+    const color = memberColor(m.id);
+    return `
+      <div style="display:grid;grid-template-columns:34px 1fr 1fr auto;gap:10px;align-items:center;background:transparent;border:none;padding:10px 28px;">
+        <span class="member-index-dot" style="background:${color};">${n}</span>
+        <input type="password" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비밀번호" style="min-width:0;width:100%;padding:6px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+        <input type="password" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비밀번호" style="min-width:0;width:100%;padding:6px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+        <button onclick="changeMemberPwd('${m.id}')" style="padding:7px 18px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;">변경</button>
+        <div class="pwd-error" id="settingsError-${m.id}" style="grid-column:2 / 5;min-height:16px;text-align:left;"></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function applyMemberColor(memberId) {
+  const input = document.getElementById('memberColor-' + memberId);
+  const trigger = input ? input.previousElementSibling : null;
+  if (trigger && input) trigger.style.background = input.value;
+  if (!input) return;
+  saveMemberColor(memberId, input.value);
+  renderPasswordSettings();
+  refreshLoginCardsIfVisible();
+}
+
+function refreshLoginCardsIfVisible() {
+  const login = document.getElementById('loginScreen');
+  if (login && login.style.display !== 'none') showLoginScreen();
+}
+
+function handleMemberPhotoUpload(event, memberId) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    setMemberPhoto(memberId, e.target.result);
+    renderMemberSettings();
+    refreshLoginCardsIfVisible();
+  };
+  reader.readAsDataURL(file);
+}
+
+async function addLoginProfile() {
+  const id = 'member_' + Date.now();
+  const count = cachedMembers.length + 1;
+  const member = { id, name: '프로필 ' + count, role: 'child', pin: '0000' };
+  await sb.from('members').insert(member);
+  cachedMembers.push(member);
+  saveMemberColor(id, '#5A5A5A');
+  renderMemberSettings();
+  renderPasswordSettings();
+  refreshLoginCardsIfVisible();
+  showToast('프로필이 추가됐어요. 비밀번호는 0000이에요.');
+}
+
+async function deleteLoginProfile(memberId) {
+  if (cachedMembers.length <= 1) { showToast('프로필은 하나 이상 필요해요'); return; }
+  const member = cachedMembers.find(m => m.id === memberId);
+  if (!member) return;
+  if (!confirm(`${member.name} 프로필을 삭제할까요?`)) return;
+  await sb.from('members').delete().eq('id', memberId);
+  cachedMembers = cachedMembers.filter(m => m.id !== memberId);
+  try {
+    localStorage.removeItem('member_photo_' + memberId);
+    const colors = JSON.parse(localStorage.getItem('member_colors') || '{}');
+    delete colors[memberId];
+    localStorage.setItem('member_colors', JSON.stringify(colors));
+  } catch(e) {}
+  renderMemberSettings();
+  renderPasswordSettings();
+  refreshLoginCardsIfVisible();
+  showToast('프로필이 삭제됐어요.');
+}
+
+async function saveMemberSettings() {
+  const updates = [];
+  cachedMembers.forEach(m => {
+    const input = document.getElementById('memberName-' + m.id);
+    const colorInput = document.getElementById('memberColor-' + m.id);
+    const name = input ? input.value.trim() : '';
+    if (colorInput && colorInput.value) saveMemberColor(m.id, colorInput.value);
+    if (name && name !== m.name) {
+      updates.push(sb.from('members').update({ name }).eq('id', m.id));
+      m.name = name;
+      if (currentUser && currentUser.id === m.id) {
+        currentUser.name = name;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      }
+    }
+  });
+  if (updates.length) await Promise.all(updates);
+  renderMemberSettings();
+  refreshLoginCardsIfVisible();
+  if (currentUser) {
+    const navBtn = document.getElementById('navLogoutBtn');
+    if (navBtn) navBtn.innerHTML = `${currentUser.name} 로그아웃`;
+  }
+  soundFanfare();
+  showToast('로그인 프로필이 저장됐어요!');
+}
+
+function loadSettingsPhotoPreview() {
+  if (!currentUser) return;
+  const saved = localStorage.getItem('profile_photo_' + currentUser.id);
+  const img = document.getElementById('settingsPhotoPreview');
+  const placeholder = document.getElementById('settingsPhotoPlaceholder');
+  if (saved) {
+    img.src = saved;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    placeholder.style.display = 'flex';
+  }
+}
+
+function handleSettingsPhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file || !currentUser) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try { localStorage.setItem('profile_photo_' + currentUser.id, e.target.result); }
+    catch(err) { showToast('사진이 너무 커서 저장하지 못했어요'); return; }
+    loadSettingsPhotoPreview();
+    loadProfilePhoto();
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveProfileSettings() {
+  if (!currentUser) return;
+  const name = document.getElementById('settingsNameInput').value.trim();
+  if (name && name !== currentUser.name) {
+    await sb.from('members').update({ name }).eq('id', currentUser.id);
+    currentUser.name = name;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    const member = cachedMembers.find(m => m.id === currentUser.id);
+    if (member) member.name = name;
+    const navBtn = document.getElementById('navLogoutBtn');
+    if (navBtn) navBtn.innerHTML = `${currentUser.name} 로그아웃`;
+  }
+  soundFanfare();
+  showToast('프로필이 저장됐어요!');
+}
 
 async function saveTitleSettings() {
   const appTitle = document.getElementById('settingsAppTitle').value.trim() || '숙제 체크리스트';
@@ -2559,6 +3219,27 @@ async function changePwd() {
   soundFanfare();
   closeSettings();
   showToast('🔐 비밀번호가 변경됐어요!');
+}
+
+async function changeMemberPwd(memberId) {
+  const member = cachedMembers.find(m => m.id === memberId);
+  if (!member) return;
+  const cur = document.getElementById('curPwdInput-' + memberId).value;
+  const newP = document.getElementById('newPwdInput-' + memberId).value;
+  const err = document.getElementById('settingsError-' + memberId);
+  if (cur !== member.pin) { err.textContent = '현재 비밀번호가 틀려요'; soundError(); return; }
+  if (!/^\d{4}$/.test(newP)) { err.textContent = '새 비밀번호는 4자리 숫자여야 해요'; soundError(); return; }
+  await sb.from('members').update({ pin: newP }).eq('id', memberId);
+  member.pin = newP;
+  if (currentUser && currentUser.id === memberId) {
+    currentUser.pin = newP;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }
+  document.getElementById('curPwdInput-' + memberId).value = '';
+  document.getElementById('newPwdInput-' + memberId).value = '';
+  err.textContent = '';
+  soundFanfare();
+  showToast(`${memberOrderId(memberId) || ''}번 비밀번호가 변경됐어요!`);
 }
 
 /* ====== 상점 ====== */
