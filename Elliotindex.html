@@ -2498,7 +2498,21 @@ function renderCalendar() {
     }
     
     cell.innerHTML = html;
-    cell.onclick = () => { soundClick(); selectedDate = key; renderAll(); openDayDetail(key); };
+    cell.onclick = () => {
+  const now = Date.now();
+  const isDoubleTap = window.lastCalendarTapKey === key && now - window.lastCalendarTapTime < 400;
+
+  window.lastCalendarTapKey = key;
+  window.lastCalendarTapTime = now;
+
+  soundClick();
+  selectedDate = key;
+  renderAll();
+
+  if (isDoubleTap) {
+    openDayDetail(key);
+  }
+};
     grid.appendChild(cell);
   }
 }
