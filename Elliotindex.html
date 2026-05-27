@@ -78,7 +78,7 @@
     gap: 2px;
     cursor: grab;
     box-shadow: 3px 3px 0 #4A2F1B;
-    transition: box-shadow 0.15s;
+    transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
     width: 74px;
     height: 74px;
     min-width: 74px;
@@ -90,7 +90,7 @@
     user-select: none;
     touch-action: none;
   }
-  .login-member-btn.dragging { cursor: grabbing; box-shadow: 4px 4px 8px rgba(0,0,0,0.3); z-index: 100; }
+  .login-member-btn.dragging { cursor: grabbing; box-shadow: 6px 6px 12px rgba(0,0,0,0.3); z-index: 100; transform: scale(1.12); }
   .login-member-btn.drag-over { transform: translateY(-3px); }
   .login-member-btn:active {
     transform: translate(1px, 1px);
@@ -2131,11 +2131,11 @@ function resolveCollisions(draggedBtn) {
       const maxY = Math.max(0, container.clientHeight - other.offsetHeight - 8);
       const newX = Math.min(Math.max(0, parseFloat(other.style.left) + pushX), maxX);
       const newY = Math.min(Math.max(0, parseFloat(other.style.top) + pushY), maxY);
-      other.style.transition = 'left 0.3s ease-out, top 0.3s ease-out';
+      other.style.transition = 'left 0.45s cubic-bezier(0.25, 1, 0.5, 1), top 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
       other.style.left = newX + 'px';
       other.style.top = newY + 'px';
       saveLoginPosition(other.dataset.memberId, newX, newY);
-      setTimeout(() => { other.style.transition = ''; }, 350);
+      setTimeout(() => { other.style.transition = ''; }, 500);
     }
   });
 }
@@ -2219,12 +2219,16 @@ function selectMember(member, event) {
   selectedMember = member;
   document.querySelectorAll('.login-member-btn').forEach(b => {
     b.classList.remove('selected','selected-elliot','selected-mom','selected-dad');
+    b.style.transform = '';
+    b.style.borderColor = '#4A2F1B';
+    b.style.boxShadow = '3px 3px 0 #4A2F1B';
   });
   const btn = event.currentTarget;
   btn.classList.add('selected');
   btn.classList.add('selected-' + member.id);
-  btn.style.borderColor = '#4A2F1B';
-  btn.style.boxShadow = '3px 3px 0 #4A2F1B';
+  btn.style.transform = 'scale(1.15)';
+  btn.style.borderColor = '#5A8A5E';
+  btn.style.boxShadow = '0 0 0 3px #5A8A5E, 4px 4px 10px rgba(0,0,0,0.2)';
   document.getElementById('loginPinLabel').textContent = `${member.name} 비밀번호 (4자리)`;
   document.getElementById('loginPinInput').value = '';
   document.getElementById('loginError').textContent = '';
@@ -2236,6 +2240,9 @@ function closeLoginPin() {
   selectedMember = null;
   document.querySelectorAll('.login-member-btn').forEach(b => {
     b.classList.remove('selected','selected-elliot','selected-mom','selected-dad');
+    b.style.transform = '';
+    b.style.borderColor = '#4A2F1B';
+    b.style.boxShadow = '3px 3px 0 #4A2F1B';
   });
   document.getElementById('loginPinInput').value = '';
   document.getElementById('loginError').textContent = '';
