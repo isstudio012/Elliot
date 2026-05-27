@@ -1330,6 +1330,18 @@
   </div>
 </div>
 
+<!-- 날짜메모 팝업 모달 -->
+<div class="note-modal-bg" id="dayMemoModal" onclick="if(event.target===this)closeDayMemoModal()">
+  <div class="note-modal fullscreen">
+    <div class="note-modal-header">
+      <span class="note-modal-title" id="dayMemoModalTitle">메모</span>
+      <button class="note-modal-close" onclick="closeDayMemoModal()">✕</button>
+    </div>
+    <div class="note-modal-body" id="dayMemoModalBody"></div>
+    <button class="note-modal-add" onclick="addDayMemoFromModal()">+ 메모 추가</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- 날짜 상세 패널 (전체창) -->
@@ -3051,13 +3063,18 @@ function renderDayDetail(dk) {
   }
   html += `</div>`;
   
-  // 날짜 메모 (숙제노트 스타일)
+  // 날짜 메모 (숙제노트 접이식 스타일)
   const memos = dayMemos[dk] || [''];
   html += `<div class="homework-note-card" style="margin-bottom:8px;">`;
-  html += `<div class="homework-note-header" style="padding:6px 10px;">`;
+  html += `<div class="homework-note-header" style="padding:6px 10px;" onclick="toggleDayMemoNote(event)">`;
   html += `<div class="homework-note-title-wrap"><span class="homework-note-title">메모</span></div>`;
+  html += `<button class="homework-note-expand" onclick="event.stopPropagation(); openDayMemoModal('${dk}');" title="확대">`;
+  html += `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="9" r="7"/><line x1="9" y1="5.5" x2="9" y2="12.5"/><line x1="5.5" y1="9" x2="12.5" y2="9"/></svg>`;
+  html += `</button>`;
+  html += `<span class="homework-note-toggle open" id="dayMemoToggleIcon">▼</span>`;
   html += `</div>`;
-  html += `<div class="homework-note-content">`;
+  html += `<div class="homework-note-body open" id="dayMemoBody">`;
+  html += `<div class="homework-note-content" id="dayMemoContent">`;
   memos.forEach((text, i) => {
     html += `<div class="note-line">`;
     html += `<span style="font-family:Gaegu,cursive;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>`;
@@ -3069,6 +3086,7 @@ function renderDayDetail(dk) {
   });
   html += `</div>`;
   html += `<button class="note-add-btn" onclick="addDayMemo('${dk}')">+ 메모 추가</button>`;
+  html += `</div>`;
   html += `</div>`;
   
   body.innerHTML = html;
@@ -3120,6 +3138,82 @@ function deleteDayMemo(dk, idx) {
   if (dayMemos[dk].length === 0) dayMemos[dk] = [''];
   renderDayDetail(dk);
   saveDayMemo(dk);
+}
+
+/* 날짜메모 접이식 토글 */
+function toggleDayMemoNote(e) {
+  const body = document.getElementById('dayMemoBody');
+  const icon = document.getElementById('dayMemoToggleIcon');
+  if (body && icon) {
+    body.classList.toggle('open');
+    icon.classList.toggle('open');
+  }
+}
+
+/* 날짜메모 전체창 모달 */
+let currentDayMemoKey = null;
+
+function openDayMemoModal(dk) {
+  currentDayMemoKey = dk;
+  const [y, m, d] = dk.split('-').map(Number);
+  document.getElementById('dayMemoModalTitle').textContent = `${m}월 ${d}일 메모`;
+  renderDayMemoModal(dk);
+  document.getElementById('dayMemoModal').classList.add('show');
+  setTimeout(() => {
+    document.querySelectorAll('#dayMemoModalBody .note-input').forEach(el => autoResize(el));
+  }, 50);
+}
+
+function closeDayMemoModal() {
+  document.getElementById('dayMemoModal').classList.remove('show');
+  if (currentDayMemoKey) renderDayDetail(currentDayMemoKey);
+  currentDayMemoKey = null;
+}
+
+function renderDayMemoModal(dk) {
+  const body = document.getElementById('dayMemoModalBody');
+  const memos = dayMemos[dk] || [''];
+  body.innerHTML = memos.map((text, i) => `
+    <div class="note-line">
+      <span style="font-family:Gaegu,cursive;font-size:15px;font-weight:700;color:#999;min-width:22px;">${i+1}.</span>
+      <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
+        oninput="dayMemos['${dk}'][${i}]=this.value; autoResize(this); debounceSaveDayMemo('${dk}');"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); dayMemoLineEnter('${dk}',${i});}">${escapeHTML(text)}</textarea>
+      ${memos.length > 1 ? `<button class="note-delete-btn" onclick="deleteDayMemoFromModal('${dk}',${i})">✕</button>` : ''}
+    </div>
+  `).join('');
+  body.querySelectorAll('.note-input').forEach(el => autoResize(el));
+}
+
+function addDayMemoFromModal() {
+  if (!currentDayMemoKey) return;
+  const dk = currentDayMemoKey;
+  if (!dayMemos[dk]) dayMemos[dk] = [];
+  dayMemos[dk].push('');
+  renderDayMemoModal(dk);
+  saveDayMemo(dk);
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#dayMemoModalBody .note-input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function deleteDayMemoFromModal(dk, idx) {
+  if (!confirm('지울까요?')) return;
+  dayMemos[dk].splice(idx, 1);
+  if (dayMemos[dk].length === 0) dayMemos[dk] = [''];
+  renderDayMemoModal(dk);
+  saveDayMemo(dk);
+}
+
+function dayMemoLineEnter(dk, idx) {
+  dayMemos[dk].splice(idx + 1, 0, '');
+  renderDayMemoModal(dk);
+  saveDayMemo(dk);
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#dayMemoModalBody .note-input');
+    if (inputs[idx + 1]) inputs[idx + 1].focus();
+  }, 50);
 }
 
 initApp();
