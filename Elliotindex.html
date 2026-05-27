@@ -593,7 +593,7 @@
   
   .cal-title { font-family: 'Gaegu', cursive; font-size: 17px; font-weight: 700; color: #4A2F1B; }
   
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 44px); gap: 4px; width: 100%; justify-content: space-between; }
   
   .cal-day-name {
     text-align: center;
@@ -608,15 +608,16 @@
   .cal-day-name.sat { color: #6B89B8; }
   
   .cal-cell {
-    aspect-ratio: 5 / 6;
-    border-radius: 10px;
+    aspect-ratio: auto;
+    height: 48px;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     font-family: 'Gaegu', cursive;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     background: #EAE0C2;
     -webkit-text-stroke: 0.2px currentColor;
