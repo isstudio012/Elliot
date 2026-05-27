@@ -238,16 +238,13 @@
     font-size: 26px;
     font-weight: 700;
     letter-spacing: -1px;
-    cursor: pointer;
     padding: 2px 4px;
     border-radius: 6px;
-    transition: background 0.2s;
     color: #3A2010;
     word-break: break-all;
     line-height: 1.2;
     -webkit-text-stroke: 0.5px #3A2010;
   }
-  .profile-msg h1:hover { background: rgba(74,47,27,0.08); }
 
   /* ====== 숙제노트 (접이식) ====== */
   .homework-note-card {
@@ -1093,7 +1090,7 @@
         <input type="file" id="profileFileInput" accept="image/*" style="display:none;" onchange="handleProfileUpload(event)">
       </div>
       <div class="profile-msg">
-        <h1 id="appTitle" onclick="editAppTitle()"></h1>
+        <h1 id="appTitle"></h1>
       </div>
     </div>
     
@@ -1128,7 +1125,7 @@
     <div class="homework-note-card">
       <div class="homework-note-header" onclick="toggleHomeworkNote(event)">
         <div class="homework-note-title-wrap">
-          <input type="text" class="homework-note-title" id="homeworkNoteTitle" value="숙제노트" onclick="event.stopPropagation();" onblur="saveNoteTitle()">
+          <span class="homework-note-title" id="homeworkNoteTitle">숙제노트</span>
         </div>
         <button class="homework-note-expand" onclick="event.stopPropagation(); openNoteModal();" title="확대">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="9" r="7"/><line x1="9" y1="5.5" x2="9" y2="12.5"/><line x1="5.5" y1="9" x2="12.5" y2="9"/></svg>
@@ -1234,17 +1231,39 @@
 </div>
 
 <!-- 설정 -->
-<div class="modal-bg" id="settingsModal" onclick="if(event.target===this)closeSettings()">
-  <div class="modal pwd-modal">
-    <div class="pwd-modal-title">비밀번호 변경</div>
-    <div class="pwd-modal-sub">현재 비밀번호</div>
-    <input type="password" class="pwd-input" id="curPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
-    <div class="pwd-modal-sub" style="margin-top:8px;">새 비밀번호 (4자리)</div>
-    <input type="password" class="pwd-input" id="newPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
-    <div class="pwd-error" id="settingsError"></div>
-    <div class="modal-btns">
-      <button class="modal-btn cancel" onclick="closeSettings()">취소</button>
-      <button class="modal-btn primary" onclick="changePwd()">변경</button>
+<!-- 설정 페이지 (전체창) -->
+<div class="chat-panel" id="settingsPanel">
+  <div class="chat-header" style="background:#E8F0E0;border-bottom:2px solid #2E5A32;">
+    <span class="chat-header-title" style="color:#2E5A32;">⚙️ 설정</span>
+    <button class="chat-close-btn" style="color:#2E5A32;" onclick="closeSettings()">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px 14px;background:#F5EDD7;">
+    <!-- 제목 바꾸기 -->
+    <div style="background:#E8F0E0;border:2px solid #5A8A5E;border-radius:10px;padding:10px 12px;margin-bottom:10px;box-shadow:2px 2px 0 #2E5A32;">
+      <div style="font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#2E5A32;margin-bottom:8px;">📝 제목 바꾸기</div>
+      <div style="margin-bottom:8px;">
+        <div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-bottom:3px;">메인화면 제목</div>
+        <input type="text" id="settingsAppTitle" maxlength="30" placeholder="메인화면 제목" style="width:100%;padding:6px 8px;border:1.5px solid #5A8A5E;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#4A2F1B;">
+      </div>
+      <div style="margin-bottom:6px;">
+        <div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-bottom:3px;">숙제노트 제목</div>
+        <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="width:100%;padding:6px 8px;border:1.5px solid #5A8A5E;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#4A2F1B;">
+      </div>
+      <button onclick="saveTitleSettings()" style="width:100%;padding:6px;background:#5A8A5E;color:white;border:1.5px solid #2E5A32;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+    </div>
+    <!-- 비밀번호 변경 -->
+    <div style="background:#E8F0E0;border:2px solid #5A8A5E;border-radius:10px;padding:10px 12px;margin-bottom:10px;box-shadow:2px 2px 0 #2E5A32;">
+      <div style="font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#2E5A32;margin-bottom:8px;">🔐 비밀번호 변경</div>
+      <div style="margin-bottom:6px;">
+        <div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-bottom:3px;">현재 비밀번호</div>
+        <input type="password" id="curPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="width:100%;padding:5px 8px;border:1.5px solid #5A8A5E;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;text-align:center;letter-spacing:6px;outline:none;background:white;color:#4A2F1B;">
+      </div>
+      <div style="margin-bottom:6px;">
+        <div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-bottom:3px;">새 비밀번호 (4자리)</div>
+        <input type="password" id="newPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="width:100%;padding:5px 8px;border:1.5px solid #5A8A5E;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;text-align:center;letter-spacing:6px;outline:none;background:white;color:#4A2F1B;">
+      </div>
+      <div class="pwd-error" id="settingsError" style="min-height:16px;"></div>
+      <button onclick="changePwd()" style="width:100%;padding:6px;background:#5A8A5E;color:white;border:1.5px solid #2E5A32;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">변경</button>
     </div>
   </div>
 </div>
@@ -1312,6 +1331,16 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- 날짜 상세 패널 (전체창) -->
+<div class="chat-panel" id="dayDetailPanel">
+  <div class="chat-header" style="background:#5A8A5E;border-bottom:2px solid #2E5A32;">
+    <span class="chat-header-title" id="dayDetailTitle" style="color:white;">5월 27일 (수)</span>
+    <button class="chat-close-btn" style="color:white;" onclick="closeDayDetail()">✕</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:10px 12px;background:#F5EDD7;" id="dayDetailBody">
+  </div>
+</div>
 
 <script>
 /* ====== Supabase 초기화 ====== */
@@ -1423,7 +1452,7 @@ async function saveNoteLines() {
   try {
     await sb.from('homework_notes').upsert({
       user_id: currentUser.id,
-      note_title: document.getElementById('homeworkNoteTitle').value || '숙제노트',
+      note_title: document.getElementById('homeworkNoteTitle').textContent || '숙제노트',
       note_lines: JSON.stringify(noteLines),
       updated_at: new Date().toISOString()
     }, { onConflict: 'user_id' });
@@ -1441,7 +1470,7 @@ async function loadNotes() {
     if (data) {
       noteLines = JSON.parse(data.note_lines || '[]');
       const titleEl = document.getElementById('homeworkNoteTitle');
-      if (data.note_title) titleEl.value = data.note_title;
+      if (data.note_title) titleEl.textContent = data.note_title;
     } else {
       noteLines = [];
     }
@@ -1495,6 +1524,7 @@ function openNoteModal() {
   document.getElementById('noteModalTitle').textContent = title;
   renderNoteModal();
   document.getElementById('noteModal').classList.add('show');
+  document.querySelector('.note-modal').classList.add('fullscreen');
   // textarea 높이 재조정
   setTimeout(() => {
     document.querySelectorAll('#noteModalBody .note-input').forEach(el => autoResize(el));
@@ -1573,12 +1603,11 @@ async function confirmCoinReset() {
   }
   try {
     // 코인을 0으로, pending도 초기화
-    await sb.from('coins').upsert({
-      family_id: 'elliot_family',
+    await sb.from('coins').update({
       amount: 0,
-      pending: JSON.stringify({}),
+      pending: {},
       updated_at: new Date().toISOString()
-    }, { onConflict: 'family_id' });
+    }).eq('member_id', 'elliot');
     
     cachedCoins.amount = 0;
     cachedCoins.pending = {};
@@ -1989,7 +2018,7 @@ function renderCalendar() {
     }
     
     cell.innerHTML = html;
-    cell.onclick = () => { soundClick(); selectedDate = key; renderAll(); };
+    cell.onclick = () => { soundClick(); selectedDate = key; renderAll(); openDayDetail(key); };
     grid.appendChild(cell);
   }
 }
@@ -2034,7 +2063,7 @@ function renderTasks() {
     sEl.innerHTML = `
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};" onclick="toggleSubject('${s.id}')">
         <span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}">▼</span>
-        <input type="text" class="subject-name-input" value="${esc(s.name)}" maxlength="20" onfocus="this.select()" onclick="event.stopPropagation();">
+        <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
         <span class="subject-status">${done}/${tasks.length}</span>
         ${deleteBtn}
       </div>
@@ -2045,7 +2074,6 @@ function renderTasks() {
     `;
     container.appendChild(sEl);
     
-    sEl.querySelector('.subject-name-input').addEventListener('change', e => updateSubjectName(s.id, e.target.value));
     if (isParent()) {
       const delBtn = sEl.querySelector('.subject-delete-btn');
       if (delBtn) delBtn.addEventListener('click', () => openDeleteSubject(s.id));
@@ -2480,9 +2508,24 @@ function openSettings() {
   document.getElementById('curPwdInput').value = '';
   document.getElementById('newPwdInput').value = '';
   document.getElementById('settingsError').textContent = '';
-  document.getElementById('settingsModal').classList.add('show');
+  document.getElementById('settingsAppTitle').value = document.getElementById('appTitle').textContent || '';
+  document.getElementById('settingsNoteTitle').value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
+  document.getElementById('settingsPanel').classList.add('open');
 }
-function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
+function closeSettings() { document.getElementById('settingsPanel').classList.remove('open'); }
+
+async function saveTitleSettings() {
+  const appTitle = document.getElementById('settingsAppTitle').value.trim() || '숙제 체크리스트';
+  const noteTitle = document.getElementById('settingsNoteTitle').value.trim() || '숙제노트';
+  await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle });
+  document.getElementById('appTitle').textContent = appTitle;
+  document.getElementById('homeworkNoteTitle').textContent = noteTitle;
+  document.getElementById('noteModalTitle').textContent = noteTitle;
+  noteLines; // trigger save with new title
+  await saveNoteLines();
+  soundFanfare();
+  showToast('✅ 제목이 저장됐어요!');
+}
 
 async function changePwd() {
   const cur = document.getElementById('curPwdInput').value;
@@ -2937,6 +2980,148 @@ if (window.visualViewport) {
 }
 
 /* ====== 시작 ====== */
+/* ====== 날짜 상세 패널 ====== */
+let dayMemos = {};
+
+async function openDayDetail(dk) {
+  const [y, m, d] = dk.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  const days = ['일','월','화','수','목','금','토'];
+  document.getElementById('dayDetailTitle').textContent = `${m}월 ${d}일 (${days[dt.getDay()]})`;
+  
+  await loadDayMemo(dk);
+  renderDayDetail(dk);
+  document.getElementById('dayDetailPanel').classList.add('open');
+}
+
+function closeDayDetail() {
+  document.getElementById('dayDetailPanel').classList.remove('open');
+}
+
+function renderDayDetail(dk) {
+  const body = document.getElementById('dayDetailBody');
+  const subs = getSubjectsForDate(dk);
+  const stats = getDayStats(dk);
+  const confirmed = cachedConfirmations[dk];
+  const pending = cachedCoins.pending[dk] || 0;
+  
+  let html = '';
+  
+  // 과목 + 숙제
+  if (subs.length === 0) {
+    html += `<div style="padding:8px 4px;font-family:'Gaegu',cursive;font-size:15px;color:#7C5A3A;">등록된 과목이 없어요</div>`;
+  } else {
+    subs.forEach(s => {
+      const tasks = getTasksForSubject(dk, s.id);
+      const done = tasks.filter(t => t.done).length;
+      html += `<div style="background:white;border:2px solid #4A2F1B;border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:2px 2px 0 #4A2F1B;">`;
+      html += `<div style="padding:6px 10px;background:${s.color || '#EAE0C2'};display:flex;align-items:center;justify-content:space-between;">`;
+      html += `<span style="font-family:'Gaegu',cursive;font-size:18px;font-weight:700;color:#3A2010;-webkit-text-stroke:0.5px #3A2010;">${esc(s.name)}</span>`;
+      html += `<span style="font-family:'Gaegu',cursive;font-size:14px;font-weight:700;color:#7C2D12;">${done}/${tasks.length}</span>`;
+      html += `</div>`;
+      if (tasks.length === 0) {
+        html += `<div style="padding:8px 10px;font-family:'Gowun Dodum',sans-serif;font-size:13px;color:#AAA;">숙제 없음</div>`;
+      } else {
+        tasks.forEach(t => {
+          const icon = t.done ? '✅' : '⬜';
+          const style = t.done ? 'text-decoration:line-through;color:#A8967C;' : 'color:#222;';
+          html += `<div style="padding:5px 10px;display:flex;align-items:center;gap:6px;border-top:1px dashed #E0D8C8;">`;
+          html += `<span style="font-size:14px;">${icon}</span>`;
+          html += `<span style="font-family:'Gowun Dodum',sans-serif;font-size:14px;font-weight:700;${style}">${esc(t.text)}</span>`;
+          html += `</div>`;
+        });
+      }
+      html += `</div>`;
+    });
+  }
+  
+  // 확인 여부 + 코인 (글씨만)
+  html += `<div style="padding:6px 4px;margin-bottom:4px;">`;
+  if (confirmed) {
+    const confirmer = cachedMembers.find(m => m.id === confirmed.confirmed_by);
+    const cName = confirmer ? confirmer.name : '부모';
+    html += `<div style="font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#2E5A32;">✅ ${esc(cName)}가 확인 완료</div>`;
+  } else if (stats.total > 0 && stats.done === stats.total) {
+    html += `<div style="font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#D4A020;">⏳ 확인 대기 중</div>`;
+  } else {
+    html += `<div style="font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#7C5A3A;">❌ 미확인</div>`;
+  }
+  if (stats.total > 0) {
+    html += `<div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-top:2px;">💰 코인: ${confirmed ? '확정' : '예비 +' + pending}</div>`;
+  }
+  html += `</div>`;
+  
+  // 날짜 메모 (숙제노트 스타일)
+  const memos = dayMemos[dk] || [''];
+  html += `<div class="homework-note-card" style="margin-bottom:8px;">`;
+  html += `<div class="homework-note-header" style="padding:6px 10px;">`;
+  html += `<div class="homework-note-title-wrap"><span class="homework-note-title">메모</span></div>`;
+  html += `</div>`;
+  html += `<div class="homework-note-content">`;
+  memos.forEach((text, i) => {
+    html += `<div class="note-line">`;
+    html += `<span style="font-family:Gaegu,cursive;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>`;
+    html += `<textarea class="note-input" placeholder="내용을 입력하세요..." rows="1" oninput="dayMemos['${dk}'][${i}]=this.value;autoResize(this);debounceSaveDayMemo('${dk}');">${escapeHTML(text)}</textarea>`;
+    if (memos.length > 1) {
+      html += `<button class="note-delete-btn" onclick="deleteDayMemo('${dk}',${i})">✕</button>`;
+    }
+    html += `</div>`;
+  });
+  html += `</div>`;
+  html += `<button class="note-add-btn" onclick="addDayMemo('${dk}')">+ 메모 추가</button>`;
+  html += `</div>`;
+  
+  body.innerHTML = html;
+  body.querySelectorAll('.note-input').forEach(el => autoResize(el));
+}
+
+async function loadDayMemo(dk) {
+  if (dayMemos[dk]) return;
+  try {
+    const { data } = await sb.from('day_memos').select('*').eq('date_key', dk).single();
+    if (data) {
+      dayMemos[dk] = JSON.parse(data.memo_lines || '[""]');
+    } else {
+      dayMemos[dk] = [''];
+    }
+  } catch(e) { dayMemos[dk] = ['']; }
+}
+
+let dayMemoTimers = {};
+function debounceSaveDayMemo(dk) {
+  clearTimeout(dayMemoTimers[dk]);
+  dayMemoTimers[dk] = setTimeout(() => saveDayMemo(dk), 800);
+}
+
+async function saveDayMemo(dk) {
+  try {
+    await sb.from('day_memos').upsert({
+      date_key: dk,
+      memo_lines: JSON.stringify(dayMemos[dk] || ['']),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'date_key' });
+  } catch(e) { console.log('day memo save error', e); }
+}
+
+function addDayMemo(dk) {
+  if (!dayMemos[dk]) dayMemos[dk] = [];
+  dayMemos[dk].push('');
+  renderDayDetail(dk);
+  saveDayMemo(dk);
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#dayDetailBody .note-input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function deleteDayMemo(dk, idx) {
+  if (!confirm('지울까요?')) return;
+  dayMemos[dk].splice(idx, 1);
+  if (dayMemos[dk].length === 0) dayMemos[dk] = [''];
+  renderDayDetail(dk);
+  saveDayMemo(dk);
+}
+
 initApp();
 </script>
 
