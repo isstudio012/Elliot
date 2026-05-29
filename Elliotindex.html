@@ -864,7 +864,7 @@
     background: linear-gradient(to right, #3D6B40, #6A9A6E);
     border: 2px solid #2E5A32;
     border-radius: 10px;
-    padding: 0 8px;
+    padding: 0 6px;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -879,8 +879,8 @@
     95% { transform: rotateY(360deg); }
   }
   
-  .coin-amount { font-family: 'Gaegu', cursive; font-size: 55px; font-weight: 700; color: white; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); }
-  .coin-pending { font-family: 'Gaegu', cursive; font-size: 25px; color: #D4EDDA; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .coin-amount { font-family: 'Gaegu', cursive; font-size: clamp(42px, 11vw, 55px); font-weight: 700; color: white; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); }
+  .coin-pending { font-family: 'Gaegu', cursive; font-size: clamp(16px, 4.8vw, 25px); color: #D4EDDA; font-weight: 700; line-height: 1; white-space: nowrap; }
   .coin-stack { font-size: 18px; margin-left: auto; }
   
   .shop-btn {
