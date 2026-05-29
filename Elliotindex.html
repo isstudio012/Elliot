@@ -1386,22 +1386,32 @@
       <line id="goalBotRight" x1="68" y1="96" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
       <line id="goalBotBack"  x1="32" y1="100" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
-    <!-- 센터서클 + 누구세요? (CSS 고정 정원) -->
+    <!-- 센터서클 (CSS 고정 정원) -->
     <div id="centerCircleWrap" style="
       position:absolute;
       left:50%; top:50%;
       transform:translate(-50%,-50%);
-      width:22vw; height:22vw;
-      max-width:120px; max-height:120px;
-      min-width:80px; min-height:80px;
+      width:55vw; height:55vw;
+      max-width:260px; max-height:260px;
+      min-width:160px; min-height:160px;
       border-radius:50%;
       border:1.2px solid rgba(74,47,27,0.35);
-      display:flex; align-items:center; justify-content:center;
       pointer-events:none;
       z-index:2;
-    ">
-      <span style="font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#5A3A2A;">누구세요?</span>
-    </div>
+    "></div>
+    <!-- 누구세요? 텍스트 - 센터라인 위, 원 안 -->
+    <div style="
+      position:absolute;
+      left:50%; top:calc(50% - 18px);
+      transform:translateX(-50%);
+      font-family:'Gaegu',cursive;
+      font-size:18px;
+      font-weight:700;
+      color:#5A3A2A;
+      white-space:nowrap;
+      pointer-events:none;
+      z-index:3;
+    ">누구세요?</div>
 
     <!-- 공(멤버) 컨테이너 -->
     <div class="login-members" id="loginMembers"></div>
