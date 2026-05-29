@@ -1510,7 +1510,7 @@
     <div class="login-members" id="loginMembers"></div>
     <div class="login-pin-section" id="loginPinSection">
       <div class="login-pin-row">
-        <input type="password" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" onkeypress="if(event.key==='Enter')doLogin()">
+        <input type="tel" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" onkeypress="if(event.key==='Enter')doLogin()">
         <button class="login-confirm-btn" onclick="doLogin()" title="확인">✓</button>
         <button class="login-pin-close" onclick="closeLoginPin()" title="닫기" style="width:28px;height:28px;font-size:16px;margin-left:4px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;">×</button>
       </div>
@@ -1673,7 +1673,7 @@
   <div class="modal pwd-modal">
     <div class="pwd-modal-title">부모 확인</div>
     <div class="pwd-modal-sub">비밀번호를 입력하세요</div>
-    <input type="password" class="pwd-input" id="momPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
+    <input type="tel" class="pwd-input" id="momPwdInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
     <div class="pwd-error" id="momPwdError"></div>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="closeMomPwd()">취소</button>
@@ -1781,7 +1781,7 @@
   <div class="modal pwd-modal">
     <div class="pwd-modal-title" id="deleteSubjectMsg"></div>
     <div class="pwd-modal-sub">삭제하려면 비밀번호를 입력하세요</div>
-    <input type="password" class="pwd-input" id="deleteSubjectPwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
+    <input type="tel" class="pwd-input" id="deleteSubjectPwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
     <div class="pwd-error" id="deleteSubjectError"></div>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="closeDeleteSubject()">취소</button>
@@ -1809,7 +1809,7 @@
 <div class="modal-bg" id="coinResetModal" onclick="if(event.target===this)closeCoinReset()">
   <div class="modal pwd-modal" style="padding:14px;">
     <div class="confirm-msg" style="font-size:16px;margin-bottom:8px;">코인을 리셋할까요?<br>비밀번호를 입력하세요</div>
-    <input type="password" class="pwd-input" id="coinResetPwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="margin-bottom:6px;">
+    <input type="tel" class="pwd-input" id="coinResetPwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="margin-bottom:6px;">
     <div class="pwd-error" id="coinResetError"></div>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="closeCoinReset()">취소</button>
@@ -2311,19 +2311,6 @@ async function initApp() {
     const loading = document.getElementById('loadingOverlay');
     if (loading) loading.textContent = '인터넷 연결 확인 후 다시 열어주세요.';
     return;
-  }
-  const saved = localStorage.getItem('currentUser');
-  if (saved) {
-    try {
-      currentUser = JSON.parse(saved);
-      // DB에서 멤버 정보 재확인
-      const { data } = await sb.from('members').select('*').eq('id', currentUser.id).single();
-      if (data) {
-        currentUser = data;
-        showMainApp();
-        return;
-      }
-    } catch(e) {}
   }
   try {
     await showLoginScreen();
@@ -3647,8 +3634,8 @@ function renderPasswordSettings() {
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
           <span class="member-index-dot" style="background:${color};flex-shrink:0;">${n}</span>
-          <input type="password" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <input type="password" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <input type="tel" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <input type="tel" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">변경</button>
         <div class="pwd-error" id="settingsError-${m.id}" style="min-height:0;display:none;"></div>
       </div>
