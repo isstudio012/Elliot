@@ -1378,13 +1378,13 @@
       <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.15" stroke-opacity="0.35"/>
 
       <!-- 위쪽 골대 ㄷ자: 폭 32~68%, 깊이 4% -->
-      <line id="goalTopLeft"  x1="41" y1="0" x2="41" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopRight" x1="59" y1="0" x2="59" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopBack"  x1="41" y1="0" x2="59" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopLeft"  x1="38.5" y1="0" x2="38.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopRight" x1="61.5" y1="0" x2="61.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopBack"  x1="38.5" y1="0" x2="61.5" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
       <!-- 아래쪽 골대 ㄷ자 -->
-      <line id="goalBotLeft"  x1="41" y1="97" x2="41" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotRight" x1="59" y1="97" x2="59" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotBack"  x1="41" y1="100" x2="59" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotLeft"  x1="38.5" y1="97" x2="38.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotRight" x1="61.5" y1="97" x2="61.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotBack"  x1="38.5" y1="100" x2="61.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
     <!-- 센터서클 (CSS 고정 정원) -->
     <div id="centerCircleWrap" style="
@@ -1750,6 +1750,19 @@ let noteTitle = '숙제노트';
 /* ====== 앱 닫기 (로그인화면) ====== */
 function closeLoginApp() {
   if (confirm('앱을 종료할까요?')) {
+    try { window.close(); } catch(e) {}
+    setTimeout(() => {
+      try {
+        window.history.pushState(null, '', window.location.href);
+        window.location.replace('about:blank');
+      } catch(e) {}
+    }, 150);
+  }
+}
+
+/* ====== 앱 닫기 (메인화면) ====== */
+function closeApp() {
+  if (confirm('앱을 닫을까요?')) {
     try { window.close(); } catch(e) {}
     setTimeout(() => {
       try {
@@ -2296,8 +2309,8 @@ function startLoginPhysics() {
     if (!W || !H) return;
 
     // 골대 구역: 좌우 38~62%, 깊이 4%
-    const goalLeft   = W * 0.41;
-    const goalRight  = W * 0.59;
+    const goalLeft   = W * 0.385;
+    const goalRight  = W * 0.615;
     const goalDepthPx = H * 0.030;
 
     loginBalls.forEach(ball => {
@@ -2320,11 +2333,11 @@ function startLoginPhysics() {
       if (inTopGoalX) {
         // 골대 안 진입 가능 (y < 0 ~ -goalDepthPx)
         if (ball.y < 0) {
-          // 뒷벽(y = -goalDepthPx) 닿으면 → 골!
-          if (ball.y <= -goalDepthPx + ball.r) {
+          // 뒷벽 - 공이 절반 이상 들어가야 골
+          if (ball.y + ball.r <= -goalDepthPx + 4) {
             triggerGoal('top', ball, W, H); return;
           }
-          // 골대 안에서 좌우 기둥 충돌
+          // 골대 안 좌우 기둥 충돌
           if (cx <= goalLeft + ball.r) {
             ball.x = goalLeft - ball.r; ball.vx = Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
           }
@@ -2332,13 +2345,10 @@ function startLoginPhysics() {
             ball.x = goalRight - ball.r; ball.vx = -Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
           }
         } else {
-          // 골대 입구 위에서 골라인(y=0) 넘어가지 않게
           if (ball.y < 0) { ball.y = 0; ball.vy = Math.abs(ball.vy) * RESTITUTION; }
         }
       } else {
-        // 골대 밖 — 위 벽 튕김
         if (ball.y < 0) { ball.y = 0; ball.vy = Math.abs(ball.vy) * RESTITUTION; if(Math.abs(ball.vy)>1) playBallBounce(0.5); }
-        // 포스트 좌우 튕김 (골대 입구 근처)
         if (ball.y < goalDepthPx * 2) {
           if (cx > goalLeft - ball.r && cx < goalLeft + ball.r) {
             ball.x = goalLeft - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
@@ -2353,8 +2363,8 @@ function startLoginPhysics() {
       const inBotGoalX = cx > goalLeft && cx < goalRight;
       if (inBotGoalX) {
         if (ball.y + d > H) {
-          // 뒷벽(y = H + goalDepthPx) 닿으면 → 골!
-          if (ball.y + d >= H + goalDepthPx - ball.r) {
+          // 뒷벽 - 공이 절반 이상 들어가야 골
+          if (ball.y + d - ball.r >= H + goalDepthPx - 4) {
             triggerGoal('bottom', ball, W, H); return;
           }
           // 골대 안 좌우 기둥 충돌
@@ -2366,9 +2376,7 @@ function startLoginPhysics() {
           }
         }
       } else {
-        // 골대 밖 — 아래 벽 튕김
         if (ball.y + d > H) { ball.y = H - d; ball.vy = -Math.abs(ball.vy) * RESTITUTION; if(Math.abs(ball.vy)>1) playBallBounce(0.5); }
-        // 포스트 좌우 튕김
         if (ball.y + d > H - goalDepthPx * 2) {
           if (cx > goalLeft - ball.r && cx < goalLeft + ball.r) {
             ball.x = goalLeft - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
