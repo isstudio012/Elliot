@@ -1053,6 +1053,11 @@
     cursor: pointer; user-select: none;
   }
   .task:active { background: #F5EDD7; }
+  @keyframes taskIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .task.task-enter { animation: taskIn 0.22s ease-out; }
   .checkbox {
     width: 24px; height: 24px; border: 2px solid #4A2F1B; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -1864,6 +1869,8 @@
 
 
 
+<div class="toast" id="toast"></div>
+
 <!-- 날짜 상세 패널 (전체창) -->
 <div class="chat-panel" id="dayDetailPanel">
   <div class="chat-header" style="background:#5A8A5E;border-bottom:2px solid #2E5A32;">
@@ -1885,6 +1892,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ====== 상태 ====== */
 let currentUser = null; // { id, name, role, pin }
+let justAddedSubjectId = null; // 방금 숙제 추가된 과목 (등장 애니메이션용)
 let cachedSubjects = [];
 let cachedTasks = [];
 let cachedCoins = { amount: 0, pending: {} };
@@ -3117,6 +3125,12 @@ function renderTasks() {
       }
       list.appendChild(tEl);
     });
+    // 방금 추가된 과목이면 마지막 숙제 줄만 부드럽게 등장
+    if (justAddedSubjectId === s.id) {
+      const lastTask = list.lastElementChild;
+      if (lastTask) lastTask.classList.add('task-enter');
+      justAddedSubjectId = null;
+    }
   });
 }
 
@@ -3229,48 +3243,64 @@ async function confirmDeleteSubject() {
 
 async function addTask(subjectId, dk) {
   soundClick();
-  const { data, error } = await sb.from('tasks').insert({
-    id: genId(), subject_id: subjectId, date_key: dk, text: '새 숙제', done: false, sort_order: Date.now() % 2000000000
-  }).select();
-  console.log('addTask result:', data, error);
-  if (!error) {
-    showToast('✏️ 숙제가 추가됐어요');
-    await sb.from('confirmations').delete().eq('date_key', dk);
-    await refreshData();
-  } else {
-    showToast('❌ ' + (error.message || JSON.stringify(error)));
+  const sortOrder = Date.now() % 2000000000;
+  const tempId = 'tmp_' + Date.now();
+  // ---- 화면 먼저 (낙관적) ----
+  cachedTasks.push({ id: tempId, subject_id: subjectId, date_key: dk, text: '새 숙제', done: false, sort_order: sortOrder });
+  justAddedSubjectId = subjectId;
+  renderAll();
+  showToast('✏️ 숙제가 추가됐어요');
+  // ---- 서버 저장 (백그라운드) ----
+  const { error } = await sb.from('tasks').insert({
+    subject_id: subjectId, date_key: dk, text: '새 숙제', done: false, sort_order: sortOrder
+  });
+  if (error) {
+    // 실패 시 롤백
+    cachedTasks = cachedTasks.filter(x => x.id !== tempId);
+    renderAll();
+    showToast('❌ ' + (error.message || '추가 실패'));
+    return;
   }
+  await sb.from('confirmations').delete().eq('date_key', dk);
+  refreshData(); // 백그라운드 동기화 (임시 id → 실제 id 교체)
 }
 
 async function toggleTask(task) {
   const newDone = !task.done;
-  await sb.from('tasks').update({ done: newDone }).eq('id', task.id);
-  
+  const dk = task.date_key;
+  const wasConfirmed = !!cachedConfirmations[dk];
+
+  // ---- 화면 먼저 반영 (낙관적) ----
+  task.done = newDone;
+  cachedCoins.pending = { ...(cachedCoins.pending || {}) };
   if (newDone) {
     soundCheck();
     setTimeout(() => soundCoin(), 200);
-    // 예비 코인 추가
-    const pending = { ...(cachedCoins.pending || {}) };
-    pending[task.date_key] = (pending[task.date_key] || 0) + 1;
-    await sb.from('coins').update({ pending }).eq('member_id', 'elliot');
+    cachedCoins.pending[dk] = (cachedCoins.pending[dk] || 0) + 1;
     showDogMsg('+1 💰', 1500);
   } else {
     soundClick();
-    // 코인 회수
-    const confirmed = cachedConfirmations[task.date_key];
-    if (confirmed) {
-      await sb.from('coins').update({ amount: Math.max(0, cachedCoins.amount - 1) }).eq('member_id', 'elliot');
-      await sb.from('confirmations').delete().eq('date_key', task.date_key);
+    if (wasConfirmed) {
+      cachedCoins.amount = Math.max(0, cachedCoins.amount - 1);
+      delete cachedConfirmations[dk];
       showDogMsg('확인 취소', 1500);
     } else {
-      const pending = { ...(cachedCoins.pending || {}) };
-      pending[task.date_key] = Math.max(0, (pending[task.date_key] || 0) - 1);
-      await sb.from('coins').update({ pending }).eq('member_id', 'elliot');
+      cachedCoins.pending[dk] = Math.max(0, (cachedCoins.pending[dk] || 0) - 1);
       showDogMsg('-1 💰', 1500);
     }
   }
-  
-  await refreshData();
+  renderAll();
+
+  // ---- 서버 저장 (백그라운드, 화면 안 막음) ----
+  sb.from('tasks').update({ done: newDone }).eq('id', task.id).then(() => {});
+  if (newDone) {
+    sb.from('coins').update({ pending: cachedCoins.pending }).eq('member_id', 'elliot').then(() => {});
+  } else if (wasConfirmed) {
+    sb.from('coins').update({ amount: cachedCoins.amount }).eq('member_id', 'elliot').then(() => {});
+    sb.from('confirmations').delete().eq('date_key', dk).then(() => {});
+  } else {
+    sb.from('coins').update({ pending: cachedCoins.pending }).eq('member_id', 'elliot').then(() => {});
+  }
 }
 
 async function updateTaskText(taskId, text) {
