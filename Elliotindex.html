@@ -121,7 +121,7 @@
     position: absolute;
     background: white;
     border: 2px solid #4A2F1B;
-    padding: 7px 6px 5px;
+    padding: 4px 6px 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -137,7 +137,7 @@
     min-height: 67px;
     max-height: 67px;
     border-radius: 50%;
-    overflow: hidden;
+    overflow: visible;
     user-select: none;
     touch-action: none;
   }
@@ -159,12 +159,12 @@
   .login-member-btn .emoji { font-size: 30px; line-height: 1; }
   .login-member-photo {
     display: block;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
-    max-width: 40px;
-    max-height: 40px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    max-width: 32px;
+    max-height: 32px;
     border-radius: 2px;
     border: none;
     object-fit: cover;
@@ -177,8 +177,8 @@
     font-weight: 700;
     color: #4A2F1B;
     line-height: 1.1;
-    max-width: 54px;
-    margin-top: 2px;
+    max-width: 60px;
+    margin-top: 1px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1473,6 +1473,21 @@
       pointer-events:none;
       z-index:3;
     ">누구세요?</div>
+    <!-- 입장 안내 텍스트 - 원 안 하단 -->
+    <div style="
+      position:absolute;
+      left:50%; top:calc(50% + 48px);
+      transform:translateX(-50%);
+      font-family:'Gaegu',cursive;
+      font-size:13px;
+      font-weight:700;
+      color:rgba(90,58,42,0.55);
+      white-space:nowrap;
+      pointer-events:none;
+      z-index:3;
+      text-align:center;
+      line-height:1.6;
+    ">어떻게 들어가요?<br>프로필을 두 번 클릭!</div>
 
     <!-- 공(멤버) 컨테이너 -->
     <div class="login-members" id="loginMembers"></div>
@@ -1480,7 +1495,7 @@
       <div class="login-pin-row">
         <input type="password" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" onkeypress="if(event.key==='Enter')doLogin()">
         <button class="login-confirm-btn" onclick="doLogin()" title="확인">✓</button>
-        <button class="login-pin-close" onclick="closeLoginPin()" title="닫기">×</button>
+        <button class="login-pin-close" onclick="closeLoginPin()" title="닫기" style="width:36px;height:36px;font-size:20px;margin-left:4px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;">×</button>
       </div>
       <div class="login-error" id="loginError"></div>
     </div>
@@ -1681,6 +1696,31 @@
           <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">과목추가</div>
+          <input type="text" id="settingsAddSubjectBtn" maxlength="20" placeholder="+ 과목 추가" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveAddSubjectBtnText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">과목삭제</div>
+          <input type="text" id="settingsDeleteSubjectBtn" maxlength="20" placeholder="선택 과목 삭제" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveDeleteSubjectBtnText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">입력창</div>
+          <input type="text" id="settingsNewSubjectPlaceholder" maxlength="30" placeholder="새 과목 입력" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveNewSubjectPlaceholder()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">과목선택</div>
+          <input type="text" id="settingsSubjectModalTitle" maxlength="20" placeholder="과목 선택" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveSubjectModalTitle()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">안내문구</div>
+          <input type="text" id="settingsSubjectGuide" maxlength="40" placeholder="탭해서 오늘 과목을 선택하세요" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveSubjectGuideText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+        </div>
       </div>
     </div>
     </div>
@@ -1703,7 +1743,7 @@
 <div id="addSubjectModal" style="display:none;position:fixed;z-index:300;">
   <div class="modal pwd-modal" id="subjectModalInner" style="max-width:320px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;">
     <button onclick="closeAddSubject()" style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:#4A2F1B;color:white;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;">✕</button>
-    <div class="pwd-modal-title" id="subjectModalDragHandle" style="cursor:grab;padding-right:30px;user-select:none;">과목 선택</div>
+    <div class="pwd-modal-title" id="subjectModalTitle" style="cursor:grab;padding-right:30px;user-select:none;" id="subjectModalDragHandle">과목 선택</div>
     <div class="pwd-modal-sub" style="font-size:14px;">탭해서 오늘 과목을 선택하세요</div>
     <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;min-height:40px;"></div>
     <div style="border-top:1px dashed #ccc;padding-top:8px;margin-top:4px;">
@@ -2681,7 +2721,7 @@ function selectMember(member, event) {
   }
 
   // 2번 클릭: 비번 입력창 열기
-  document.getElementById('loginPinInput').placeholder = `${member.name} 비밀번호 4자리`;
+  document.getElementById('loginPinInput').placeholder = `비밀번호 4자리`;
   document.getElementById('loginPinInput').value = '';
   document.getElementById('loginError').textContent = '';
   document.getElementById('loginPinSection').classList.add('show');
@@ -2811,6 +2851,26 @@ async function loadAllData() {
   (settRes.data || []).forEach(s => { settings[s.key] = s.value; });
   if (settings.app_title) {
     document.getElementById('appTitle').textContent = settings.app_title;
+  }
+  if (settings.add_subject_btn) {
+    const btn = document.querySelector('.add-subject-btn');
+    if (btn) btn.textContent = settings.add_subject_btn;
+  }
+  if (settings.delete_subject_btn) {
+    const btn = document.getElementById('bulkDeleteSubjectsBtn');
+    if (btn) btn.textContent = settings.delete_subject_btn;
+  }
+  if (settings.new_subject_placeholder) {
+    const inp = document.getElementById('newSubjectInput');
+    if (inp) inp.placeholder = settings.new_subject_placeholder;
+  }
+  if (settings.subject_modal_title) {
+    const el = document.getElementById('subjectModalTitle');
+    if (el) el.textContent = settings.subject_modal_title;
+  }
+  if (settings.subject_guide) {
+    const el = document.querySelector('.pwd-modal-sub');
+    if (el) el.textContent = settings.subject_guide;
   }
 }
 
@@ -3493,6 +3553,11 @@ async function openSettings() {
   }
   document.getElementById('settingsAppTitle').value = document.getElementById('appTitle').textContent || '';
   document.getElementById('settingsNoteTitle').value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
+  document.getElementById('settingsAddSubjectBtn').value = document.querySelector('.add-subject-btn') ? document.querySelector('.add-subject-btn').textContent : '+ 과목 추가';
+  document.getElementById('settingsDeleteSubjectBtn').value = document.getElementById('bulkDeleteSubjectsBtn') ? document.getElementById('bulkDeleteSubjectsBtn').textContent : '선택 과목 삭제';
+  document.getElementById('settingsNewSubjectPlaceholder').value = document.getElementById('newSubjectInput') ? document.getElementById('newSubjectInput').placeholder : '새 과목 입력';
+  document.getElementById('settingsSubjectModalTitle').value = document.getElementById('subjectModalTitle') ? document.getElementById('subjectModalTitle').textContent : '과목 선택';
+  document.getElementById('settingsSubjectGuide').value = document.querySelector('.pwd-modal-sub') ? document.querySelector('.pwd-modal-sub').textContent : '탭해서 오늘 과목을 선택하세요';
   renderMemberSettings();
   renderPasswordSettings();
   showSettingsMenu();
@@ -3752,6 +3817,46 @@ async function saveProfileSettings() {
   }
   soundFanfare();
   showToast('프로필이 저장됐어요!');
+}
+
+async function saveAddSubjectBtnText() {
+  const val = document.getElementById('settingsAddSubjectBtn').value.trim() || '+ 과목 추가';
+  await sb.from('app_settings').upsert({ key: 'add_subject_btn', value: val });
+  const btn = document.querySelector('.add-subject-btn');
+  if (btn) btn.textContent = val;
+  showToast('✅ 저장!');
+}
+
+async function saveDeleteSubjectBtnText() {
+  const val = document.getElementById('settingsDeleteSubjectBtn').value.trim() || '선택 과목 삭제';
+  await sb.from('app_settings').upsert({ key: 'delete_subject_btn', value: val });
+  const btn = document.getElementById('bulkDeleteSubjectsBtn');
+  if (btn) btn.textContent = val;
+  showToast('✅ 저장!');
+}
+
+async function saveNewSubjectPlaceholder() {
+  const val = document.getElementById('settingsNewSubjectPlaceholder').value.trim() || '새 과목 입력';
+  await sb.from('app_settings').upsert({ key: 'new_subject_placeholder', value: val });
+  const inp = document.getElementById('newSubjectInput');
+  if (inp) inp.placeholder = val;
+  showToast('✅ 저장!');
+}
+
+async function saveSubjectModalTitle() {
+  const val = document.getElementById('settingsSubjectModalTitle').value.trim() || '과목 선택';
+  await sb.from('app_settings').upsert({ key: 'subject_modal_title', value: val });
+  const el = document.getElementById('subjectModalTitle');
+  if (el) el.textContent = val;
+  showToast('✅ 저장!');
+}
+
+async function saveSubjectGuideText() {
+  const val = document.getElementById('settingsSubjectGuide').value.trim() || '탭해서 오늘 과목을 선택하세요';
+  await sb.from('app_settings').upsert({ key: 'subject_guide', value: val });
+  const el = document.querySelector('.pwd-modal-sub');
+  if (el) el.textContent = val;
+  showToast('✅ 저장!');
 }
 
 async function saveAppTitleOnly() {
