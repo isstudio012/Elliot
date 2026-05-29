@@ -266,13 +266,13 @@
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 22px;
-    padding: 14px 4px;
+    gap: 16px;
+    padding: 10px 4px;
     border: none;
     background: transparent;
     color: #1F1711;
     font-family: 'Gaegu', cursive;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 700;
     text-align: left;
     cursor: pointer;
@@ -1379,12 +1379,12 @@
 
       <!-- 위쪽 골대 ㄷ자: 폭 32~68%, 깊이 4% -->
       <line id="goalTopLeft"  x1="32" y1="0" x2="32" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopRight" x1="68" y1="0" x2="68" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopBack"  x1="32" y1="0" x2="68" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <!-- 아래쪽 골대 ㄷ자: 폭 32~68%, 깊이 3% -->
+      <line id="goalTopRight" x1="50" y1="0" x2="50" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopBack"  x1="32" y1="0" x2="50" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <!-- 아래쪽 골대 ㄷ자 -->
       <line id="goalBotLeft"  x1="32" y1="97" x2="32" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotRight" x1="68" y1="97" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotBack"  x1="32" y1="100" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotRight" x1="50" y1="97" x2="50" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotBack"  x1="32" y1="100" x2="50" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
     <!-- 센터서클 (CSS 고정 정원) -->
     <div id="centerCircleWrap" style="
@@ -2297,7 +2297,7 @@ function startLoginPhysics() {
 
     // 골대 구역: 좌우 38~62%, 깊이 4%
     const goalLeft   = W * 0.32;
-    const goalRight  = W * 0.68;
+    const goalRight  = W * 0.50;
     const goalDepthPx = H * 0.030;
 
     loginBalls.forEach(ball => {
