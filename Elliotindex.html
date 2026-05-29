@@ -187,7 +187,7 @@
     display: none;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     position: fixed;
     bottom: 60px;
     left: 50%;
@@ -195,20 +195,19 @@
     z-index: 20;
   }
   .login-pin-section.show { display: flex; }
-  .login-pin-label {
-    font-family: 'Gaegu', cursive;
-    font-size: 13px;
-    color: #7C5A3A;
+  .login-pin-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .login-pin-input {
-    width: 130px;
-    padding: 6px;
+    width: 110px;
+    padding: 5px 8px;
     border: 2px solid #555555;
     border-radius: 8px;
     font-family: 'Gaegu', cursive;
-    font-size: 18px;
+    font-size: 13px;
     text-align: center;
-    letter-spacing: 6px;
     outline: none;
     background: white;
     color: #4A2F1B;
@@ -220,40 +219,22 @@
     font-size: 12px;
     min-height: 14px;
   }
-  .login-enter-btn {
-    background: #555555;
-    color: white;
-    border: 2px solid #333333;
-    border-radius: 8px;
-    padding: 6px 20px;
-    font-family: 'Gaegu', cursive;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 2px 2px 0 #333333;
-  }
-  .login-enter-btn:active {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 #333333;
-  }
-  .login-pin-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .login-pin-close {
+  .login-confirm-btn {
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    border: 2px solid #4A2F1B;
-    background: white;
-    color: #4A2F1B;
-    font-family: 'Gaegu', cursive;
+    border: 2px solid #2E7D32;
+    background: #4CAF50;
+    color: white;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 2px 2px 0 #4A2F1B;
+    box-shadow: 2px 2px 0 #2E7D32;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+  .login-confirm-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E7D32; }
   .settings-body {
     flex: 1;
     overflow-y: auto;
@@ -1378,13 +1359,13 @@
       <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.15" stroke-opacity="0.35"/>
 
       <!-- 위쪽 골대 ㄷ자: 폭 32~68%, 깊이 4% -->
-      <line id="goalTopLeft"  x1="28.5" y1="0" x2="28.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopRight" x1="71.5" y1="0" x2="71.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopBack"  x1="28.5" y1="0" x2="71.5" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopLeft"  x1="33.5" y1="0" x2="33.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopRight" x1="66.5" y1="0" x2="66.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopBack"  x1="33.5" y1="0" x2="66.5" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
       <!-- 아래쪽 골대 ㄷ자 -->
-      <line id="goalBotLeft"  x1="28.5" y1="97" x2="28.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotRight" x1="71.5" y1="97" x2="71.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotBack"  x1="28.5" y1="100" x2="71.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotLeft"  x1="33.5" y1="97" x2="33.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotRight" x1="66.5" y1="97" x2="66.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotBack"  x1="33.5" y1="100" x2="66.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
     <!-- 센터서클 (CSS 고정 정원) -->
     <div id="centerCircleWrap" style="
@@ -1416,13 +1397,12 @@
     <!-- 공(멤버) 컨테이너 -->
     <div class="login-members" id="loginMembers"></div>
     <div class="login-pin-section" id="loginPinSection">
-      <div class="login-pin-label" id="loginPinLabel">비밀번호 (4자리)</div>
-      <input type="password" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●">
-      <div class="login-error" id="loginError"></div>
-      <div class="login-pin-actions">
-        <button class="login-enter-btn" onclick="doLogin()">들어가기</button>
+      <div class="login-pin-row">
+        <input type="password" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" onkeypress="if(event.key==='Enter')doLogin()">
+        <button class="login-confirm-btn" onclick="doLogin()" title="확인">✓</button>
         <button class="login-pin-close" onclick="closeLoginPin()" title="닫기">×</button>
       </div>
+      <div class="login-error" id="loginError"></div>
     </div>
   </div>
 
@@ -2305,8 +2285,8 @@ function startLoginPhysics() {
     if (!W || !H) return;
 
     // 골대 구역: 좌우 38~62%, 깊이 4%
-    const goalLeft   = W * 0.285;
-    const goalRight  = W * 0.715;
+    const goalLeft   = W * 0.335;
+    const goalRight  = W * 0.665;
     const goalDepthPx = H * 0.030;
 
     loginBalls.forEach(ball => {
@@ -2387,7 +2367,32 @@ function startLoginPhysics() {
       ball.btn.style.top  = ball.y + 'px';
     });
 
-    // 공끼리 충돌
+    // 점수 숫자 충돌 (골키퍼 역할)
+    const scoreR = 22; // 충돌 반경(px)
+    const scoreObstacles = [
+      { x: W/2, y: 28 },        // 상단 점수
+      { x: W/2, y: H - 28 }     // 하단 점수
+    ];
+    loginBalls.forEach(ball => {
+      if (ball.dragging) return;
+      const cx = ball.x + ball.r, cy = ball.y + ball.r;
+      scoreObstacles.forEach(obs => {
+        const dx = cx - obs.x, dy = cy - obs.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const minD = ball.r + scoreR;
+        if (dist < minD && dist > 0.01) {
+          const nx = dx/dist, ny = dy/dist;
+          const overlap = minD - dist;
+          ball.x += nx * overlap; ball.y += ny * overlap;
+          const dot = ball.vx*nx + ball.vy*ny;
+          if (dot < 0) {
+            ball.vx -= 2 * dot * nx * RESTITUTION;
+            ball.vy -= 2 * dot * ny * RESTITUTION;
+            playBallBounce(0.6);
+          }
+        }
+      });
+    });
     for (let i = 0; i < loginBalls.length; i++) {
       for (let j = i+1; j < loginBalls.length; j++) {
         const a = loginBalls[i], b = loginBalls[j];
@@ -2569,7 +2574,7 @@ function selectMember(member, event) {
   }
 
   // 2번 클릭: 비번 입력창 열기
-  document.getElementById('loginPinLabel').textContent = `${member.name} 비밀번호 (4자리)`;
+  document.getElementById('loginPinInput').placeholder = `${member.name} 비밀번호 4자리`;
   document.getElementById('loginPinInput').value = '';
   document.getElementById('loginError').textContent = '';
   document.getElementById('loginPinSection').classList.add('show');
