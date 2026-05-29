@@ -1365,7 +1365,7 @@
   <!-- 로그인 화면 -->
   <div class="login-screen" id="loginScreen" style="display:none;">
     <!-- X 종료 버튼 -->
-    <button class="login-close-btn" onclick="if(confirm('앱을 종료할까요?')) window.close()">✕ <span style="font-size:13px;font-family:'Gaegu',cursive;font-weight:700;vertical-align:middle;">닫기</span></button>
+    <button class="login-close-btn" onclick="if(confirm('앱을 종료할까요?')){ window.close(); setTimeout(()=>{ location.href='about:blank'; },100); }">✕ <span style="font-size:13px;font-family:'Gaegu',cursive;font-weight:700;vertical-align:middle;">닫기</span></button>
     <!-- 점수 -->
     <div class="login-score-left" id="loginScoreLeft">0</div>
     <div class="login-score-right" id="loginScoreRight">0</div>
