@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#F5EDD7">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="숙제">
+<meta name="apple-mobile-web-app-title" content="체크리스트">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>체크리스트</title>
@@ -3495,16 +3495,18 @@ function handleMemberPhotoUpload(event, memberId) {
 }
 
 async function addLoginProfile() {
+  const roleChoice = confirm('부모 권한으로 추가할까요?\n확인 → 부모 / 취소 → 자녀');
+  const role = roleChoice ? 'parent' : 'child';
   const id = 'member_' + Date.now();
   const count = cachedMembers.length + 1;
-  const member = { id, name: '프로필 ' + count, role: 'child', pin: '0000' };
+  const member = { id, name: '프로필 ' + count, role, pin: '0000' };
   await sb.from('members').insert(member);
   cachedMembers.push(member);
-  saveMemberColor(id, '#5A5A5A');
+  saveMemberColor(id, role === 'parent' ? '#5A8A5E' : '#5A5A5A');
   renderMemberSettings();
   renderPasswordSettings();
   refreshLoginCardsIfVisible();
-  showToast('프로필이 추가됐어요. 비밀번호는 0000이에요.');
+  showToast(`${role === 'parent' ? '부모' : '자녀'} 프로필이 추가됐어요. 비밀번호는 0000이에요.`);
 }
 
 async function deleteLoginProfile(memberId) {
