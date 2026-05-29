@@ -2316,40 +2316,66 @@ function startLoginPhysics() {
       if (ball.x + d > W)   { ball.x = W - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; if(Math.abs(ball.vx)>1) playBallBounce(0.6); }
 
       // ── 위쪽 처리 ──
-      if (cx > goalLeft && cx < goalRight) {
-        // 골대 구역 안 → 뒷벽 통과 = 골
-        if (ball.y + d < 0) {
-          triggerGoal('top', ball, W, H); return;
+      const inTopGoalX = cx > goalLeft && cx < goalRight;
+      if (inTopGoalX) {
+        // 골대 안 진입 가능 (y < 0 ~ -goalDepthPx)
+        if (ball.y < 0) {
+          // 뒷벽(y = -goalDepthPx) 닿으면 → 골!
+          if (ball.y <= -goalDepthPx + ball.r) {
+            triggerGoal('top', ball, W, H); return;
+          }
+          // 골대 안에서 좌우 기둥 충돌
+          if (cx <= goalLeft + ball.r) {
+            ball.x = goalLeft - ball.r; ball.vx = Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
+          }
+          if (cx >= goalRight - ball.r) {
+            ball.x = goalRight - ball.r; ball.vx = -Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
+          }
+        } else {
+          // 골대 입구 위에서 골라인(y=0) 넘어가지 않게
+          if (ball.y < 0) { ball.y = 0; ball.vy = Math.abs(ball.vy) * RESTITUTION; }
         }
-        // 뒷벽(y=0 위) 충돌
-        if (ball.y < -goalDepthPx) { ball.y = -goalDepthPx; ball.vy = Math.abs(ball.vy)*RESTITUTION; }
       } else {
-        // 골대 밖 — 위 벽 + 골대 기둥 충돌
-        if (ball.y < 0) { ball.y = 0; ball.vy = Math.abs(ball.vy) * RESTITUTION; }
-        // 왼 기둥 (x=goalLeft) 충돌
-        if (ball.y < goalDepthPx*1.5 && cx > goalLeft - ball.r && cx < goalLeft + ball.r) {
-          ball.x = goalLeft - ball.r*2; ball.vx = -Math.abs(ball.vx)*RESTITUTION;
-        }
-        // 오른 기둥 (x=goalRight)
-        if (ball.y < goalDepthPx*1.5 && cx > goalRight - ball.r && cx < goalRight + ball.r) {
-          ball.x = goalRight; ball.vx = Math.abs(ball.vx)*RESTITUTION;
+        // 골대 밖 — 위 벽 튕김
+        if (ball.y < 0) { ball.y = 0; ball.vy = Math.abs(ball.vy) * RESTITUTION; if(Math.abs(ball.vy)>1) playBallBounce(0.5); }
+        // 포스트 좌우 튕김 (골대 입구 근처)
+        if (ball.y < goalDepthPx * 2) {
+          if (cx > goalLeft - ball.r && cx < goalLeft + ball.r) {
+            ball.x = goalLeft - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
+          }
+          if (cx > goalRight - ball.r && cx < goalRight + ball.r) {
+            ball.x = goalRight; ball.vx = Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
+          }
         }
       }
 
       // ── 아래쪽 처리 ──
-      if (cx > goalLeft && cx < goalRight) {
-        if (ball.y > H) {
-          triggerGoal('bottom', ball, W, H); return;
+      const inBotGoalX = cx > goalLeft && cx < goalRight;
+      if (inBotGoalX) {
+        if (ball.y + d > H) {
+          // 뒷벽(y = H + goalDepthPx) 닿으면 → 골!
+          if (ball.y + d >= H + goalDepthPx - ball.r) {
+            triggerGoal('bottom', ball, W, H); return;
+          }
+          // 골대 안 좌우 기둥 충돌
+          if (cx <= goalLeft + ball.r) {
+            ball.x = goalLeft - ball.r; ball.vx = Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
+          }
+          if (cx >= goalRight - ball.r) {
+            ball.x = goalRight - ball.r; ball.vx = -Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
+          }
         }
-        if (ball.y + d > H + goalDepthPx) { ball.y = H + goalDepthPx - d; ball.vy = -Math.abs(ball.vy)*RESTITUTION; }
       } else {
-        if (ball.y + d > H) { ball.y = H - d; ball.vy = -Math.abs(ball.vy) * RESTITUTION; }
-        // 위 기둥
-        if (ball.y + d > H - goalDepthPx*1.5 && cx > goalLeft - ball.r && cx < goalLeft + ball.r) {
-          ball.x = goalLeft - ball.r*2; ball.vx = -Math.abs(ball.vx)*RESTITUTION;
-        }
-        if (ball.y + d > H - goalDepthPx*1.5 && cx > goalRight - ball.r && cx < goalRight + ball.r) {
-          ball.x = goalRight; ball.vx = Math.abs(ball.vx)*RESTITUTION;
+        // 골대 밖 — 아래 벽 튕김
+        if (ball.y + d > H) { ball.y = H - d; ball.vy = -Math.abs(ball.vy) * RESTITUTION; if(Math.abs(ball.vy)>1) playBallBounce(0.5); }
+        // 포스트 좌우 튕김
+        if (ball.y + d > H - goalDepthPx * 2) {
+          if (cx > goalLeft - ball.r && cx < goalLeft + ball.r) {
+            ball.x = goalLeft - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
+          }
+          if (cx > goalRight - ball.r && cx < goalRight + ball.r) {
+            ball.x = goalRight; ball.vx = Math.abs(ball.vx) * RESTITUTION; playBallBounce(0.7);
+          }
         }
       }
 
