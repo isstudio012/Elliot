@@ -3083,7 +3083,7 @@ function renderTasks() {
       </div>
       <div class="subject-body ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-body-${s.id}">
         <div class="task-list" id="list-${s.id}"></div>
-        <button class="add-btn">+ 숙제 추가</button>
+        <button class="add-btn">+</button>
       </div>
     `;
     container.appendChild(sEl);
@@ -3229,12 +3229,12 @@ async function confirmDeleteSubject() {
 
 async function addTask(subjectId, dk) {
   soundClick();
-  const { error } = await sb.from('tasks').insert({
-    subject_id: subjectId, date_key: dk, text: '새 숙제', done: false, sort_order: Date.now() % 2000000000
-  });
+  const { data, error } = await sb.from('tasks').insert({
+    id: genId(), subject_id: subjectId, date_key: dk, text: '새 숙제', done: false, sort_order: Date.now() % 2000000000
+  }).select();
+  console.log('addTask result:', data, error);
   if (!error) {
     showToast('✏️ 숙제가 추가됐어요');
-    // 확인 취소
     await sb.from('confirmations').delete().eq('date_key', dk);
     await refreshData();
   } else {
