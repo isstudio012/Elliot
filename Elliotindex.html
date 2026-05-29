@@ -62,19 +62,21 @@
   }
   .login-close-btn {
     position: absolute;
-    top: max(14px, env(safe-area-inset-top, 14px));
-    right: 16px;
-    width: 36px;
-    height: 36px;
+    top: max(10px, env(safe-area-inset-top, 10px));
+    left: 12px;
+    height: 28px;
     background: none;
     border: none;
-    font-size: 26px;
+    font-size: 16px;
     color: #C0392B;
     font-weight: 700;
     cursor: pointer;
     z-index: 10;
     line-height: 1;
-    padding: 0;
+    padding: 2px 6px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
   }
   .login-score-left {
     position: absolute;
@@ -124,12 +126,12 @@
     cursor: grab;
     box-shadow: 3px 3px 0 #4A2F1B;
     transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
-    width: 74px;
-    height: 74px;
-    min-width: 74px;
-    max-width: 74px;
-    min-height: 74px;
-    max-height: 74px;
+    width: 67px;
+    height: 67px;
+    min-width: 67px;
+    max-width: 67px;
+    min-height: 67px;
+    max-height: 67px;
     border-radius: 50%;
     overflow: hidden;
     user-select: none;
@@ -153,12 +155,12 @@
   .login-member-btn .emoji { font-size: 30px; line-height: 1; }
   .login-member-photo {
     display: block;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    max-width: 44px;
-    max-height: 44px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
     border-radius: 2px;
     border: none;
     object-fit: cover;
@@ -1360,26 +1362,26 @@
   <!-- 로그인 화면 -->
   <div class="login-screen" id="loginScreen" style="display:none;">
     <!-- X 종료 버튼 -->
-    <button class="login-close-btn" onclick="if(confirm('앱을 종료할까요?')) window.close()">✕</button>
+    <button class="login-close-btn" onclick="if(confirm('앱을 종료할까요?')) window.close()">✕ <span style="font-size:13px;font-family:'Gaegu',cursive;font-weight:700;vertical-align:middle;">닫기</span></button>
     <!-- 점수 -->
     <div class="login-score-left" id="loginScoreLeft">0</div>
     <div class="login-score-right" id="loginScoreRight">0</div>
     <!-- 축구장 SVG (세로 모바일) -->
-    <svg class="login-field-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <svg class="login-field-svg" id="loginFieldSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
       <!-- 센터라인 (가로) -->
-      <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.4" stroke-opacity="0.25"/>
-      <!-- 센터서클 -->
-      <circle cx="50" cy="50" r="12" fill="none" stroke="#4A2F1B" stroke-width="0.4" stroke-opacity="0.25"/>
+      <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.2" stroke-opacity="0.18"/>
+      <!-- 센터서클 (타원, 세로 모바일용) -->
+      <ellipse cx="50" cy="50" rx="18" ry="10" fill="none" stroke="#4A2F1B" stroke-width="0.2" stroke-opacity="0.18"/>
       <!-- 센터도트 -->
-      <circle cx="50" cy="50" r="0.8" fill="#4A2F1B" fill-opacity="0.3"/>
-      <!-- 위쪽 골대 ㄷ자 (아래쪽만 열림) — 왼기둥/오른기둥/뒷벽 -->
-      <line x1="30" y1="0" x2="30" y2="6" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
-      <line x1="70" y1="0" x2="70" y2="6" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
-      <line x1="30" y1="0" x2="70" y2="0" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
-      <!-- 아래쪽 골대 ㄷ자 (위쪽만 열림) -->
-      <line x1="30" y1="94" x2="30" y2="100" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
-      <line x1="70" y1="94" x2="70" y2="100" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
-      <line x1="30" y1="100" x2="70" y2="100" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
+      <circle cx="50" cy="50" r="0.6" fill="#4A2F1B" fill-opacity="0.22"/>
+      <!-- 위쪽 골대 ㄷ자: 폭 38~62%, 깊이 4% -->
+      <line id="goalTopLeft"  x1="38" y1="0" x2="38" y2="4" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopRight" x1="62" y1="0" x2="62" y2="4" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopBack"  x1="38" y1="0" x2="62" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <!-- 아래쪽 골대 ㄷ자: 폭 38~62%, 깊이 4% -->
+      <line id="goalBotLeft"  x1="38" y1="96" x2="38" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotRight" x1="62" y1="96" x2="62" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotBack"  x1="38" y1="100" x2="62" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
     <!-- 누구세요 텍스트 -->
     <div class="login-sub">누구세요?</div>
@@ -2189,7 +2191,7 @@ async function showLoginScreen() {
       x: 0, y: 0,
       vx: Math.cos(angle) * 1.5,
       vy: Math.sin(angle) * 1.5,
-      r: 37, // 74px / 2
+      r: 33, // 67px / 2
       dragging: false,
       dragOffX: 0, dragOffY: 0,
       dragged: false,
@@ -2225,10 +2227,10 @@ function startLoginPhysics() {
     const H = container.clientHeight;
     if (!W || !H) return;
 
-    // 골대 구역: 좌우 30~70% 구간, 위아래 6% 깊이
-    const goalLeft  = W * 0.30;
-    const goalRight = W * 0.70;
-    const goalDepthPx = H * 0.06;
+    // 골대 구역: 좌우 38~62%, 깊이 4%
+    const goalLeft   = W * 0.38;
+    const goalRight  = W * 0.62;
+    const goalDepthPx = H * 0.04;
 
     loginBalls.forEach(ball => {
       if (ball.dragging) return;
@@ -2239,42 +2241,52 @@ function startLoginPhysics() {
 
       const d = ball.r * 2;
       const cx = ball.x + ball.r;
+      const cy = ball.y + ball.r;
 
-      // 좌우 벽 (항상)
-      if (ball.x < 0) { ball.x = 0; ball.vx = Math.abs(ball.vx) * RESTITUTION; }
-      if (ball.x + d > W) { ball.x = W - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; }
+      // 좌우 벽
+      if (ball.x < 0)       { ball.x = 0;     ball.vx =  Math.abs(ball.vx) * RESTITUTION; }
+      if (ball.x + d > W)   { ball.x = W - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; }
 
-      // 위쪽: 골대 구역이면 골대 깊이까지 허용
+      // ── 위쪽 처리 ──
       if (cx > goalLeft && cx < goalRight) {
-        // 골대 안 → 뒷벽 넘으면 골
-        if (ball.y < -goalDepthPx) {
-          scoreGoal('top', ball);
-          ball.x = W/2 - ball.r; ball.y = H/2 - ball.r;
-          ball.vx = (Math.random()-0.5)*3; ball.vy = (Math.random()-0.5)*3;
-        } else if (ball.y < 0) {
-          // 골대 안 — 통과 허용 (뒷벽만)
-          if (ball.y < -goalDepthPx) { ball.y = -goalDepthPx; ball.vy = Math.abs(ball.vy)*RESTITUTION; }
+        // 골대 구역 안 → 뒷벽 통과 = 골
+        if (ball.y + d < 0) {
+          triggerGoal('top', ball, W, H); return;
         }
+        // 뒷벽(y=0 위) 충돌
+        if (ball.y < -goalDepthPx) { ball.y = -goalDepthPx; ball.vy = Math.abs(ball.vy)*RESTITUTION; }
       } else {
-        // 골대 밖 → 위쪽 벽
+        // 골대 밖 — 위 벽 + 골대 기둥 충돌
         if (ball.y < 0) { ball.y = 0; ball.vy = Math.abs(ball.vy) * RESTITUTION; }
+        // 왼 기둥 (x=goalLeft) 충돌
+        if (ball.y < goalDepthPx*1.5 && cx > goalLeft - ball.r && cx < goalLeft + ball.r) {
+          ball.x = goalLeft - ball.r*2; ball.vx = -Math.abs(ball.vx)*RESTITUTION;
+        }
+        // 오른 기둥 (x=goalRight)
+        if (ball.y < goalDepthPx*1.5 && cx > goalRight - ball.r && cx < goalRight + ball.r) {
+          ball.x = goalRight; ball.vx = Math.abs(ball.vx)*RESTITUTION;
+        }
       }
 
-      // 아래쪽: 골대 구역
+      // ── 아래쪽 처리 ──
       if (cx > goalLeft && cx < goalRight) {
-        if (ball.y + d > H + goalDepthPx) {
-          scoreGoal('bottom', ball);
-          ball.x = W/2 - ball.r; ball.y = H/2 - ball.r;
-          ball.vx = (Math.random()-0.5)*3; ball.vy = (Math.random()-0.5)*3;
-        } else if (ball.y + d > H) {
-          if (ball.y + d > H + goalDepthPx) { ball.y = H + goalDepthPx - d; ball.vy = -Math.abs(ball.vy)*RESTITUTION; }
+        if (ball.y > H) {
+          triggerGoal('bottom', ball, W, H); return;
         }
+        if (ball.y + d > H + goalDepthPx) { ball.y = H + goalDepthPx - d; ball.vy = -Math.abs(ball.vy)*RESTITUTION; }
       } else {
         if (ball.y + d > H) { ball.y = H - d; ball.vy = -Math.abs(ball.vy) * RESTITUTION; }
+        // 위 기둥
+        if (ball.y + d > H - goalDepthPx*1.5 && cx > goalLeft - ball.r && cx < goalLeft + ball.r) {
+          ball.x = goalLeft - ball.r*2; ball.vx = -Math.abs(ball.vx)*RESTITUTION;
+        }
+        if (ball.y + d > H - goalDepthPx*1.5 && cx > goalRight - ball.r && cx < goalRight + ball.r) {
+          ball.x = goalRight; ball.vx = Math.abs(ball.vx)*RESTITUTION;
+        }
       }
 
       ball.btn.style.left = ball.x + 'px';
-      ball.btn.style.top = ball.y + 'px';
+      ball.btn.style.top  = ball.y + 'px';
     });
 
     // 공끼리 충돌
@@ -2310,12 +2322,68 @@ function stopLoginPhysics() {
 }
 
 let loginScores = { top: 0, bottom: 0 };
-function scoreGoal(side, ball) {
+  const eT = document.getElementById('loginScoreLeft'); if(eT) eT.textContent='0';
+  const eB = document.getElementById('loginScoreRight'); if(eB) eB.textContent='0';
+
+function triggerGoal(side, ball, W, H) {
+  scoreGoal(side);
+  // 공 리셋
+  ball.x = W/2 - ball.r; ball.y = H/2 - ball.r;
+  ball.vx = (Math.random()-0.5)*3; ball.vy = (Math.random()-0.5)*3;
+  ball.btn.style.left = ball.x + 'px';
+  ball.btn.style.top  = ball.y + 'px';
+}
+
+function scoreGoal(side) {
   loginScores[side]++;
   const elT = document.getElementById('loginScoreLeft');
   const elB = document.getElementById('loginScoreRight');
   if (elT) elT.textContent = loginScores.top;
   if (elB) elB.textContent = loginScores.bottom;
+
+  // 골대 번쩍임
+  const ids = side === 'top'
+    ? ['goalTopLeft','goalTopRight','goalTopBack']
+    : ['goalBotLeft','goalBotRight','goalBotBack'];
+  const svg = document.getElementById('loginFieldSvg');
+  if (svg) {
+    ids.forEach(id => {
+      const el = svg.getElementById(id);
+      if (!el) return;
+      let count = 0;
+      const orig = el.getAttribute('stroke');
+      function flash() {
+        el.setAttribute('stroke', count % 2 === 0 ? '#FFD700' : '#4A2F1B');
+        el.setAttribute('stroke-opacity', count % 2 === 0 ? '1' : '0.55');
+        el.setAttribute('stroke-width', count % 2 === 0 ? '2' : '0.9');
+        count++;
+        if (count < 8) setTimeout(flash, 120);
+        else {
+          el.setAttribute('stroke', '#4A2F1B');
+          el.setAttribute('stroke-opacity', '0.55');
+          el.setAttribute('stroke-width', '0.9');
+        }
+      }
+      flash();
+    });
+  }
+
+  // 골 소리
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((freq, i) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.18, ac.currentTime + i*0.1);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + i*0.1 + 0.25);
+      osc.start(ac.currentTime + i*0.1);
+      osc.stop(ac.currentTime + i*0.1 + 0.3);
+    });
+  } catch(e) {}
 }
 
 function makeLoginBallDraggable(btn, ball) {
