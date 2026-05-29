@@ -1762,15 +1762,12 @@ function closeLoginApp() {
 
 /* ====== 앱 닫기 (메인화면) ====== */
 function closeApp() {
-  if (confirm('앱을 닫을까요?')) {
-    try { window.close(); } catch(e) {}
-    setTimeout(() => {
-      try {
-        window.history.pushState(null, '', window.location.href);
-        window.location.replace('about:blank');
-      } catch(e) {}
-    }, 150);
-  }
+  if (!confirm('로그아웃 할까요?')) return;
+  currentUser = null;
+  localStorage.removeItem('currentUser');
+  chatOpen = false;
+  document.getElementById('chatPanel').classList.remove('open');
+  showLoginScreen();
 }
 
 
