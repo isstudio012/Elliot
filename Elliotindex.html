@@ -322,6 +322,86 @@
     opacity: 0;
     pointer-events: none;
   }
+  .color-palette-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  .color-palette-modal.show { display: flex; }
+  .color-palette-box {
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    width: 220px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  }
+  .color-palette-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: #4A2F1B;
+    margin-bottom: 10px;
+  }
+  .color-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .color-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 2px solid rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .color-swatch:active { transform: scale(0.9); }
+  .color-swatch.selected { border: 2px solid #4A2F1B; transform: scale(1.15); }
+  .color-palette-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .color-preview-box {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .color-palette-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .color-palette-cancel {
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    font-weight: 700;
+    color: #888;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+  }
+  .color-palette-confirm {
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    background: #5A8A5E;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 5px 14px;
+  }
   .member-color-trigger {
     width: 34px;
     height: 34px;
@@ -1690,6 +1770,23 @@
     </div>
     <div class="note-modal-body" id="dayMemoModalBody"></div>
     <button class="note-modal-add" onclick="addDayMemoFromModal()">+ 메모 추가</button>
+  </div>
+</div>
+
+<div class="color-palette-modal" id="colorPaletteModal">
+  <div class="color-palette-box">
+    <div class="color-palette-title">색상 선택</div>
+    <div class="color-palette-grid" id="colorPaletteGrid"></div>
+    <div class="color-palette-preview">
+      <div class="color-preview-box" id="colorPreviewBox" onclick="document.getElementById('colorDirectInput').click()" title="직접 선택"></div>
+      <span style="font-family:'Gaegu',cursive;font-size:12px;color:#888;">선택한 색상</span>
+      <input type="color" id="colorDirectInput" style="position:absolute;opacity:0;width:1px;height:1px;" onchange="selectPaletteColor(this.value)">
+      <span style="font-family:'Gaegu',cursive;font-size:11px;color:#5A8A5E;cursor:pointer;margin-left:auto;" onclick="document.getElementById('colorDirectInput').click()">직접선택</span>
+    </div>
+    <div class="color-palette-btns">
+      <button class="color-palette-cancel" onclick="closeColorPalette()">취소</button>
+      <button class="color-palette-confirm" onclick="confirmColorPalette()">설정</button>
+    </div>
   </div>
 </div>
 
@@ -3440,7 +3537,7 @@ function renderMemberSettings() {
       : `<div id="memberPhotoPreview-${m.id}" style="width:44px;height:44px;border-radius:4px;background:#EAE0C2;display:flex;align-items:center;justify-content:center;font-size:22px;">${emojis[m.id] || '👤'}</div>`;
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
-        <button class="member-color-trigger" style="background:${color};flex-shrink:0;" onclick="document.getElementById('memberColor-${m.id}').click();" title="색 변경">${n}</button>
+        <button class="member-color-trigger" style="background:${color};flex-shrink:0;" onclick="openColorPalette('${m.id}')" title="색 변경">${n}</button>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
         <div onclick="document.getElementById('memberPhotoFile-${m.id}').click();" style="cursor:pointer;width:44px;height:44px;flex-shrink:0;position:relative;border-radius:4px;overflow:hidden;" title="사진 변경">
           ${photoHtml}
@@ -3475,6 +3572,51 @@ function renderPasswordSettings() {
       </div>
     `;
   }).join('');
+}
+
+// 색상 팔레트 모달
+const PALETTE_COLORS = [
+  '#E53935','#F57C00','#FDD835','#43A047','#1E88E5',
+  '#8E24AA','#EC407A','#00ACC1','#6D4C41','#546E7A',
+  '#5A8A5E','#1976D2','#FF7043','#26C6DA','#AB47BC',
+  '#4A2F1B','#222222','#777777','#BBBBBB','#FFFFFF'
+];
+let _colorPaletteMemberId = null;
+let _colorPaletteSelected = null;
+
+function openColorPalette(memberId) {
+  _colorPaletteMemberId = memberId;
+  _colorPaletteSelected = memberColor(memberId);
+  const grid = document.getElementById('colorPaletteGrid');
+  grid.innerHTML = PALETTE_COLORS.map(c =>
+    `<div class="color-swatch${_colorPaletteSelected===c?' selected':''}" style="background:${c};" onclick="selectPaletteColor('${c}')"></div>`
+  ).join('');
+  document.getElementById('colorPreviewBox').style.background = _colorPaletteSelected;
+  document.getElementById('colorPaletteModal').classList.add('show');
+}
+
+function selectPaletteColor(color) {
+  _colorPaletteSelected = color;
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    s.classList.toggle('selected', s.style.background === color || s.style.backgroundColor === color);
+  });
+  document.getElementById('colorPreviewBox').style.background = color;
+}
+
+function closeColorPalette() {
+  document.getElementById('colorPaletteModal').classList.remove('show');
+  _colorPaletteMemberId = null;
+  _colorPaletteSelected = null;
+}
+
+function confirmColorPalette() {
+  if (!_colorPaletteMemberId || !_colorPaletteSelected) return;
+  const trigger = document.querySelector(`[onclick="openColorPalette('${_colorPaletteMemberId}')"]`);
+  if (trigger) trigger.style.background = _colorPaletteSelected;
+  saveMemberColor(_colorPaletteMemberId, _colorPaletteSelected);
+  renderPasswordSettings();
+  refreshLoginCardsIfVisible();
+  closeColorPalette();
 }
 
 function applyMemberColor(memberId) {
