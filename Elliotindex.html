@@ -1447,7 +1447,7 @@
       <line id="goalBotRight" x1="66.5" y1="97" x2="66.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
       <line id="goalBotBack"  x1="33.5" y1="100" x2="66.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
-    <!-- 센터서클 (CSS 고정 정원) -->
+    <!-- 센터서클 -->
     <div id="centerCircleWrap" style="
       position:absolute;
       left:50%; top:50%;
@@ -1460,34 +1460,34 @@
       pointer-events:none;
       z-index:2;
     "></div>
-    <!-- 누구세요? 텍스트 - 센터라인 위, 원 안 -->
+    <!-- 누구세요? - 센터선 위 -->
     <div style="
       position:absolute;
       left:50%; top:calc(50% - 36px);
       transform:translateX(-50%);
       font-family:'Gaegu',cursive;
-      font-size:20px;
+      font-size:clamp(14px,4vw,20px);
       font-weight:700;
       color:#5A3A2A;
       white-space:nowrap;
       pointer-events:none;
       z-index:3;
+      text-align:center;
     ">누구세요?</div>
-    <!-- 입장 안내 텍스트 - 화면 고정 -->
+    <!-- 안내문구 - 센터선 아래 -->
     <div style="
       position:absolute;
-      left:50%;
-      top:calc(50% + 10px);
+      left:50%; top:calc(50% + 36px);
       transform:translateX(-50%);
       font-family:'Gaegu',cursive;
-      font-size:14px;
+      font-size:clamp(10px,2.8vw,14px);
       font-weight:700;
       color:#1A0A00;
       white-space:nowrap;
       pointer-events:none;
       z-index:3;
       text-align:center;
-      line-height:1.8;
+      line-height:1.7;
     ">어떻게 들어가요?<br>프로필을 두 번 클릭!</div>
 
     <!-- 공(멤버) 컨테이너 -->
