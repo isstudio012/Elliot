@@ -1641,9 +1641,10 @@ let noteTitle = '숙제노트';
 /* ====== 앱 닫기 ====== */
 function closeApp() {
   if (confirm('앱을 닫을까요?')) {
+    window._allowBack = true;
     window.close();
     // PWA에서 window.close 안될 수 있으므로 로그인 화면으로
-    setTimeout(() => { logout(); }, 300);
+    setTimeout(() => { window._allowBack = false; logout(); }, 300);
   }
 }
 
@@ -2026,6 +2027,17 @@ function hideDogMsg() {
   document.getElementById('dogReward').classList.remove('show');
   if (dogTimer) { clearTimeout(dogTimer); dogTimer = null; }
 }
+
+/* ====== 스와이프 뒤로가기 방지 ====== */
+window._allowBack = false;
+function pushHistoryBlock() {
+  history.pushState({ blocked: true }, '');
+}
+window.addEventListener('popstate', function() {
+  if (!window._allowBack) {
+    history.pushState({ blocked: true }, '');
+  }
+});
 
 /* ====== 로그인 ====== */
 async function initApp() {
@@ -3981,6 +3993,7 @@ function dayMemoLineEnter(dk, idx) {
   }, 50);
 }
 
+pushHistoryBlock();
 initApp();
 </script>
 
