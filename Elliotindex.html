@@ -834,7 +834,7 @@
   .top-buttons button {
     background: white;
     border: none;
-    width: 16px;
+    width: 28px;
     flex: 1;
     font-size: 10px;
     cursor: pointer;
@@ -1488,7 +1488,7 @@
       pointer-events:none;
       z-index:3;
       text-align:center;
-      letter-spacing:-1px;
+      letter-spacing:-2px;
     ">어떻게 들어가요?</div>
     <!-- 안내문구 2 -->
     <div style="
@@ -1503,6 +1503,7 @@
       pointer-events:none;
       z-index:3;
       text-align:center;
+      letter-spacing:-2px;
     ">프로필을 두 번 클릭!</div>
 
     <!-- 공(멤버) 컨테이너 -->
@@ -1511,7 +1512,7 @@
       <div class="login-pin-row">
         <input type="password" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" onkeypress="if(event.key==='Enter')doLogin()">
         <button class="login-confirm-btn" onclick="doLogin()" title="확인">✓</button>
-        <button class="login-pin-close" onclick="closeLoginPin()" title="닫기" style="width:36px;height:36px;font-size:20px;margin-left:4px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;">×</button>
+        <button class="login-pin-close" onclick="closeLoginPin()" title="닫기" style="width:28px;height:28px;font-size:16px;margin-left:4px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;">×</button>
       </div>
       <div class="login-error" id="loginError"></div>
     </div>
