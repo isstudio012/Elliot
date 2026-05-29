@@ -1369,12 +1369,19 @@
     </div>
     
     <div class="calendar-card">
-      <div class="cal-header">
-        <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+      <div class="cal-header" style="cursor:pointer;" onclick="toggleCalendar()">
+        <button class="cal-nav" onclick="event.stopPropagation();changeMonth(-1)">‹</button>
         <div class="cal-title" id="calTitle"></div>
-        <button class="cal-nav" onclick="changeMonth(1)">›</button>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button onclick="event.stopPropagation();toggleCalendar()" style="width:26px;height:26px;background:#5A8A5E;border:2px solid #4A2F1B;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin-right:6px;">
+            <span id="calToggleIcon" style="font-size:11px;color:white;transition:transform 0.3s;display:inline-block;line-height:1;">▲</span>
+          </button>
+          <button class="cal-nav" onclick="event.stopPropagation();changeMonth(1)">›</button>
+        </div>
       </div>
-      <div class="cal-grid" id="calGrid"></div>
+      <div id="calBody" style="overflow:hidden;transition:max-height 0.35s ease;max-height:400px;">
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
     </div>
     
     <!-- 숙제노트 (접이식) -->
@@ -4003,6 +4010,15 @@ function dayMemoLineEnter(dk, idx) {
     const inputs = document.querySelectorAll('#dayMemoModalBody .note-input');
     if (inputs[idx + 1]) inputs[idx + 1].focus();
   }, 50);
+}
+
+function toggleCalendar() {
+  const body = document.getElementById('calBody');
+  const icon = document.getElementById('calToggleIcon');
+  if (!body || !icon) return;
+  const isOpen = body.style.maxHeight !== '0px';
+  body.style.maxHeight = isOpen ? '0px' : '400px';
+  icon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 pushHistoryBlock();
