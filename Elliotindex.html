@@ -1378,13 +1378,13 @@
       <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.15" stroke-opacity="0.35"/>
 
       <!-- 위쪽 골대 ㄷ자: 폭 32~68%, 깊이 4% -->
-      <line id="goalTopLeft"  x1="38.5" y1="0" x2="38.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopRight" x1="61.5" y1="0" x2="61.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopBack"  x1="38.5" y1="0" x2="61.5" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopLeft"  x1="28.5" y1="0" x2="28.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopRight" x1="71.5" y1="0" x2="71.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopBack"  x1="28.5" y1="0" x2="71.5" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
       <!-- 아래쪽 골대 ㄷ자 -->
-      <line id="goalBotLeft"  x1="38.5" y1="97" x2="38.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotRight" x1="61.5" y1="97" x2="61.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotBack"  x1="38.5" y1="100" x2="61.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotLeft"  x1="28.5" y1="97" x2="28.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotRight" x1="71.5" y1="97" x2="71.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotBack"  x1="28.5" y1="100" x2="71.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
     <!-- 센터서클 (CSS 고정 정원) -->
     <div id="centerCircleWrap" style="
@@ -2305,8 +2305,8 @@ function startLoginPhysics() {
     if (!W || !H) return;
 
     // 골대 구역: 좌우 38~62%, 깊이 4%
-    const goalLeft   = W * 0.385;
-    const goalRight  = W * 0.615;
+    const goalLeft   = W * 0.285;
+    const goalRight  = W * 0.715;
     const goalDepthPx = H * 0.030;
 
     loginBalls.forEach(ball => {
@@ -2330,7 +2330,7 @@ function startLoginPhysics() {
         // 골대 안 진입 가능 (y < 0 ~ -goalDepthPx)
         if (ball.y < 0) {
           // 뒷벽 - 공이 절반 이상 들어가야 골
-          if (ball.y + ball.r <= -goalDepthPx + 4) {
+          if (ball.y + ball.r <= -goalDepthPx - 10) {
             triggerGoal('top', ball, W, H); return;
           }
           // 골대 안 좌우 기둥 충돌
@@ -2360,7 +2360,7 @@ function startLoginPhysics() {
       if (inBotGoalX) {
         if (ball.y + d > H) {
           // 뒷벽 - 공이 절반 이상 들어가야 골
-          if (ball.y + d - ball.r >= H + goalDepthPx - 4) {
+          if (ball.y + d - ball.r >= H + goalDepthPx + 10) {
             triggerGoal('bottom', ball, W, H); return;
           }
           // 골대 안 좌우 기둥 충돌
@@ -2546,19 +2546,29 @@ function selectMember(member, event) {
   const _ball = loginBalls.find(b => b.btn === event.currentTarget);
   if (_ball && _ball.dragged) return;
   soundClick();
-  selectedMember = member;
-  document.querySelectorAll('.login-member-btn').forEach(b => {
-    b.classList.remove('selected','selected-elliot','selected-mom','selected-dad');
-    b.style.transform = '';
-    b.style.borderColor = '#4A2F1B';
-    b.style.boxShadow = '3px 3px 0 #4A2F1B';
-  });
+
   const btn = event.currentTarget;
-  btn.classList.add('selected');
-  btn.classList.add('selected-' + member.id);
-  btn.style.transform = 'scale(1.15)';
-  btn.style.borderColor = '#5A8A5E';
-  btn.style.boxShadow = '0 0 0 3px #5A8A5E, 4px 4px 10px rgba(0,0,0,0.2)';
+  const alreadySelected = selectedMember && selectedMember.id === member.id;
+
+  // 1번 클릭: 선택만
+  if (!alreadySelected) {
+    selectedMember = member;
+    document.querySelectorAll('.login-member-btn').forEach(b => {
+      b.classList.remove('selected','selected-elliot','selected-mom','selected-dad');
+      b.style.transform = '';
+      b.style.borderColor = '#4A2F1B';
+      b.style.boxShadow = '3px 3px 0 #4A2F1B';
+    });
+    btn.classList.add('selected');
+    btn.classList.add('selected-' + member.id);
+    btn.style.transform = 'scale(1.15)';
+    btn.style.borderColor = '#5A8A5E';
+    btn.style.boxShadow = '0 0 0 3px #5A8A5E, 4px 4px 10px rgba(0,0,0,0.2)';
+    document.getElementById('loginPinSection').classList.remove('show');
+    return;
+  }
+
+  // 2번 클릭: 비번 입력창 열기
   document.getElementById('loginPinLabel').textContent = `${member.name} 비밀번호 (4자리)`;
   document.getElementById('loginPinInput').value = '';
   document.getElementById('loginError').textContent = '';
