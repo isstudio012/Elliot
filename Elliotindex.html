@@ -1430,10 +1430,9 @@
   <div class="app-main" id="appMain">
     <!-- 상단 네비 -->
     <div class="top-nav">
-      <button class="top-nav-btn" id="navLogoutBtn" onclick="logout()">🔓 로그아웃</button>
+      <span class="top-nav-btn" id="navLogoutBtn" style="cursor:default;"></span>
       <div style="display:flex;align-items:center;gap:4px;">
-        <button class="top-nav-btn" onclick="goToLogin()" title="로그인 화면으로">‹ 뒤로</button>
-        <button class="top-nav-btn" onclick="closeApp()">닫기 ✕</button>
+        <button class="top-nav-btn" onclick="closeApp()" id="navCloseBtn">로그아웃 ✕</button>
       </div>
     </div>
     
@@ -2644,7 +2643,7 @@ async function showMainApp() {
   // 상단 로그아웃 버튼에 이름 표시
   const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
   const navBtn = document.getElementById('navLogoutBtn');
-  if (navBtn) navBtn.innerHTML = `${emojis[currentUser.id] || '👤'} ${currentUser.name} 로그아웃`;
+  if (navBtn) navBtn.innerHTML = `${emojis[currentUser.id] || '👤'} ${currentUser.name}`;
   
   // 코인 리셋 버튼 (부모만)
   showCoinResetBtn();
@@ -3533,7 +3532,7 @@ async function saveMemberSettings() {
   refreshLoginCardsIfVisible();
   if (currentUser) {
     const navBtn = document.getElementById('navLogoutBtn');
-    if (navBtn) navBtn.innerHTML = `${currentUser.name} 로그아웃`;
+    if (navBtn) navBtn.innerHTML = `${currentUser.name}`;
   }
   soundFanfare();
   showToast('로그인 프로필이 저장됐어요!');
@@ -3577,7 +3576,7 @@ async function saveProfileSettings() {
     const member = cachedMembers.find(m => m.id === currentUser.id);
     if (member) member.name = name;
     const navBtn = document.getElementById('navLogoutBtn');
-    if (navBtn) navBtn.innerHTML = `${currentUser.name} 로그아웃`;
+    if (navBtn) navBtn.innerHTML = `${currentUser.name}`;
   }
   soundFanfare();
   showToast('프로필이 저장됐어요!');
