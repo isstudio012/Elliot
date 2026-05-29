@@ -1378,12 +1378,12 @@
       <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.15" stroke-opacity="0.35"/>
 
       <!-- 위쪽 골대 ㄷ자: 폭 32~68%, 깊이 4% -->
-      <line id="goalTopLeft"  x1="32" y1="0" x2="32" y2="3.4" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopRight" x1="68" y1="0" x2="68" y2="3.4" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopLeft"  x1="32" y1="0" x2="32" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopRight" x1="68" y1="0" x2="68" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
       <line id="goalTopBack"  x1="32" y1="0" x2="68" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <!-- 아래쪽 골대 ㄷ자: 폭 32~68%, 깊이 3.4% -->
-      <line id="goalBotLeft"  x1="32" y1="96.6" x2="32" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotRight" x1="68" y1="96.6" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <!-- 아래쪽 골대 ㄷ자: 폭 32~68%, 깊이 3% -->
+      <line id="goalBotLeft"  x1="32" y1="97" x2="32" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotRight" x1="68" y1="97" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
       <line id="goalBotBack"  x1="32" y1="100" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
     <!-- 센터서클 (CSS 고정 정원) -->
@@ -1626,7 +1626,7 @@
     </div>
     </div>
     <div class="settings-view" id="settingsLoginView">
-      <div id="memberSettingsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <div id="memberSettingsList" style="display:flex;flex-direction:column;gap:0;"></div>
       <div class="member-add-wrap">
         <button class="member-add-btn" onclick="addLoginProfile()">+</button>
         <div class="member-add-label">프로필추가</div>
@@ -1634,7 +1634,7 @@
       <button class="member-save-btn" onclick="saveMemberSettings()">저장</button>
     </div>
     <div class="settings-view" id="settingsPasswordView">
-      <div id="passwordSettingsList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <div id="passwordSettingsList" style="display:flex;flex-direction:column;gap:0;"></div>
     </div>
   </div>
 </div>
@@ -2298,7 +2298,7 @@ function startLoginPhysics() {
     // 골대 구역: 좌우 38~62%, 깊이 4%
     const goalLeft   = W * 0.32;
     const goalRight  = W * 0.68;
-    const goalDepthPx = H * 0.034;
+    const goalDepthPx = H * 0.030;
 
     loginBalls.forEach(ball => {
       if (ball.dragging) return;
@@ -3410,17 +3410,19 @@ function renderMemberSettings() {
       ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:44px;height:44px;border-radius:4px;border:none;object-fit:cover;">`
       : `<div id="memberPhotoPreview-${m.id}" style="width:44px;height:44px;border-radius:4px;background:#EAE0C2;display:flex;align-items:center;justify-content:center;font-size:22px;">${emojis[m.id] || '👤'}</div>`;
     return `
-      <div style="display:grid;grid-template-columns:34px 48px 1fr auto;gap:8px;align-items:center;background:transparent;border:none;padding:8px 0;">
-        <button class="member-color-trigger" style="background:${color};" onclick="document.getElementById('memberColor-${m.id}').click();" title="색 변경">${n}</button>
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
+        <button class="member-color-trigger" style="background:${color};flex-shrink:0;" onclick="document.getElementById('memberColor-${m.id}').click();" title="색 변경">${n}</button>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" oninput="applyMemberColor('${m.id}')" onchange="applyMemberColor('${m.id}')">
-        <div onclick="document.getElementById('memberPhotoFile-${m.id}').click();" style="cursor:pointer;width:44px;height:44px;position:relative;" title="사진 변경">
+        <div onclick="document.getElementById('memberPhotoFile-${m.id}').click();" style="cursor:pointer;width:44px;height:44px;flex-shrink:0;position:relative;border-radius:4px;overflow:hidden;" title="사진 변경">
           ${photoHtml}
-          <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.45);border-radius:0 0 4px 4px;font-size:9px;color:white;text-align:center;line-height:1.6;font-family:'Gaegu',cursive;">사진</div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);">
+            <span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span>
+          </div>
         </div>
-        <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="min-width:0;width:100%;padding:6px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+        <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0;">
           <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제">−</button>
-          <span style="font-family:'Gaegu',cursive;font-size:9px;color:#999;">삭제</span>
+          <span style="font-family:'Gaegu',cursive;font-size:9px;color:#555;font-weight:700;">삭제</span>
         </div>
         <input type="file" id="memberPhotoFile-${m.id}" accept="image/*" style="display:none;" onchange="handleMemberPhotoUpload(event,'${m.id}')">
       </div>
@@ -3435,14 +3437,12 @@ function renderPasswordSettings() {
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
     return `
-      <div style="display:flex;flex-direction:column;gap:6px;background:transparent;border:none;padding:10px 12px;">
-        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
           <span class="member-index-dot" style="background:${color};flex-shrink:0;">${n}</span>
           <input type="password" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <input type="password" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:10px 16px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;">변경</button>
-        </div>
-        <div class="pwd-error" id="settingsError-${m.id}" style="min-height:14px;text-align:left;padding-left:42px;"></div>
+          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">변경</button>
+        <div class="pwd-error" id="settingsError-${m.id}" style="min-height:0;display:none;"></div>
       </div>
     `;
   }).join('');
