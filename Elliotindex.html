@@ -2320,9 +2320,9 @@ async function initApp() {
   try {
     await showLoginScreen();
   } catch (e) {
-    console.log('init/showLoginScreen error', e);
+    console.log('init/showLoginScreen error', JSON.stringify(e), e?.message, e?.code);
     const loading = document.getElementById('loadingOverlay');
-    if (loading) loading.textContent = '데이터 연결 실패. 잠시 후 다시 시도해주세요.';
+    if (loading) loading.textContent = '에러: ' + (e?.message || e?.code || JSON.stringify(e));
   }
 }
 
@@ -3237,6 +3237,8 @@ async function addTask(subjectId, dk) {
     // 확인 취소
     await sb.from('confirmations').delete().eq('date_key', dk);
     await refreshData();
+  } else {
+    showToast('❌ ' + (error.message || JSON.stringify(error)));
   }
 }
 
