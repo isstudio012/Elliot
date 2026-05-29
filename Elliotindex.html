@@ -1583,17 +1583,18 @@
     <div class="settings-view" id="settingsTitleView">
     <div class="settings-card">
       <div class="settings-card-title">제목 바꾸기</div>
-      <div style="display:flex;flex-direction:column;gap:8px;padding:10px 28px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="settings-line-label" style="width:64px;flex-shrink:0;">메인화면</div>
-          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="메인화면 제목" style="flex:1;min-width:0;padding:8px 10px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+      <div style="display:flex;flex-direction:column;gap:10px;padding:10px 8px 10px 12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:54px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#111;">메인화면</div>
+          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="메인화면 제목" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveAppTitleOnly()" style="flex-shrink:0;padding:7px 10px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;">저장</button>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="settings-line-label" style="width:64px;flex-shrink:0;">숙제노트</div>
-          <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:8px 10px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:54px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#111;">숙제노트</div>
+          <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:7px 10px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;">저장</button>
         </div>
       </div>
-      <button class="member-save-btn" onclick="saveTitleSettings()">저장</button>
     </div>
     </div>
     <div class="settings-view" id="settingsLoginView">
@@ -3339,14 +3340,14 @@ function renderPasswordSettings() {
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
     return `
-      <div style="display:flex;flex-direction:column;gap:8px;background:transparent;border:none;padding:10px 28px;">
-        <div style="display:flex;align-items:center;gap:10px;">
+      <div style="display:flex;flex-direction:column;gap:6px;background:transparent;border:none;padding:10px 8px 10px 12px;">
+        <div style="display:flex;align-items:center;gap:8px;">
           <span class="member-index-dot" style="background:${color};flex-shrink:0;">${n}</span>
-          <input type="password" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비밀번호" style="flex:1;min-width:0;padding:8px 10px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <input type="password" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비밀번호" style="flex:1;min-width:0;padding:8px 10px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:8px 16px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;">변경</button>
+          <input type="password" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비밀번호" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+          <input type="password" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비밀번호" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:7px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;margin-right:8px;">변경</button>
         </div>
-        <div class="pwd-error" id="settingsError-${m.id}" style="min-height:16px;text-align:left;padding-left:44px;"></div>
+        <div class="pwd-error" id="settingsError-${m.id}" style="min-height:14px;text-align:left;padding-left:42px;"></div>
       </div>
     `;
   }).join('');
@@ -3480,6 +3481,25 @@ async function saveProfileSettings() {
   }
   soundFanfare();
   showToast('프로필이 저장됐어요!');
+}
+
+async function saveAppTitleOnly() {
+  const appTitle = document.getElementById('settingsAppTitle').value.trim() || '숙제 체크리스트';
+  await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle });
+  const el = document.getElementById('appTitle');
+  if (el) el.textContent = appTitle;
+  document.title = appTitle;
+  showToast('✅ 메인화면 제목 저장!');
+}
+
+async function saveNoteTitleOnly() {
+  const noteTitle = document.getElementById('settingsNoteTitle').value.trim() || '숙제노트';
+  await sb.from('app_settings').upsert({ key: 'note_title', value: noteTitle });
+  const el = document.getElementById('homeworkNoteTitle');
+  if (el) el.textContent = noteTitle;
+  const el2 = document.getElementById('noteModalTitle');
+  if (el2) el2.textContent = noteTitle;
+  showToast('✅ 숙제노트 제목 저장!');
 }
 
 async function saveTitleSettings() {
