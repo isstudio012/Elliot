@@ -50,8 +50,8 @@
   .login-sub {
     position: absolute;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: calc(50% - 14px);
+    transform: translateX(-50%);
     font-family: 'Gaegu', cursive;
     font-size: 18px;
     font-weight: 700;
@@ -62,21 +62,22 @@
   }
   .login-close-btn {
     position: absolute;
-    top: max(10px, env(safe-area-inset-top, 10px));
-    left: 12px;
-    height: 28px;
+    top: max(8px, env(safe-area-inset-top, 8px));
+    right: 8px;
+    height: 22px;
     background: none;
     border: none;
-    font-size: 16px;
-    color: #C0392B;
+    font-size: 12px;
+    color: white;
     font-weight: 700;
     cursor: pointer;
     z-index: 10;
     line-height: 1;
-    padding: 2px 6px;
+    padding: 2px 4px;
     display: flex;
     align-items: center;
     gap: 2px;
+    opacity: 0.7;
   }
   .login-score-left {
     position: absolute;
@@ -253,7 +254,7 @@
   .settings-body {
     flex: 1;
     overflow-y: auto;
-    padding: 22px 28px;
+    padding: 16px 0;
     background: #F5EDD7;
   }
   .settings-view { display: none; }
@@ -1214,6 +1215,8 @@
     display: flex; flex-direction: column;
     transform: translateX(100%);
     transition: transform 0.3s ease;
+    width: 100%;
+    max-width: 100%;
   }
   .chat-panel.open { transform: translateX(0); }
   
@@ -1369,19 +1372,19 @@
     <!-- 축구장 SVG (세로 모바일) -->
     <svg class="login-field-svg" id="loginFieldSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
       <!-- 센터라인 (가로) -->
-      <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.2" stroke-opacity="0.18"/>
-      <!-- 센터서클 (타원, 세로 모바일용) -->
-      <ellipse cx="50" cy="50" rx="18" ry="10" fill="none" stroke="#4A2F1B" stroke-width="0.2" stroke-opacity="0.18"/>
+      <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.1" stroke-opacity="0.18"/>
+      <!-- 센터서클 정원 -->
+      <circle cx="50" cy="50" r="12" fill="none" stroke="#4A2F1B" stroke-width="0.1" stroke-opacity="0.18"/>
       <!-- 센터도트 -->
-      <circle cx="50" cy="50" r="0.6" fill="#4A2F1B" fill-opacity="0.22"/>
-      <!-- 위쪽 골대 ㄷ자: 폭 38~62%, 깊이 4% -->
-      <line id="goalTopLeft"  x1="38" y1="0" x2="38" y2="4" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopRight" x1="62" y1="0" x2="62" y2="4" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalTopBack"  x1="38" y1="0" x2="62" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <!-- 아래쪽 골대 ㄷ자: 폭 38~62%, 깊이 4% -->
-      <line id="goalBotLeft"  x1="38" y1="96" x2="38" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotRight" x1="62" y1="96" x2="62" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
-      <line id="goalBotBack"  x1="38" y1="100" x2="62" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <circle cx="50" cy="50" r="0.5" fill="#4A2F1B" fill-opacity="0.2"/>
+      <!-- 위쪽 골대 ㄷ자: 폭 32~68%, 깊이 4% -->
+      <line id="goalTopLeft"  x1="32" y1="0" x2="32" y2="4" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopRight" x1="68" y1="0" x2="68" y2="4" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalTopBack"  x1="32" y1="0" x2="68" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <!-- 아래쪽 골대 ㄷ자: 폭 32~68%, 깊이 4% -->
+      <line id="goalBotLeft"  x1="32" y1="96" x2="32" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotRight" x1="68" y1="96" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+      <line id="goalBotBack"  x1="32" y1="100" x2="68" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
     </svg>
     <!-- 누구세요 텍스트 -->
     <div class="login-sub">누구세요?</div>
@@ -1583,16 +1586,16 @@
     <div class="settings-view" id="settingsTitleView">
     <div class="settings-card">
       <div class="settings-card-title">제목 바꾸기</div>
-      <div style="display:flex;flex-direction:column;gap:10px;padding:10px 8px 10px 12px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:54px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#111;">메인화면</div>
-          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="메인화면 제목" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveAppTitleOnly()" style="flex-shrink:0;padding:7px 10px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;">저장</button>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:10px 12px;">
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">메인화면</div>
+          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="메인화면 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveAppTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="width:54px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#111;">숙제노트</div>
-          <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:7px 10px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;">저장</button>
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">숙제노트</div>
+          <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
       </div>
     </div>
@@ -2150,6 +2153,41 @@ async function initApp() {
 }
 
 /* ====== 로그인 물리엔진 ====== */
+let _loginAC = null;
+function getLoginAC() {
+  if (!_loginAC) _loginAC = new (window.AudioContext || window.webkitAudioContext)();
+  return _loginAC;
+}
+function playBallPickup() {
+  try {
+    const ac = getLoginAC();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, ac.currentTime);
+    osc.frequency.linearRampToValueAtTime(500, ac.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.08, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.1);
+    osc.start(ac.currentTime); osc.stop(ac.currentTime + 0.12);
+  } catch(e) {}
+}
+function playBallBounce(vol) {
+  try {
+    const ac = getLoginAC();
+    const buf = ac.createBuffer(1, ac.sampleRate * 0.06, ac.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random()*2-1) * Math.exp(-i/(data.length*0.3));
+    const src = ac.createBufferSource();
+    src.buffer = buf;
+    const gain = ac.createGain();
+    gain.gain.value = vol || 0.3;
+    const filter = ac.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.value = 180; filter.Q.value = 0.8;
+    src.connect(filter); filter.connect(gain); gain.connect(ac.destination);
+    src.start(ac.currentTime);
+  } catch(e) {}
+}
 let loginBalls = []; // [{btn, x, y, vx, vy, r, member}]
 let loginPhysicsRAF = null;
 const GOAL_W_RATIO = 0.06;  // 골대 너비 비율 (SVG 6/100)
@@ -2229,8 +2267,8 @@ function startLoginPhysics() {
     if (!W || !H) return;
 
     // 골대 구역: 좌우 38~62%, 깊이 4%
-    const goalLeft   = W * 0.38;
-    const goalRight  = W * 0.62;
+    const goalLeft   = W * 0.32;
+    const goalRight  = W * 0.68;
     const goalDepthPx = H * 0.04;
 
     loginBalls.forEach(ball => {
@@ -2245,8 +2283,8 @@ function startLoginPhysics() {
       const cy = ball.y + ball.r;
 
       // 좌우 벽
-      if (ball.x < 0)       { ball.x = 0;     ball.vx =  Math.abs(ball.vx) * RESTITUTION; }
-      if (ball.x + d > W)   { ball.x = W - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; }
+      if (ball.x < 0)       { ball.x = 0;     ball.vx =  Math.abs(ball.vx) * RESTITUTION; if(Math.abs(ball.vx)>1) playBallBounce(0.6); }
+      if (ball.x + d > W)   { ball.x = W - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; if(Math.abs(ball.vx)>1) playBallBounce(0.6); }
 
       // ── 위쪽 처리 ──
       if (cx > goalLeft && cx < goalRight) {
@@ -2310,6 +2348,7 @@ function startLoginPhysics() {
             const imp = dot * RESTITUTION;
             a.vx -= imp * nx; a.vy -= imp * ny;
             b.vx += imp * nx; b.vy += imp * ny;
+            if (imp > 1) playBallBounce(0.4);
           }
         }
       }
@@ -2401,6 +2440,7 @@ function makeLoginBallDraggable(btn, ball) {
     btn.style.transition = 'none';
     btn.classList.add('dragging');
     btn.setPointerCapture(e.pointerId);
+    playBallPickup();
     e.stopPropagation();
   });
 
@@ -3340,12 +3380,12 @@ function renderPasswordSettings() {
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
     return `
-      <div style="display:flex;flex-direction:column;gap:6px;background:transparent;border:none;padding:10px 8px 10px 12px;">
-        <div style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;flex-direction:column;gap:6px;background:transparent;border:none;padding:10px 12px;">
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
           <span class="member-index-dot" style="background:${color};flex-shrink:0;">${n}</span>
-          <input type="password" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비밀번호" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
-          <input type="password" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비밀번호" style="flex:1;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:7px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;margin-right:8px;">변경</button>
+          <input type="password" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <input type="password" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:10px 16px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;">변경</button>
         </div>
         <div class="pwd-error" id="settingsError-${m.id}" style="min-height:14px;text-align:left;padding-left:42px;"></div>
       </div>
