@@ -1059,12 +1059,12 @@
   }
   .task.task-enter { animation: taskIn 0.22s ease-out; }
   .sel-box {
-    width: 20px; height: 20px; border: 2px solid #B71C1C; border-radius: 4px;
+    width: 20px; height: 20px; border: 2px solid #BBB; border-radius: 4px;
     flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    background: white; cursor: pointer; font-weight: bold; color: white;
-    font-size: 13px; line-height: 1;
+    background: white; cursor: pointer; font-weight: bold; color: #2E7D32;
+    font-size: 14px; line-height: 1;
   }
-  .sel-box.on { background: #E53935; border-color: #B71C1C; }
+  .sel-box.on { background: #E8F5E9; border-color: #2E7D32; }
   .checkbox {
     width: 24px; height: 24px; border: 2px solid #4A2F1B; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -3083,14 +3083,15 @@ function renderTasks() {
   // 선택삭제 컨트롤 바 (부모만)
   if (isParent()) {
     const bar = document.createElement('div');
-    bar.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;margin:0 0 8px;';
+    bar.style.cssText = 'display:flex;gap:8px;margin:0 0 8px;';
     if (!selectMode) {
-      bar.innerHTML = `<button onclick="enterSelectMode()" style="background:white;color:#B71C1C;border:1.5px solid #B71C1C;border-radius:8px;padding:4px 12px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">☑ 선택삭제</button>`;
+      bar.style.justifyContent = 'flex-end';
+      bar.innerHTML = `<button onclick="enterSelectMode()" style="background:white;color:#2E7D32;border:1.5px solid #2E7D32;border-radius:8px;padding:4px 12px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">☑ 선택삭제</button>`;
     } else {
       const n = selectedSubjects.size + selectedTasks.size;
       bar.innerHTML = `
-        <button onclick="exitSelectMode()" style="background:white;color:#666;border:1.5px solid #999;border-radius:8px;padding:4px 12px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">취소</button>
-        <button onclick="deleteSelected()" ${n===0?'disabled':''} style="background:${n===0?'#ccc':'#E53935'};color:white;border:1.5px solid ${n===0?'#bbb':'#B71C1C'};border-radius:8px;padding:4px 12px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:${n===0?'default':'pointer'};">선택 삭제 (${n})</button>
+        <button onclick="deleteSelected()" ${n===0?'disabled':''} style="flex:8;background:${n===0?'#ccc':'#2E7D32'};color:white;border:1.5px solid ${n===0?'#bbb':'#1B5E20'};border-radius:8px;padding:7px 8px;font-family:Gaegu,cursive;font-size:14px;font-weight:700;cursor:${n===0?'default':'pointer'};">선택 삭제 (${n})</button>
+        <button onclick="exitSelectMode()" style="flex:2;background:white;color:#999;border:1.5px solid #BBB;border-radius:8px;padding:7px 0;font-family:Gaegu,cursive;font-size:16px;font-weight:700;cursor:pointer;">✕</button>
       `;
     }
     container.appendChild(bar);
@@ -3374,7 +3375,9 @@ async function deleteSelected() {
   const subIds = [...selectedSubjects];
   const taskIds = [...selectedTasks];
   if (subIds.length === 0 && taskIds.length === 0) { showToast('선택된 항목이 없어요'); return; }
-  if (!confirm(`선택한 과목 ${subIds.length}개, 숙제 ${taskIds.length}개를 삭제할까요?\n(과목을 지우면 안의 숙제도 함께 삭제됩니다)`)) return;
+  const pin = prompt(`선택한 과목 ${subIds.length}개, 숙제 ${taskIds.length}개를 삭제합니다.\n(과목을 지우면 안의 숙제도 함께 삭제)\n\n부모 비밀번호를 입력하세요`);
+  if (pin === null) return;
+  if (pin !== currentUser.pin) { showToast('비밀번호가 틀려요 ❌'); soundError(); return; }
 
   // 삭제될 숙제 모으기 (선택 숙제 + 선택 과목의 모든 숙제)
   const toDelete = new Map();
