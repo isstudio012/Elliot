@@ -32,39 +32,84 @@
   
   /* ====== 로그인 화면 ====== */
   .login-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    position: relative;
-    min-height: calc(100vh - 70px);
-    gap: 10px;
-    padding-top: 18vh;
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: #F5EDD7;
+    overflow: hidden;
+    touch-action: none;
   }
-  .login-title {
-    font-family: 'Gaegu', cursive;
-    font-size: 24px;
-    font-weight: 700;
-    color: #4A2F1B;
-    margin-bottom: 4px;
+  .login-field-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
   }
   .login-sub {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     font-family: 'Gaegu', cursive;
     font-size: 18px;
     font-weight: 700;
     color: #5A3A2A;
-    margin-bottom: 6px;
+    z-index: 2;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .login-close-btn {
+    position: absolute;
+    top: max(14px, env(safe-area-inset-top, 14px));
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #C0392B;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 10;
+    line-height: 1;
+    padding: 0;
+  }
+  .login-score-left {
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    transform: translateX(-50%);
+    font-family: 'Gaegu', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: rgba(74,47,27,0.35);
+    z-index: 1;
+    pointer-events: none;
+    line-height: 1;
+  }
+  .login-score-right {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    font-family: 'Gaegu', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: rgba(74,47,27,0.35);
+    z-index: 1;
+    pointer-events: none;
+    line-height: 1;
   }
   .login-members {
     display: block;
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 118px;
-    bottom: 0;
+    inset: 0;
     width: 100%;
-    min-height: 520px;
+    height: 100%;
     touch-action: none;
+    z-index: 3;
   }
   .login-member-btn {
     position: absolute;
@@ -1314,7 +1359,31 @@
 <div class="container">
   <!-- 로그인 화면 -->
   <div class="login-screen" id="loginScreen" style="display:none;">
+    <!-- X 종료 버튼 -->
+    <button class="login-close-btn" onclick="if(confirm('앱을 종료할까요?')) window.close()">✕</button>
+    <!-- 점수 -->
+    <div class="login-score-left" id="loginScoreLeft">0</div>
+    <div class="login-score-right" id="loginScoreRight">0</div>
+    <!-- 축구장 SVG (세로 모바일) -->
+    <svg class="login-field-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <!-- 센터라인 (가로) -->
+      <line x1="0" y1="50" x2="100" y2="50" stroke="#4A2F1B" stroke-width="0.4" stroke-opacity="0.25"/>
+      <!-- 센터서클 -->
+      <circle cx="50" cy="50" r="12" fill="none" stroke="#4A2F1B" stroke-width="0.4" stroke-opacity="0.25"/>
+      <!-- 센터도트 -->
+      <circle cx="50" cy="50" r="0.8" fill="#4A2F1B" fill-opacity="0.3"/>
+      <!-- 위쪽 골대 ㄷ자 (아래쪽만 열림) — 왼기둥/오른기둥/뒷벽 -->
+      <line x1="30" y1="0" x2="30" y2="6" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
+      <line x1="70" y1="0" x2="70" y2="6" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
+      <line x1="30" y1="0" x2="70" y2="0" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
+      <!-- 아래쪽 골대 ㄷ자 (위쪽만 열림) -->
+      <line x1="30" y1="94" x2="30" y2="100" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
+      <line x1="70" y1="94" x2="70" y2="100" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
+      <line x1="30" y1="100" x2="70" y2="100" stroke="#4A2F1B" stroke-width="0.8" stroke-opacity="0.5"/>
+    </svg>
+    <!-- 누구세요 텍스트 -->
     <div class="login-sub">누구세요?</div>
+    <!-- 공(멤버) 컨테이너 -->
     <div class="login-members" id="loginMembers"></div>
     <div class="login-pin-section" id="loginPinSection">
       <div class="login-pin-label" id="loginPinLabel">비밀번호 (4자리)</div>
@@ -2077,24 +2146,32 @@ async function initApp() {
   }
 }
 
+/* ====== 로그인 물리엔진 ====== */
+let loginBalls = []; // [{btn, x, y, vx, vy, r, member}]
+let loginPhysicsRAF = null;
+const GOAL_W_RATIO = 0.06;  // 골대 너비 비율 (SVG 6/100)
+const GOAL_H_RATIO = 0.28;  // 골대 높이 비율 (28/100)
+const RESTITUTION = 0.75;
+const FRICTION = 0.992;
+const GOAL_DEPTH = 0; // 골대 안으로 들어가면 골
+
 async function showLoginScreen() {
   document.getElementById('loadingOverlay').classList.add('hide');
   document.getElementById('loginScreen').style.display = '';
   document.getElementById('appMain').classList.remove('show');
   document.getElementById('chatFab').style.display = 'none';
-  
+  stopLoginPhysics();
+
   const { data: members, error } = await sb.from('members').select('*');
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
   cachedMembers = members || [];
-  
+
   const container = document.getElementById('loginMembers');
   container.innerHTML = '';
-  
+  loginBalls = [];
+
   const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
-  const positions = getLoginPositions();
-  cachedMembers.forEach(m => {
+  cachedMembers.forEach((m, i) => {
     const btn = document.createElement('button');
     btn.className = 'login-member-btn';
     const photo = getMemberPhoto(m.id);
@@ -2103,142 +2180,203 @@ async function showLoginScreen() {
     btn.style.borderColor = '#4A2F1B';
     btn.style.boxShadow = '3px 3px 0 #4A2F1B';
     btn.addEventListener('click', e => selectMember(m, e));
-    makeLoginMemberDraggable(btn, m);
     container.appendChild(btn);
-    requestAnimationFrame(() => {
-      const saved = positions[m.id];
-      const pos = saved || defaultLoginPosition(cachedMembers.indexOf(m), cachedMembers.length, container, btn);
-      moveLoginButton(btn, pos.x, pos.y, false);
+
+    // 초기 위치 — 화면 중앙 근처에 분산
+    const angle = (i / cachedMembers.length) * Math.PI * 2;
+    const ball = {
+      btn, member: m,
+      x: 0, y: 0,
+      vx: Math.cos(angle) * 1.5,
+      vy: Math.sin(angle) * 1.5,
+      r: 37, // 74px / 2
+      dragging: false,
+      dragOffX: 0, dragOffY: 0,
+      dragged: false,
+      prevX: 0, prevY: 0,
+    };
+    loginBalls.push(ball);
+    makeLoginBallDraggable(btn, ball);
+  });
+
+  // 초기 위치 설정 (rAF 후)
+  requestAnimationFrame(() => {
+    const W = container.clientWidth;
+    const H = container.clientHeight;
+    loginBalls.forEach((ball, i) => {
+      const angle = (i / loginBalls.length) * Math.PI * 2 - Math.PI/2;
+      const rad = Math.min(W, H) * 0.22;
+      ball.x = W/2 + Math.cos(angle) * rad - ball.r;
+      ball.y = H/2 + Math.sin(angle) * rad - ball.r;
+      ball.btn.style.left = ball.x + 'px';
+      ball.btn.style.top = ball.y + 'px';
     });
+    startLoginPhysics();
   });
 }
 
-function moveLoginButton(btn, x, y, save = true) {
-  const container = btn.parentElement;
-  const maxX = Math.max(0, container.clientWidth - btn.offsetWidth);
-  const maxY = Math.max(0, container.clientHeight - btn.offsetHeight - 8);
-  const nextX = Math.min(Math.max(0, x), maxX);
-  const nextY = Math.min(Math.max(0, y), maxY);
-  btn.style.left = nextX + 'px';
-  btn.style.top = nextY + 'px';
-  if (save) saveLoginPosition(btn.dataset.memberId, nextX, nextY);
-  // 충돌 감지 + 밀어내기
-  if (btn.classList.contains('dragging')) {
-    resolveCollisions(btn);
-  }
-}
+function startLoginPhysics() {
+  stopLoginPhysics();
+  function step() {
+    loginPhysicsRAF = requestAnimationFrame(step);
+    const container = document.getElementById('loginMembers');
+    if (!container) { stopLoginPhysics(); return; }
+    const W = container.clientWidth;
+    const H = container.clientHeight;
+    if (!W || !H) return;
 
-function resolveCollisions(draggedBtn) {
-  const container = draggedBtn.parentElement;
-  const btns = Array.from(container.querySelectorAll('.login-member-btn'));
-  const r = draggedBtn.offsetWidth / 2;
-  const cx1 = parseFloat(draggedBtn.style.left) + r;
-  const cy1 = parseFloat(draggedBtn.style.top) + r;
-  
-  btns.forEach(other => {
-    if (other === draggedBtn) return;
-    const or = other.offsetWidth / 2;
-    const cx2 = parseFloat(other.style.left) + or;
-    const cy2 = parseFloat(other.style.top) + or;
-    const dx = cx2 - cx1;
-    const dy = cy2 - cy1;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    const minDist = r + or + 4;
-    
-    if (dist < minDist && dist > 0) {
-      const overlap = minDist - dist;
-      const nx = dx / dist;
-      const ny = dy / dist;
-      const pushX = nx * overlap;
-      const pushY = ny * overlap;
-      const maxX = Math.max(0, container.clientWidth - other.offsetWidth);
-      const maxY = Math.max(0, container.clientHeight - other.offsetHeight - 8);
-      const newX = Math.min(Math.max(0, parseFloat(other.style.left) + pushX), maxX);
-      const newY = Math.min(Math.max(0, parseFloat(other.style.top) + pushY), maxY);
-      other.style.transition = 'left 0.45s cubic-bezier(0.25, 1, 0.5, 1), top 0.45s cubic-bezier(0.25, 1, 0.5, 1)';
-      other.style.left = newX + 'px';
-      other.style.top = newY + 'px';
-      saveLoginPosition(other.dataset.memberId, newX, newY);
-      setTimeout(() => { other.style.transition = ''; }, 500);
+    // 골대 구역: 좌우 30~70% 구간, 위아래 6% 깊이
+    const goalLeft  = W * 0.30;
+    const goalRight = W * 0.70;
+    const goalDepthPx = H * 0.06;
+
+    loginBalls.forEach(ball => {
+      if (ball.dragging) return;
+      ball.vx *= FRICTION;
+      ball.vy *= FRICTION;
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      const d = ball.r * 2;
+      const cx = ball.x + ball.r;
+
+      // 좌우 벽 (항상)
+      if (ball.x < 0) { ball.x = 0; ball.vx = Math.abs(ball.vx) * RESTITUTION; }
+      if (ball.x + d > W) { ball.x = W - d; ball.vx = -Math.abs(ball.vx) * RESTITUTION; }
+
+      // 위쪽: 골대 구역이면 골대 깊이까지 허용
+      if (cx > goalLeft && cx < goalRight) {
+        // 골대 안 → 뒷벽 넘으면 골
+        if (ball.y < -goalDepthPx) {
+          scoreGoal('top', ball);
+          ball.x = W/2 - ball.r; ball.y = H/2 - ball.r;
+          ball.vx = (Math.random()-0.5)*3; ball.vy = (Math.random()-0.5)*3;
+        } else if (ball.y < 0) {
+          // 골대 안 — 통과 허용 (뒷벽만)
+          if (ball.y < -goalDepthPx) { ball.y = -goalDepthPx; ball.vy = Math.abs(ball.vy)*RESTITUTION; }
+        }
+      } else {
+        // 골대 밖 → 위쪽 벽
+        if (ball.y < 0) { ball.y = 0; ball.vy = Math.abs(ball.vy) * RESTITUTION; }
+      }
+
+      // 아래쪽: 골대 구역
+      if (cx > goalLeft && cx < goalRight) {
+        if (ball.y + d > H + goalDepthPx) {
+          scoreGoal('bottom', ball);
+          ball.x = W/2 - ball.r; ball.y = H/2 - ball.r;
+          ball.vx = (Math.random()-0.5)*3; ball.vy = (Math.random()-0.5)*3;
+        } else if (ball.y + d > H) {
+          if (ball.y + d > H + goalDepthPx) { ball.y = H + goalDepthPx - d; ball.vy = -Math.abs(ball.vy)*RESTITUTION; }
+        }
+      } else {
+        if (ball.y + d > H) { ball.y = H - d; ball.vy = -Math.abs(ball.vy) * RESTITUTION; }
+      }
+
+      ball.btn.style.left = ball.x + 'px';
+      ball.btn.style.top = ball.y + 'px';
+    });
+
+    // 공끼리 충돌
+    for (let i = 0; i < loginBalls.length; i++) {
+      for (let j = i+1; j < loginBalls.length; j++) {
+        const a = loginBalls[i], b = loginBalls[j];
+        const ax = a.x + a.r, ay = a.y + a.r;
+        const bx = b.x + b.r, by = b.y + b.r;
+        const dx = bx - ax, dy = by - ay;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const minD = a.r + b.r;
+        if (dist < minD && dist > 0.01) {
+          const nx = dx/dist, ny = dy/dist;
+          const overlap = minD - dist;
+          a.x -= nx * overlap/2; a.y -= ny * overlap/2;
+          b.x += nx * overlap/2; b.y += ny * overlap/2;
+          const dvx = a.vx - b.vx, dvy = a.vy - b.vy;
+          const dot = dvx*nx + dvy*ny;
+          if (dot > 0) {
+            const imp = dot * RESTITUTION;
+            a.vx -= imp * nx; a.vy -= imp * ny;
+            b.vx += imp * nx; b.vy += imp * ny;
+          }
+        }
+      }
     }
-  });
+  }
+  loginPhysicsRAF = requestAnimationFrame(step);
 }
 
-function makeLoginMemberDraggable(btn, member) {
-  let startX = 0;
-  let startY = 0;
-  let startLeft = 0;
-  let startTop = 0;
-  let moved = false;
-  let lastX = 0, lastY = 0, lastTime = 0;
-  let velX = 0, velY = 0;
+function stopLoginPhysics() {
+  if (loginPhysicsRAF) { cancelAnimationFrame(loginPhysicsRAF); loginPhysicsRAF = null; }
+}
+
+let loginScores = { top: 0, bottom: 0 };
+function scoreGoal(side, ball) {
+  loginScores[side]++;
+  const elT = document.getElementById('loginScoreLeft');
+  const elB = document.getElementById('loginScoreRight');
+  if (elT) elT.textContent = loginScores.top;
+  if (elB) elB.textContent = loginScores.bottom;
+}
+
+function makeLoginBallDraggable(btn, ball) {
+  let startX, startY, startBallX, startBallY;
+  let lastX, lastY, lastTime;
 
   btn.addEventListener('pointerdown', e => {
-    startX = e.clientX;
-    startY = e.clientY;
-    startLeft = parseFloat(btn.style.left) || 0;
-    startTop = parseFloat(btn.style.top) || 0;
-    moved = false;
+    ball.dragging = true;
+    ball.dragged = false;
+    startX = e.clientX; startY = e.clientY;
+    startBallX = ball.x; startBallY = ball.y;
     lastX = e.clientX; lastY = e.clientY; lastTime = Date.now();
-    velX = 0; velY = 0;
-    btn.dataset.dragged = '';
-    btn.classList.add('dragging');
+    ball.vx = 0; ball.vy = 0;
     btn.style.transition = 'none';
+    btn.classList.add('dragging');
     btn.setPointerCapture(e.pointerId);
+    e.stopPropagation();
   });
 
   btn.addEventListener('pointermove', e => {
-    if (!btn.classList.contains('dragging')) return;
+    if (!ball.dragging) return;
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
-    if (Math.abs(dx) + Math.abs(dy) > 4) {
-      moved = true;
-      btn.dataset.dragged = '1';
-    }
+    if (Math.abs(dx)+Math.abs(dy) > 4) ball.dragged = true;
     const now = Date.now();
     const dt = Math.max(1, now - lastTime);
-    velX = (e.clientX - lastX) / dt * 16;
-    velY = (e.clientY - lastY) / dt * 16;
+    ball.vx = (e.clientX - lastX) / dt * 14;
+    ball.vy = (e.clientY - lastY) / dt * 14;
     lastX = e.clientX; lastY = e.clientY; lastTime = now;
-    moveLoginButton(btn, startLeft + dx, startTop + dy);
+    const container = btn.parentElement;
+    const W = container.clientWidth, H = container.clientHeight;
+    ball.x = Math.min(Math.max(-ball.r*0.5, startBallX + dx), W - ball.r*1.5);
+    ball.y = Math.min(Math.max(0, startBallY + dy), H - ball.r*2);
+    btn.style.left = ball.x + 'px';
+    btn.style.top = ball.y + 'px';
+    e.stopPropagation();
   });
 
   const stopDrag = e => {
-    if (!btn.classList.contains('dragging')) return;
+    if (!ball.dragging) return;
+    ball.dragging = false;
     btn.classList.remove('dragging');
     try { btn.releasePointerCapture(e.pointerId); } catch(err) {}
-    if (moved) {
-      // 관성 애니메이션
-      const curLeft = parseFloat(btn.style.left) || 0;
-      const curTop = parseFloat(btn.style.top) || 0;
-      const friction = 0.95;
-      let vx = velX, vy = velY;
-      let px = curLeft, py = curTop;
-      function inertiaStep() {
-        vx *= friction;
-        vy *= friction;
-        px += vx;
-        py += vy;
-        moveLoginButton(btn, px, py);
-        if (Math.abs(vx) > 0.3 || Math.abs(vy) > 0.3) {
-          requestAnimationFrame(inertiaStep);
-        }
-      }
-      if (Math.abs(vx) > 1 || Math.abs(vy) > 1) {
-        requestAnimationFrame(inertiaStep);
-      }
-      setTimeout(() => { btn.dataset.dragged = ''; }, 0);
-    }
+    setTimeout(() => { ball.dragged = false; }, 0);
   };
-
   btn.addEventListener('pointerup', stopDrag);
   btn.addEventListener('pointercancel', stopDrag);
 }
 
+function moveLoginButton(btn, x, y, save=true) {
+  // 레거시 호환 (사용 안 함)
+  btn.style.left = x + 'px';
+  btn.style.top = y + 'px';
+}
+function resolveCollisions(btn) {}
+
 let selectedMember = null;
 
 function selectMember(member, event) {
-  if (event.currentTarget.dataset.dragged === '1') return;
+  const _ball = loginBalls.find(b => b.btn === event.currentTarget);
+  if (_ball && _ball.dragged) return;
   soundClick();
   selectedMember = member;
   document.querySelectorAll('.login-member-btn').forEach(b => {
@@ -2314,6 +2452,8 @@ document.getElementById('loginPinInput').addEventListener('keypress', e => {
 
 /* ====== 메인 앱 ====== */
 async function showMainApp() {
+  stopLoginPhysics();
+  loginScores = { top: 0, bottom: 0 };
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appMain').classList.add('show');
   document.getElementById('chatFab').style.display = '';
