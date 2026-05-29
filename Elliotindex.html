@@ -818,7 +818,7 @@
   
   .cal-title { font-family: 'Gaegu', cursive; font-size: 17px; font-weight: 700; color: #4A2F1B; }
   
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 44px); gap: 4px; width: 100%; justify-content: space-between; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
   
   .cal-day-name {
     text-align: center;
@@ -1332,7 +1332,10 @@
     <!-- 상단 네비 -->
     <div class="top-nav">
       <button class="top-nav-btn" id="navLogoutBtn" onclick="logout()">🔓 로그아웃</button>
-      <button class="top-nav-btn" onclick="closeApp()">닫기 ✕</button>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button class="top-nav-btn" onclick="goToLogin()" title="로그인 화면으로">‹ 뒤로</button>
+        <button class="top-nav-btn" onclick="closeApp()">닫기 ✕</button>
+      </div>
     </div>
     
     <!-- 프로필 카드 -->
@@ -2265,6 +2268,14 @@ function doLogin() {
   localStorage.setItem('currentUser', JSON.stringify(currentUser));
   soundFanfare();
   showMainApp();
+}
+
+function goToLogin() {
+  currentUser = null;
+  localStorage.removeItem('currentUser');
+  chatOpen = false;
+  document.getElementById('chatPanel').classList.remove('open');
+  showLoginScreen();
 }
 
 function logout() {
