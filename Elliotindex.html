@@ -1058,6 +1058,13 @@
     to   { opacity: 1; transform: translateY(0); }
   }
   .task.task-enter { animation: taskIn 0.22s ease-out; }
+  .sel-box {
+    width: 20px; height: 20px; border: 2px solid #B71C1C; border-radius: 4px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    background: white; cursor: pointer; font-weight: bold; color: white;
+    font-size: 13px; line-height: 1;
+  }
+  .sel-box.on { background: #E53935; border-color: #B71C1C; }
   .checkbox {
     width: 24px; height: 24px; border: 2px solid #4A2F1B; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -1893,6 +1900,9 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 /* ====== 상태 ====== */
 let currentUser = null; // { id, name, role, pin }
 let justAddedSubjectId = null; // 방금 숙제 추가된 과목 (등장 애니메이션용)
+let selectMode = false; // 선택삭제 모드 (부모)
+let selectedSubjects = new Set();
+let selectedTasks = new Set();
 let cachedSubjects = [];
 let cachedTasks = [];
 let cachedCoins = { amount: 0, pending: {} };
@@ -3070,6 +3080,22 @@ function renderTasks() {
     return;
   }
   
+  // 선택삭제 컨트롤 바 (부모만)
+  if (isParent()) {
+    const bar = document.createElement('div');
+    bar.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;margin:0 0 8px;';
+    if (!selectMode) {
+      bar.innerHTML = `<button onclick="enterSelectMode()" style="background:white;color:#B71C1C;border:1.5px solid #B71C1C;border-radius:8px;padding:4px 12px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">☑ 선택삭제</button>`;
+    } else {
+      const n = selectedSubjects.size + selectedTasks.size;
+      bar.innerHTML = `
+        <button onclick="exitSelectMode()" style="background:white;color:#666;border:1.5px solid #999;border-radius:8px;padding:4px 12px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">취소</button>
+        <button onclick="deleteSelected()" ${n===0?'disabled':''} style="background:${n===0?'#ccc':'#E53935'};color:white;border:1.5px solid ${n===0?'#bbb':'#B71C1C'};border-radius:8px;padding:4px 12px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:${n===0?'default':'pointer'};">선택 삭제 (${n})</button>
+      `;
+    }
+    container.appendChild(bar);
+  }
+  
   subs.forEach(s => {
     const tasks = getTasksForSubject(dk, s.id);
     const done = tasks.filter(t => t.done).length;
@@ -3088,6 +3114,7 @@ function renderTasks() {
         <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
         <span class="subject-status">${done}/${tasks.length}</span>
         ${deleteBtn}
+        ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
       </div>
       <div class="subject-body ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-body-${s.id}">
         <div class="task-list" id="list-${s.id}"></div>
@@ -3114,8 +3141,9 @@ function renderTasks() {
       
       tEl.innerHTML = `
         <div class="checkbox"></div>
-        <input type="text" class="task-input" value="${esc(task.text)}" onfocus="this.select()">
+        <input type="text" class="task-input" placeholder="내용을 입력하세요" value="${esc(task.text)}" onfocus="this.select()">
         ${taskDel}
+        ${isParent() && selectMode ? `<span class="sel-box ${selectedTasks.has(task.id)?'on':''}" onclick="toggleSelectTask(event,'${task.id}')">${selectedTasks.has(task.id)?'✓':''}</span>` : ''}
       `;
       tEl.querySelector('.checkbox').addEventListener('click', () => toggleTask(task));
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
@@ -3246,13 +3274,13 @@ async function addTask(subjectId, dk) {
   const sortOrder = Date.now() % 2000000000;
   const tempId = 'tmp_' + Date.now();
   // ---- 화면 먼저 (낙관적) ----
-  cachedTasks.push({ id: tempId, subject_id: subjectId, date_key: dk, text: '새 숙제', done: false, sort_order: sortOrder });
+  cachedTasks.push({ id: tempId, subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder });
   justAddedSubjectId = subjectId;
   renderAll();
   showToast('✏️ 숙제가 추가됐어요');
   // ---- 서버 저장 (백그라운드) ----
   const { error } = await sb.from('tasks').insert({
-    subject_id: subjectId, date_key: dk, text: '새 숙제', done: false, sort_order: sortOrder
+    subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder
   });
   if (error) {
     // 실패 시 롤백
@@ -3311,9 +3339,72 @@ async function deleteTask(taskId, dk) {
   if (!isParent()) { showToast('부모만 삭제할 수 있어요'); return; }
   soundClick();
   if (!confirm('이 숙제를 지울까요?')) return;
+  // 체크된 숙제면 코인도 회수
+  const task = cachedTasks.find(t => t.id === taskId);
+  if (task && task.done) {
+    cachedCoins.pending = { ...(cachedCoins.pending || {}) };
+    if (cachedConfirmations[dk]) {
+      cachedCoins.amount = Math.max(0, cachedCoins.amount - 1);
+    } else {
+      cachedCoins.pending[dk] = Math.max(0, (cachedCoins.pending[dk] || 0) - 1);
+    }
+    await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('member_id', 'elliot');
+  }
   await sb.from('tasks').delete().eq('id', taskId);
   await sb.from('confirmations').delete().eq('date_key', dk);
   showToast('🗑️ 숙제가 삭제됐어요');
+  await refreshData();
+}
+
+/* ====== 선택 삭제 (부모) ====== */
+function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderTasks(); }
+function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderTasks(); }
+function toggleSelectSubject(e, id) {
+  e.stopPropagation();
+  if (selectedSubjects.has(id)) selectedSubjects.delete(id); else selectedSubjects.add(id);
+  renderTasks();
+}
+function toggleSelectTask(e, id) {
+  e.stopPropagation();
+  if (selectedTasks.has(id)) selectedTasks.delete(id); else selectedTasks.add(id);
+  renderTasks();
+}
+async function deleteSelected() {
+  if (!isParent()) return;
+  const subIds = [...selectedSubjects];
+  const taskIds = [...selectedTasks];
+  if (subIds.length === 0 && taskIds.length === 0) { showToast('선택된 항목이 없어요'); return; }
+  if (!confirm(`선택한 과목 ${subIds.length}개, 숙제 ${taskIds.length}개를 삭제할까요?\n(과목을 지우면 안의 숙제도 함께 삭제됩니다)`)) return;
+
+  // 삭제될 숙제 모으기 (선택 숙제 + 선택 과목의 모든 숙제)
+  const toDelete = new Map();
+  taskIds.forEach(id => { const t = cachedTasks.find(x => x.id === id); if (t) toDelete.set(id, t); });
+  subIds.forEach(sid => { cachedTasks.filter(t => t.subject_id === sid).forEach(t => toDelete.set(t.id, t)); });
+
+  // 체크된 숙제만큼 코인 회수
+  cachedCoins.pending = { ...(cachedCoins.pending || {}) };
+  const affectedDates = new Set();
+  for (const t of toDelete.values()) {
+    affectedDates.add(t.date_key);
+    if (t.done) {
+      if (cachedConfirmations[t.date_key]) cachedCoins.amount = Math.max(0, cachedCoins.amount - 1);
+      else cachedCoins.pending[t.date_key] = Math.max(0, (cachedCoins.pending[t.date_key] || 0) - 1);
+    }
+  }
+  await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('member_id', 'elliot');
+
+  // 과목 삭제 (안의 숙제 포함)
+  for (const sid of subIds) {
+    await sb.from('tasks').delete().eq('subject_id', sid);
+    await sb.from('subjects').delete().eq('id', sid);
+  }
+  // 개별 선택 숙제 삭제
+  if (taskIds.length) await sb.from('tasks').delete().in('id', taskIds);
+  // 영향받은 날짜 확정 취소
+  for (const dk of affectedDates) await sb.from('confirmations').delete().eq('date_key', dk);
+
+  selectMode = false; selectedSubjects.clear(); selectedTasks.clear();
+  showToast('선택 항목 삭제됨 🗑️');
   await refreshData();
 }
 
