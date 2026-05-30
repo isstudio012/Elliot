@@ -2290,13 +2290,19 @@ function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&
 function isParent() { return currentUser && currentUser.role === 'parent'; }
 
 function getMemberPhoto(memberId) {
+  // Supabase cachedMembers에서 먼저 찾고, 없으면 localStorage fallback
+  const m = cachedMembers.find(x => x.id === memberId);
+  if (m && m.photo) return m.photo;
   try { return localStorage.getItem('member_photo_' + memberId) || ''; }
   catch(e) { return ''; }
 }
 
-function setMemberPhoto(memberId, dataUrl) {
-  try { localStorage.setItem('member_photo_' + memberId, dataUrl); }
-  catch(e) { showToast('사진이 너무 커서 저장하지 못했어요'); }
+async function setMemberPhoto(memberId, dataUrl) {
+  try {
+    await sb.from('members').update({ photo: dataUrl }).eq('id', memberId);
+    const m = cachedMembers.find(x => x.id === memberId);
+    if (m) m.photo = dataUrl;
+  } catch(e) { showToast('사진이 너무 커서 저장하지 못했어요'); }
 }
 
 function getLoginPositions() {
@@ -3712,6 +3718,8 @@ function memberOrderId(id) {
 }
 
 function memberColor(id) {
+  const m = cachedMembers.find(x => x.id === id);
+  if (m && m.color) return m.color;
   try {
     const saved = JSON.parse(localStorage.getItem('member_colors') || '{}');
     if (saved[id]) return saved[id];
@@ -3731,12 +3739,22 @@ function darkenColor(hex, amount = 35) {
 }
 
 function saveMemberColor(id, color) {
+  sb.from('members').update({ color }).eq('id', id).then(() => {});
+  const m = cachedMembers.find(x => x.id === id);
+  if (m) m.color = color;
   try {
     const saved = JSON.parse(localStorage.getItem('member_colors') || '{}');
     saved[id] = color;
     localStorage.setItem('member_colors', JSON.stringify(saved));
   } catch(e) {}
 }
+
+
+
+
+
+
+
 
 function orderedMembers() {
   return [...cachedMembers].sort((a, b) => {
@@ -3800,15 +3818,14 @@ function renderMemberSettings() {
     const photoHtml = photo
       ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:44px;height:44px;border-radius:4px;border:none;object-fit:cover;">`
       : `<div id="memberPhotoPreview-${m.id}" style="width:44px;height:44px;border-radius:4px;background:#EAE0C2;display:flex;align-items:center;justify-content:center;font-size:22px;">${emojis[m.id] || '👤'}</div>`;
+    const canEdit = isParent();
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
-        <button class="member-color-trigger" style="background:${color};flex-shrink:0;" onclick="openColorPalette('${m.id}')" title="색 변경">${n}</button>
+        <button class="member-color-trigger" style="background:${color};flex-shrink:0;${canEdit ? '' : 'pointer-events:none;opacity:0.7;'}" ${canEdit ? `onclick="openColorPalette('${m.id}')"` : ''} title="색 변경">${n}</button>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
-        <div onclick="document.getElementById('memberPhotoFile-${m.id}').click();" style="cursor:pointer;width:44px;height:44px;flex-shrink:0;position:relative;border-radius:4px;overflow:hidden;" title="사진 변경">
+        <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:44px;height:44px;flex-shrink:0;position:relative;border-radius:4px;overflow:hidden;" title="${canEdit ? '사진 변경' : ''}">
           ${photoHtml}
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);">
-            <span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span>
-          </div>
+          ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
         </div>
         <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0;">
@@ -3900,11 +3917,12 @@ function refreshLoginCardsIfVisible() {
 }
 
 function handleMemberPhotoUpload(event, memberId) {
+  if (!isParent()) { showToast('부모만 사진을 변경할 수 있어요'); return; }
   const file = event.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
-    setMemberPhoto(memberId, e.target.result);
+  reader.onload = async e => {
+    await setMemberPhoto(memberId, e.target.result);
     renderMemberSettings();
     refreshLoginCardsIfVisible();
   };
@@ -3942,6 +3960,7 @@ async function deleteLoginProfile(memberId) {
     delete colors[memberId];
     localStorage.setItem('member_colors', JSON.stringify(colors));
   } catch(e) {}
+  // Supabase photo/color는 row 삭제로 자동 제거
   renderMemberSettings();
   renderPasswordSettings();
   refreshLoginCardsIfVisible();
