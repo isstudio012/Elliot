@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 페이지</title>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Gowun Dodum', sans-serif;
+    background: #1a1a2e;
+    min-height: 100vh;
+    color: #eee;
+  }
+
+  /* ====== 로그인 화면 ====== */
+  #loginScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 16px;
+  }
+  #loginScreen h1 {
+    font-family: 'Gaegu', cursive;
+    font-size: 28px;
+    color: #F5EDD7;
+    margin-bottom: 8px;
+  }
+  #loginScreen p {
+    font-family: 'Gaegu', cursive;
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 8px;
+  }
+  .admin-input {
+    width: 240px;
+    padding: 10px 14px;
+    border: 2px solid #444;
+    border-radius: 8px;
+    background: #16213e;
+    color: #eee;
+    font-family: 'Gaegu', cursive;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+  }
+  .admin-input:focus { border-color: #e94560; }
+  .admin-btn {
+    padding: 10px 32px;
+    background: #e94560;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Gaegu', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .admin-btn:hover { background: #c73652; }
+  .login-error {
+    color: #e94560;
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    min-height: 18px;
+  }
+
+  /* ====== 메인 대시보드 ====== */
+  #dashboard { display: none; }
+
+  .top-bar {
+    background: #16213e;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #e94560;
+  }
+  .top-bar h1 {
+    font-family: 'Gaegu', cursive;
+    font-size: 22px;
+    color: #F5EDD7;
+  }
+  .logout-btn {
+    padding: 6px 16px;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 6px;
+    color: #ccc;
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .logout-btn:hover { background: #444; }
+
+  .dashboard-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px;
+  }
+
+  /* 탭 */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 8px 20px;
+    background: #16213e;
+    border: 2px solid #333;
+    border-radius: 8px;
+    color: #aaa;
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: #e94560;
+    border-color: #e94560;
+    color: white;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* 카드 */
+  .card {
+    background: #16213e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    font-family: 'Gaegu', cursive;
+    font-size: 18px;
+    color: #F5EDD7;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+  }
+
+  /* 가족 목록 */
+  .family-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #1a1a2e;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #2a2a4e;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .family-code {
+    font-family: 'Gaegu', cursive;
+    font-size: 20px;
+    font-weight: 700;
+    color: #e94560;
+    letter-spacing: 2px;
+  }
+  .family-info {
+    font-size: 12px;
+    color: #888;
+  }
+  .family-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .btn-sm {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    font-weight: 700;
+  }
+  .btn-view { background: #0f3460; color: #7eb8f7; }
+  .btn-view:hover { background: #1a4a80; }
+  .btn-delete { background: #3d0c0c; color: #e94560; }
+  .btn-delete:hover { background: #5a1010; }
+  .btn-copy { background: #1a3a1a; color: #5cb85c; }
+  .btn-copy:hover { background: #2a4a2a; }
+
+  /* 가족 발급 */
+  .issue-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .code-display {
+    font-family: 'Gaegu', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: #e94560;
+    letter-spacing: 4px;
+    background: #1a1a2e;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 2px dashed #e94560;
+    min-width: 160px;
+    text-align: center;
+  }
+
+  /* 멤버 테이블 */
+  .member-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .member-table th {
+    background: #0f3460;
+    color: #7eb8f7;
+    padding: 8px 10px;
+    text-align: left;
+    font-family: 'Gaegu', cursive;
+    font-size: 14px;
+  }
+  .member-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #2a2a4e;
+    color: #ccc;
+  }
+  .member-table tr:hover td { background: #1a1a3e; }
+  .role-badge {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .role-parent { background: #2d1b69; color: #a78bfa; }
+  .role-child { background: #1a3a1a; color: #5cb85c; }
+
+  /* 데이터 조회 */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    overflow-x: auto;
+    display: block;
+  }
+  .data-table th {
+    background: #0f3460;
+    color: #7eb8f7;
+    padding: 6px 8px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .data-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #2a2a4e;
+    color: #bbb;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 통계 */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-box {
+    background: #1a1a2e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Gaegu', cursive;
+    font-size: 32px;
+    font-weight: 700;
+    color: #e94560;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  /* 알림 */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  /* 로딩 */
+  .loading {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+    font-family: 'Gaegu', cursive;
+    font-size: 16px;
+  }
+
+  /* 선택된 가족 상세 */
+  #selectedFamilyDetail { display: none; }
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .back-btn {
+    padding: 6px 14px;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 6px;
+    color: #ccc;
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .back-btn:hover { background: #444; }
+
+  select.admin-select {
+    padding: 6px 10px;
+    background: #16213e;
+    border: 2px solid #444;
+    border-radius: 6px;
+    color: #eee;
+    font-family: 'Gaegu', cursive;
+    font-size: 14px;
+    outline: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- 로그인 화면 -->
+<div id="loginScreen">
+  <h1>🔐 관리자 페이지</h1>
+  <p>엘리엇 체크리스트 관리자 전용</p>
+  <input type="password" id="adminPwInput" class="admin-input" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')doAdminLogin()">
+  <button class="admin-btn" onclick="doAdminLogin()">로그인</button>
+  <div class="login-error" id="loginError"></div>
+</div>
+
+<!-- 대시보드 -->
+<div id="dashboard">
+  <div class="top-bar">
+    <h1>🛠️ 관리자 대시보드</h1>
+    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+  <div class="dashboard-body">
+
+    <!-- 탭 -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('overview')">📊 현황</button>
+      <button class="tab-btn" onclick="switchTab('families')">👨‍👩‍👧 가족 관리</button>
+      <button class="tab-btn" onclick="switchTab('issue')">🔑 코드 발급</button>
+      <button class="tab-btn" onclick="switchTab('data')">🗄️ 데이터 조회</button>
+    </div>
+
+    <!-- 현황 탭 -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="card">
+        <h2>📊 전체 현황</h2>
+        <div class="stats-grid" id="statsGrid">
+          <div class="loading">로딩 중...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 가족 관리 탭 -->
+    <div class="tab-content" id="tab-families">
+      <!-- 가족 목록 -->
+      <div id="familyListSection">
+        <div class="card">
+          <h2>👨‍👩‍👧 가족 목록</h2>
+          <div id="familyList"><div class="loading">로딩 중...</div></div>
+        </div>
+      </div>
+      <!-- 가족 상세 -->
+      <div id="selectedFamilyDetail">
+        <div class="detail-header">
+          <button class="back-btn" onclick="backToFamilyList()">← 목록으로</button>
+          <h2 id="detailFamilyCode" style="font-family:'Gaegu',cursive;font-size:20px;color:#e94560;"></h2>
+        </div>
+        <div class="card">
+          <h2>👤 멤버</h2>
+          <div id="detailMembers"></div>
+        </div>
+        <div class="card">
+          <h2>📋 최근 태스크 (20개)</h2>
+          <div id="detailTasks"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 코드 발급 탭 -->
+    <div class="tab-content" id="tab-issue">
+      <div class="card">
+        <h2>🔑 새 가족코드 발급</h2>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <div style="font-size:13px;color:#888;margin-bottom:6px;">코드 직접 입력 (선택, 비우면 자동생성)</div>
+            <input type="text" id="customCodeInput" class="admin-input" placeholder="예: FAMILY01" maxlength="10" style="text-transform:uppercase;">
+          </div>
+          <div class="issue-row">
+            <button class="admin-btn" onclick="issueNewCode()">발급하기</button>
+            <div class="code-display" id="issuedCodeDisplay">------</div>
+            <button class="btn-sm btn-copy" onclick="copyIssuedCode()" id="copyIssuedBtn" style="display:none;">복사</button>
+          </div>
+          <div style="font-size:12px;color:#888;">발급된 코드를 사용자에게 전달하세요.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>📋 기존 코드 목록</h2>
+        <div id="allCodesList"><div class="loading">로딩 중...</div></div>
+      </div>
+    </div>
+
+    <!-- 데이터 조회 탭 -->
+    <div class="tab-content" id="tab-data">
+      <div class="card">
+        <h2>🗄️ 테이블 조회</h2>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+          <select class="admin-select" id="tableSelect">
+            <option value="members">members</option>
+            <option value="tasks">tasks</option>
+            <option value="subjects">subjects</option>
+            <option value="coins">coins</option>
+            <option value="bonuses">bonuses</option>
+            <option value="confirmations">confirmations</option>
+            <option value="day_memos">day_memos</option>
+            <option value="homework_notes">homework_notes</option>
+            <option value="chat_messages">chat_messages</option>
+            <option value="shop_items">shop_items</option>
+            <option value="tickets">tickets</option>
+            <option value="app_settings">app_settings</option>
+            <option value="families">families</option>
+          </select>
+          <select class="admin-select" id="familyFilterSelect">
+            <option value="">전체 가족</option>
+          </select>
+          <button class="admin-btn" style="padding:8px 20px;font-size:14px;" onclick="loadTableData()">조회</button>
+        </div>
+        <div id="tableDataResult"><div style="color:#888;font-size:13px;">조회할 테이블을 선택하세요.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://keyplmiiyknlpzpfdkuk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtleXBsbWlpeWtubHB6cGZka3VrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzkzODksImV4cCI6MjA5NTExNTM4OX0.15UFo2n9g-nfBjuP7eAttSAEBs5FpTEY_qmYMms7274';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ====== 관리자 비밀번호 (변경 가능) ======
+const ADMIN_PASSWORD = 'isstudio2024!';
+
+let isLoggedIn = false;
+
+// ====== 로그인 ======
+function doAdminLogin() {
+  const pw = document.getElementById('adminPwInput').value;
+  if (pw === ADMIN_PASSWORD) {
+    isLoggedIn = true;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadAll();
+  } else {
+    document.getElementById('loginError').textContent = '비밀번호가 틀렸습니다.';
+    document.getElementById('adminPwInput').value = '';
+  }
+}
+
+function doLogout() {
+  isLoggedIn = false;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('adminPwInput').value = '';
+}
+
+// ====== 탭 ======
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const tabs = ['overview','families','issue','data'];
+    b.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'overview') loadStats();
+  if (name === 'families') loadFamilyList();
+  if (name === 'issue') loadAllCodes();
+  if (name === 'data') loadFamilyFilterOptions();
+}
+
+// ====== 전체 로드 ======
+async function loadAll() {
+  loadStats();
+  loadFamilyList();
+}
+
+// ====== 현황 통계 ======
+async function loadStats() {
+  const grid = document.getElementById('statsGrid');
+  grid.innerHTML = '<div class="loading">로딩 중...</div>';
+  try {
+    const [families, members, tasks, coins] = await Promise.all([
+      sb.from('families').select('*', { count: 'exact', head: true }),
+      sb.from('members').select('*', { count: 'exact', head: true }),
+      sb.from('tasks').select('*', { count: 'exact', head: true }),
+      sb.from('coins').select('*', { count: 'exact', head: true }),
+    ]);
+    const stats = [
+      { num: families.count ?? 0, label: '가족 수' },
+      { num: members.count ?? 0, label: '전체 멤버' },
+      { num: tasks.count ?? 0, label: '전체 태스크' },
+      { num: coins.count ?? 0, label: '코인 기록' },
+    ];
+    grid.innerHTML = stats.map(s => `
+      <div class="stat-box">
+        <div class="stat-num">${s.num}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    grid.innerHTML = '<div style="color:#e94560;font-size:13px;">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+// ====== 가족 목록 ======
+async function loadFamilyList() {
+  const list = document.getElementById('familyList');
+  list.innerHTML = '<div class="loading">로딩 중...</div>';
+  try {
+    const { data: families } = await sb.from('families').select('*').order('created_at', { ascending: false });
+    if (!families || families.length === 0) {
+      list.innerHTML = '<div style="color:#888;font-size:13px;">등록된 가족 없음</div>';
+      return;
+    }
+    // 각 가족 멤버 수
+    const memberCounts = await Promise.all(families.map(f =>
+      sb.from('members').select('*', { count: 'exact', head: true }).eq('family_id', f.code)
+    ));
+    list.innerHTML = families.map((f, i) => `
+      <div class="family-row">
+        <div>
+          <div class="family-code">${f.code}</div>
+          <div class="family-info">멤버 ${memberCounts[i].count ?? 0}명 · 생성 ${formatDate(f.created_at)}</div>
+        </div>
+        <div class="family-actions">
+          <button class="btn-sm btn-copy" onclick="copyCode('${f.code}')">코드복사</button>
+          <button class="btn-sm btn-view" onclick="viewFamily('${f.code}')">상세보기</button>
+          <button class="btn-sm btn-delete" onclick="deleteFamily('${f.code}')">삭제</button>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="color:#e94560;font-size:13px;">로드 실패: ' + e.message + '</div>';
+  }
+}
+
+// ====== 가족 상세 ======
+async function viewFamily(code) {
+  document.getElementById('familyListSection').style.display = 'none';
+  document.getElementById('selectedFamilyDetail').style.display = 'block';
+  document.getElementById('detailFamilyCode').textContent = '🏠 ' + code;
+
+  // 멤버
+  const mDiv = document.getElementById('detailMembers');
+  mDiv.innerHTML = '<div class="loading">로딩 중...</div>';
+  const { data: members } = await sb.from('members').select('*').eq('family_id', code);
+  if (!members || members.length === 0) {
+    mDiv.innerHTML = '<div style="color:#888;font-size:13px;">멤버 없음</div>';
+  } else {
+    mDiv.innerHTML = `
+      <table class="member-table">
+        <thead><tr><th>ID</th><th>이름</th><th>역할</th><th>PIN</th><th>색상</th></tr></thead>
+        <tbody>${members.map(m => `
+          <tr>
+            <td>${m.id}</td>
+            <td>${m.name}</td>
+            <td><span class="role-badge ${m.role === 'parent' ? 'role-parent' : 'role-child'}">${m.role}</span></td>
+            <td>${m.pin}</td>
+            <td><span style="display:inline-block;width:20px;height:20px;background:${m.color || '#ccc'};border-radius:4px;vertical-align:middle;"></span> ${m.color || '-'}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  }
+
+  // 최근 태스크
+  const tDiv = document.getElementById('detailTasks');
+  tDiv.innerHTML = '<div class="loading">로딩 중...</div>';
+  const { data: tasks } = await sb.from('tasks').select('*').eq('family_id', code).order('created_at', { ascending: false }).limit(20);
+  if (!tasks || tasks.length === 0) {
+    tDiv.innerHTML = '<div style="color:#888;font-size:13px;">태스크 없음</div>';
+  } else {
+    tDiv.innerHTML = `
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>텍스트</th><th>멤버</th><th>완료</th><th>날짜</th></tr></thead>
+        <tbody>${tasks.map(t => `
+          <tr>
+            <td>${t.id}</td>
+            <td title="${t.text}">${t.text}</td>
+            <td>${t.member_id || '-'}</td>
+            <td>${t.done ? '✅' : '⬜'}</td>
+            <td>${formatDate(t.created_at)}</td>
+          </tr>
+        `).join('')}</tbody>
+      </table>`;
+  }
+}
+
+function backToFamilyList() {
+  document.getElementById('familyListSection').style.display = 'block';
+  document.getElementById('selectedFamilyDetail').style.display = 'none';
+}
+
+// ====== 가족 삭제 ======
+async function deleteFamily(code) {
+  if (code === 'ELLIOT') {
+    showToast('⚠️ 기본 가족(ELLIOT)은 삭제할 수 없습니다.');
+    return;
+  }
+  if (!confirm(`[${code}] 가족을 삭제할까요?\n관련 데이터는 삭제되지 않습니다.`)) return;
+  try {
+    await sb.from('families').delete().eq('code', code);
+    showToast('삭제 완료');
+    loadFamilyList();
+  } catch(e) {
+    showToast('삭제 실패: ' + e.message);
+  }
+}
+
+// ====== 코드 발급 ======
+async function issueNewCode() {
+  let code = document.getElementById('customCodeInput').value.trim().toUpperCase();
+  if (!code) {
+    code = generateCode();
+  }
+  // 중복 확인
+  const { data: exist } = await sb.from('families').select('code').eq('code', code).single();
+  if (exist) {
+    showToast('이미 존재하는 코드입니다.');
+    return;
+  }
+  try {
+    await sb.from('families').insert({ code });
+    document.getElementById('issuedCodeDisplay').textContent = code;
+    document.getElementById('copyIssuedBtn').style.display = 'inline-block';
+    showToast('✅ 코드 발급 완료: ' + code);
+    loadAllCodes();
+  } catch(e) {
+    showToast('발급 실패: ' + e.message);
+  }
+}
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function copyIssuedCode() {
+  const code = document.getElementById('issuedCodeDisplay').textContent;
+  navigator.clipboard.writeText(code).then(() => showToast('복사됨: ' + code));
+}
+
+async function loadAllCodes() {
+  const div = document.getElementById('allCodesList');
+  div.innerHTML = '<div class="loading">로딩 중...</div>';
+  const { data } = await sb.from('families').select('*').order('created_at', { ascending: false });
+  if (!data || data.length === 0) {
+    div.innerHTML = '<div style="color:#888;font-size:13px;">코드 없음</div>';
+    return;
+  }
+  div.innerHTML = data.map(f => `
+    <div class="family-row">
+      <div>
+        <div class="family-code">${f.code}</div>
+        <div class="family-info">${formatDate(f.created_at)}</div>
+      </div>
+      <div class="family-actions">
+        <button class="btn-sm btn-copy" onclick="copyCode('${f.code}')">복사</button>
+        ${f.code !== 'ELLIOT' ? `<button class="btn-sm btn-delete" onclick="deleteFamily('${f.code}');loadAllCodes();">삭제</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ====== 데이터 조회 ======
+async function loadFamilyFilterOptions() {
+  const sel = document.getElementById('familyFilterSelect');
+  const { data } = await sb.from('families').select('code');
+  sel.innerHTML = '<option value="">전체 가족</option>';
+  if (data) data.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.code;
+    opt.textContent = f.code;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadTableData() {
+  const table = document.getElementById('tableSelect').value;
+  const familyId = document.getElementById('familyFilterSelect').value;
+  const div = document.getElementById('tableDataResult');
+  div.innerHTML = '<div class="loading">로딩 중...</div>';
+  try {
+    let query = sb.from(table).select('*').limit(50);
+    if (familyId && table !== 'families') query = query.eq('family_id', familyId);
+    const { data, error } = await query;
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      div.innerHTML = '<div style="color:#888;font-size:13px;">데이터 없음</div>';
+      return;
+    }
+    const cols = Object.keys(data[0]);
+    div.innerHTML = `
+      <div style="font-size:12px;color:#888;margin-bottom:8px;">${data.length}개 (최대 50개)</div>
+      <table class="data-table">
+        <thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+        <tbody>${data.map(row => `
+          <tr>${cols.map(c => `<td title="${String(row[c] ?? '')}">${String(row[c] ?? '-').substring(0,40)}</td>`).join('')}</tr>
+        `).join('')}</tbody>
+      </table>`;
+  } catch(e) {
+    div.innerHTML = '<div style="color:#e94560;font-size:13px;">조회 실패: ' + e.message + '</div>';
+  }
+}
+
+// ====== 유틸 ======
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => showToast('복사됨: ' + code));
+}
+
+function formatDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return `${d.getFullYear().toString().slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
