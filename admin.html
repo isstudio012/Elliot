@@ -312,9 +312,22 @@ function backToFamilyList() {
 
 async function deleteFamily(code) {
   if(code==='ELLIOT'){showToast('⚠️ 기본 가족은 삭제 불가');return;}
-  if(!confirm(`[${code}] 가족을 삭제할까요?`))return;
-  try{await sb.from('families').delete().eq('code',code);showToast('삭제 완료');loadFamilyList();}
-  catch(e){showToast('삭제 실패: '+e.message);}
+  if(!confirm(`[${code}] 가족을 삭제할까요?\n관련 데이터(멤버/숙제/코인 등)도 모두 삭제됩니다.`))return;
+  try{
+    // 관련 테이블의 family_id 데이터 모두 삭제
+    const tables = ['tasks','subjects','confirmations','shop_items','tickets','app_settings','coins','homework_notes','members'];
+    for(const t of tables){
+      try{ await sb.from(t).delete().eq('family_id', code); }catch(e){ console.warn(t+' 삭제 경고:', e.message); }
+    }
+    // 마지막으로 가족 코드 삭제
+    const {error} = await sb.from('families').delete().eq('code', code);
+    if(error) throw error;
+    showToast('✅ 삭제 완료');
+    loadFamilyList();
+  }catch(e){
+    showToast('삭제 실패: '+e.message);
+    console.error(e);
+  }
 }
 
 async function issueNewCode() {
