@@ -872,15 +872,15 @@
     overflow: hidden;
   }
   
-  .coin-icon { font-size: 45px; animation: spin 4s linear infinite; }
+  .coin-icon { font-size: clamp(28px, 7vw, 45px); animation: spin 4s linear infinite; }
   
   @keyframes spin {
     0%, 90%, 100% { transform: rotateY(0deg); }
     95% { transform: rotateY(360deg); }
   }
   
-  .coin-amount { font-family: 'Gaegu', cursive; font-size: 55px; font-weight: 700; color: white; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); }
-  .coin-pending { font-family: 'Gaegu', cursive; font-size: 25px; color: #D4EDDA; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .coin-amount { font-family: 'Gaegu', cursive; font-size: clamp(32px, 8vw, 55px); font-weight: 700; color: white; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); }
+  .coin-pending { font-family: 'Gaegu', cursive; font-size: clamp(14px, 4vw, 25px); color: #D4EDDA; font-weight: 700; line-height: 1; white-space: nowrap; }
   .coin-stack { font-size: 18px; margin-left: auto; }
   
   .shop-btn {
@@ -2877,14 +2877,15 @@ async function showMainApp() {
 
 /* ====== 데이터 로드 ====== */
 async function loadAllData() {
-  const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes] = await Promise.all([
+  const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes, memRes] = await Promise.all([
     sb.from('subjects').select('*').order('sort_order'),
     sb.from('tasks').select('*').order('sort_order'),
     sb.from('coins').select('*').eq('member_id', 'elliot').single(),
     sb.from('confirmations').select('*'),
     sb.from('shop_items').select('*'),
     sb.from('tickets').select('*'),
-    sb.from('app_settings').select('*')
+    sb.from('app_settings').select('*'),
+    sb.from('members').select('*')
   ]);
   
   cachedSubjects = subRes.data || [];
@@ -2895,6 +2896,7 @@ async function loadAllData() {
   cachedShopItems = shopRes.data || [];
   cachedTickets = {};
   (tickRes.data || []).forEach(t => { cachedTickets[t.item_id] = t.count; });
+  cachedMembers = memRes.data || cachedMembers || [];
   
   const settings = {};
   (settRes.data || []).forEach(s => { settings[s.key] = s.value; });
@@ -2953,6 +2955,7 @@ function setupRealtime() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'coins' }, () => refreshData())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'shop_items' }, () => refreshData())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, () => refreshData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, () => refreshMembers())
     .subscribe();
 
   sb.channel('chat-channel')
@@ -2969,6 +2972,23 @@ function refreshData() {
     await loadAllData();
     renderAll();
   }, 300);
+}
+
+let refreshMembersTimer = null;
+function refreshMembers() {
+  clearTimeout(refreshMembersTimer);
+  refreshMembersTimer = setTimeout(async () => {
+    await refreshMembersNow();
+  }, 250);
+}
+
+async function refreshMembersNow() {
+  const { data: members } = await sb.from('members').select('*');
+  cachedMembers = members || [];
+  renderMemberSettings();
+  renderPasswordSettings();
+  renderAll();
+  refreshLoginCardsIfVisible();
 }
 
 /* ====== 렌더링 ====== */
@@ -3728,10 +3748,8 @@ function orderedMembers() {
 async function openSettings() {
   if (!isParent()) { showToast('부모만 설정할 수 있어요 🔒'); return; }
   soundClick();
-  if (!cachedMembers.length) {
-    const { data: members } = await sb.from('members').select('*');
-    cachedMembers = members || [];
-  }
+  const { data: members } = await sb.from('members').select('*');
+  cachedMembers = members || [];
   document.getElementById('settingsAppTitle').value = document.getElementById('appTitle').textContent || '';
   document.getElementById('settingsNoteTitle').value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
   document.getElementById('settingsAddSubjectBtn').value = document.querySelector('.add-subject-btn') ? document.querySelector('.add-subject-btn').textContent : '+ 과목 추가';
@@ -3902,8 +3920,8 @@ async function confirmAddProfile(role) {
   const count = cachedMembers.length + 1;
   const member = { id, name: '프로필 ' + count, role, pin: '0000' };
   await sb.from('members').insert(member);
-  cachedMembers.push(member);
   saveMemberColor(id, role === 'parent' ? '#5A8A5E' : '#5A5A5A');
+  await refreshMembersNow();
   renderMemberSettings();
   renderPasswordSettings();
   refreshLoginCardsIfVisible();
