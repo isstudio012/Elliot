@@ -3199,6 +3199,7 @@ function renderTasks() {
       `;
       tEl.querySelector('.checkbox').addEventListener('click', () => toggleTask(task));
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
+      tEl.querySelector('.task-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
       if (isParent()) {
         const db = tEl.querySelector('.delete-btn');
         if (db) db.addEventListener('click', () => deleteTask(task.id, dk));
@@ -3384,6 +3385,8 @@ async function toggleTask(task) {
 }
 
 async function updateTaskText(taskId, text) {
+  const task = cachedTasks.find(t => t.id === taskId);
+  if (task) task.text = text;
   await sb.from('tasks').update({ text }).eq('id', taskId);
 }
 
