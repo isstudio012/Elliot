@@ -2261,8 +2261,11 @@ function debounceSaveNotes() {
 async function saveNoteLines() {
   if (!currentUser) return;
   try {
+    const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+    const noteUserId = familyCode === 'ELLIOT' ? 'elliot' : familyCode;
     await sb.from('homework_notes').upsert({
-      user_id: 'elliot',
+      user_id: noteUserId,
+      family_id: familyCode,
       note_title: document.getElementById('homeworkNoteTitle').textContent || '숙제노트',
       note_lines: JSON.stringify(noteLines),
       updated_at: new Date().toISOString()
@@ -2277,7 +2280,8 @@ async function saveNoteTitle() {
 async function loadNotes() {
   if (!currentUser) return;
   try {
-    const { data } = await sb.from('homework_notes').select('*').eq('user_id', 'elliot').single();
+    const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+    const { data } = await sb.from('homework_notes').select('*').eq('family_id', familyCode).maybeSingle();
     if (data) {
       noteLines = JSON.parse(data.note_lines || '[]');
       const titleEl = document.getElementById('homeworkNoteTitle');
@@ -2418,7 +2422,7 @@ async function confirmCoinReset() {
       amount: 0,
       pending: {},
       updated_at: new Date().toISOString()
-    }).eq('member_id', 'elliot');
+    }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT');
     
     cachedCoins.amount = 0;
     cachedCoins.pending = {};
@@ -3236,7 +3240,7 @@ async function loadAllData() {
   const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes, memRes] = await Promise.all([
     sb.from('subjects').select('*').eq('family_id', familyCode).order('sort_order'),
     sb.from('tasks').select('*').eq('family_id', familyCode).order('sort_order'),
-    sb.from('coins').select('*').eq('member_id', 'elliot').single(),
+    sb.from('coins').select('*').eq('family_id', familyCode).maybeSingle(),
     sb.from('confirmations').select('*').eq('family_id', familyCode),
     sb.from('shop_items').select('*').eq('family_id', familyCode),
     sb.from('tickets').select('*').eq('family_id', familyCode),
@@ -3246,7 +3250,14 @@ async function loadAllData() {
   
   cachedSubjects = subRes.data || [];
   cachedTasks = taskRes.data || [];
-  if (coinRes.data) cachedCoins = { amount: coinRes.data.amount, pending: coinRes.data.pending || {} };
+  if (coinRes.data) {
+    cachedCoins = { amount: coinRes.data.amount, pending: coinRes.data.pending || {} };
+  } else {
+    // 새 가족이면 coins row 자동 생성
+    cachedCoins = { amount: 0, pending: {} };
+    const newCoinId = 'coin_' + familyCode;
+    await sb.from('coins').insert({ id: newCoinId, member_id: newCoinId, family_id: familyCode, amount: 0, pending: {} });
+  }
   cachedConfirmations = {};
   (confRes.data || []).forEach(c => { cachedConfirmations[c.date_key] = c; });
   cachedShopItems = shopRes.data || [];
@@ -3728,12 +3739,12 @@ async function toggleTask(task) {
   // ---- 서버 저장 (백그라운드, 화면 안 막음) ----
   sb.from('tasks').update({ done: newDone }).eq('id', task.id).then(() => {});
   if (newDone) {
-    sb.from('coins').update({ pending: cachedCoins.pending }).eq('member_id', 'elliot').then(() => {});
+    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT').then(() => {});
   } else if (wasConfirmed) {
-    sb.from('coins').update({ amount: cachedCoins.amount }).eq('member_id', 'elliot').then(() => {});
+    sb.from('coins').update({ amount: cachedCoins.amount }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT').then(() => {});
     sb.from('confirmations').delete().eq('date_key', dk).then(() => {});
   } else {
-    sb.from('coins').update({ pending: cachedCoins.pending }).eq('member_id', 'elliot').then(() => {});
+    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT').then(() => {});
   }
 }
 
@@ -3756,7 +3767,7 @@ async function deleteTask(taskId, dk) {
     } else {
       cachedCoins.pending[dk] = Math.max(0, (cachedCoins.pending[dk] || 0) - 1);
     }
-    await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('member_id', 'elliot');
+    await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT');
   }
   await sb.from('tasks').delete().eq('id', taskId);
   await sb.from('confirmations').delete().eq('date_key', dk);
@@ -3821,7 +3832,7 @@ async function confirmDeleteSelected() {
       else cachedCoins.pending[t.date_key] = Math.max(0, (cachedCoins.pending[t.date_key] || 0) - 1);
     }
   }
-  await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('member_id', 'elliot');
+  await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT');
 
   // 과목 삭제 (안의 숙제 포함)
   for (const sid of subIds) {
@@ -3848,7 +3859,7 @@ async function doConfirm() {
   
   await Promise.all([
     sb.from('confirmations').upsert({ date_key: selectedDate, confirmed_by: currentUser.id }),
-    sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('member_id', 'elliot')
+    sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT')
   ]);
   
   soundFanfare();
@@ -4607,8 +4618,8 @@ async function buyItem(item) {
   const newCount = (cachedTickets[item.id] || 0) + 1;
   
   await Promise.all([
-    sb.from('coins').update({ amount: newAmount }).eq('member_id', 'elliot'),
-    sb.from('tickets').upsert({ item_id: item.id, member_id: 'elliot', count: newCount }),
+    sb.from('coins').update({ amount: newAmount }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT'),
+    sb.from('tickets').upsert({ item_id: item.id, member_id: 'elliot', family_id: localStorage.getItem('family_code') || 'ELLIOT', count: newCount }),
     sb.from('purchase_history').insert({ member_id: currentUser.id, item_name: item.name, item_icon: item.icon || '🎁', price: item.price })
   ]);
   
