@@ -3232,15 +3232,16 @@ async function showMainApp() {
 
 /* ====== 데이터 로드 ====== */
 async function loadAllData() {
+  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
   const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes, memRes] = await Promise.all([
-    sb.from('subjects').select('*').order('sort_order'),
-    sb.from('tasks').select('*').order('sort_order'),
+    sb.from('subjects').select('*').eq('family_id', familyCode).order('sort_order'),
+    sb.from('tasks').select('*').eq('family_id', familyCode).order('sort_order'),
     sb.from('coins').select('*').eq('member_id', 'elliot').single(),
-    sb.from('confirmations').select('*'),
-    sb.from('shop_items').select('*'),
-    sb.from('tickets').select('*'),
-    sb.from('app_settings').select('*'),
-    sb.from('members').select('*')
+    sb.from('confirmations').select('*').eq('family_id', familyCode),
+    sb.from('shop_items').select('*').eq('family_id', familyCode),
+    sb.from('tickets').select('*').eq('family_id', familyCode),
+    sb.from('app_settings').select('*').eq('family_id', familyCode),
+    sb.from('members').select('*').eq('family_id', familyCode)
   ]);
   
   cachedSubjects = subRes.data || [];
@@ -3634,8 +3635,9 @@ async function addSubject() {
   if (!name) { err.textContent = '과목 이름을 입력하세요'; soundError(); return; }
   
   const id = genId();
+  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
   const { error } = await sb.from('subjects').insert({
-    id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000
+    id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000, family_id: familyCode
   });
   
   if (error) { err.textContent = '오류: ' + error.message; soundError(); return; }
@@ -3676,6 +3678,7 @@ async function addTask(subjectId, dk) {
   soundClick();
   const sortOrder = Date.now() % 2000000000;
   const tempId = 'tmp_' + Date.now();
+  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
   // ---- 화면 먼저 (낙관적) ----
   cachedTasks.push({ id: tempId, subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder });
   justAddedSubjectId = subjectId;
@@ -3683,7 +3686,7 @@ async function addTask(subjectId, dk) {
   showToast('✏️ 숙제가 추가됐어요');
   // ---- 서버 저장 (백그라운드) ----
   const { error } = await sb.from('tasks').insert({
-    subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder
+    subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder, family_id: familyCode
   });
   if (error) {
     // 실패 시 롤백
@@ -4671,10 +4674,11 @@ async function addShopItem() {
   
   const id = 'item_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   const icon = guessIcon(name);
-  await sb.from('shop_items').insert({ id, name, icon, price });
+  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  await sb.from('shop_items').insert({ id, name, icon, price, family_id: familyCode });
   
   // 데이터 먼저 새로고침
-  const { data: freshItems } = await sb.from('shop_items').select('*');
+  const { data: freshItems } = await sb.from('shop_items').select('*').eq('family_id', familyCode);
   cachedShopItems = freshItems || [];
   
   soundFanfare();
