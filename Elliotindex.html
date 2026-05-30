@@ -3252,7 +3252,7 @@ async function loadAllData() {
   cachedShopItems = shopRes.data || [];
   cachedTickets = {};
   (tickRes.data || []).forEach(t => { cachedTickets[t.item_id] = t.count; });
-  cachedMembers = memRes.data || cachedMembers || [];
+  cachedMembers = memRes.data || [];
   
   const settings = {};
   (settRes.data || []).forEach(s => { settings[s.key] = s.value; });
@@ -4123,7 +4123,8 @@ function orderedMembers() {
 async function openSettings() {
   if (!isParent()) { showToast('부모만 설정할 수 있어요 🔒'); return; }
   soundClick();
-  const { data: members } = await sb.from('members').select('*');
+  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  const { data: members } = await sb.from('members').select('*').eq('family_id', familyCode);
   cachedMembers = members || [];
   document.getElementById('settingsAppTitle').value = document.getElementById('appTitle').textContent || '';
   document.getElementById('settingsNoteTitle').value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
