@@ -2037,7 +2037,7 @@ async function saveNoteLines() {
   if (!currentUser) return;
   try {
     await sb.from('homework_notes').upsert({
-      user_id: currentUser.id,
+      user_id: 'elliot',
       note_title: document.getElementById('homeworkNoteTitle').textContent || '숙제노트',
       note_lines: JSON.stringify(noteLines),
       updated_at: new Date().toISOString()
@@ -2052,7 +2052,7 @@ async function saveNoteTitle() {
 async function loadNotes() {
   if (!currentUser) return;
   try {
-    const { data } = await sb.from('homework_notes').select('*').eq('user_id', currentUser.id).single();
+    const { data } = await sb.from('homework_notes').select('*').eq('user_id', 'elliot').single();
     if (data) {
       noteLines = JSON.parse(data.note_lines || '[]');
       const titleEl = document.getElementById('homeworkNoteTitle');
@@ -2955,6 +2955,7 @@ function setupRealtime() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'coins' }, () => refreshData())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'shop_items' }, () => refreshData())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, () => refreshData())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'homework_notes' }, () => loadNotes())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, () => refreshMembers())
     .subscribe();
 
