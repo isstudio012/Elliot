@@ -2751,7 +2751,20 @@ async function initApp() {
       document.getElementById('familyCodeScreen').classList.add('show');
       return;
     }
-    // 코드 있으면 바로 로그인 화면
+    // 이전 로그인 사용자가 있으면 바로 메인으로 진입
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+      try {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('loadingOverlay').classList.add('hide');
+        await showMainApp();
+        return;
+      } catch (e) {
+        localStorage.removeItem('currentUser');
+        currentUser = null;
+      }
+    }
+    // 사용자 없으면 로그인 화면
     await showLoginScreen();
   } catch (e) {
     console.log('init/showLoginScreen error', JSON.stringify(e), e?.message, e?.code);
@@ -3851,9 +3864,10 @@ async function confirmDeleteSubject() {
 
 async function addTask(subjectId, dk) {
   soundClick();
+  const familyCode = getFamilyCode();
+  if (!familyCode) { showToast('❌ 가족 코드 없음 — 다시 로그인하세요'); return; }
   const sortOrder = Date.now() % 2000000000;
   const tempId = 'tmp_' + Date.now();
-  const familyCode = getFamilyCode();
   // ---- 화면 먼저 (낙관적) ----
   cachedTasks.push({ id: tempId, subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder });
   justAddedSubjectId = subjectId;
@@ -3861,6 +3875,7 @@ async function addTask(subjectId, dk) {
   showToast('✏️ 숙제가 추가됐어요');
   // ---- 서버 저장 (백그라운드) ----
   const { error } = await sb.from('tasks').insert({
+    id: 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder, family_id: familyCode
   });
   if (error) {
@@ -3870,7 +3885,7 @@ async function addTask(subjectId, dk) {
     showToast('❌ ' + (error.message || '추가 실패'));
     return;
   }
-  await sb.from('confirmations').delete().eq('date_key', dk);
+  await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', familyCode);
   refreshData(); // 백그라운드 동기화 (임시 id → 실제 id 교체)
 }
 
