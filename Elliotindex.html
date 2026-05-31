@@ -82,6 +82,66 @@
     gap: 0;
     opacity: 0.7;
   }
+  .login-toggles {
+    position: absolute;
+    top: max(10px, env(safe-area-inset-top, 10px));
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 10;
+  }
+  .login-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .login-toggle-label {
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4A2F1B;
+  }
+  .login-toggle {
+    position: relative;
+    width: 36px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .login-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+  .login-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: white;
+    border: 1.5px solid #4A2F1B;
+    border-radius: 18px;
+    transition: background 0.2s;
+  }
+  .login-toggle-slider::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 12px;
+    height: 12px;
+    background: #4A2F1B;
+    border-radius: 50%;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .login-toggle input:checked + .login-toggle-slider {
+    background: #5A8A5E;
+    border-color: #2E5A32;
+  }
+  .login-toggle input:checked + .login-toggle-slider::before {
+    transform: translateX(18px);
+    background: white;
+  }
   .login-score-left {
     position: absolute;
     left: 50%;
@@ -1749,6 +1809,24 @@
     <!-- 점수 -->
     <div class="login-score-left" id="loginScoreLeft">0</div>
     <div class="login-score-right" id="loginScoreRight">0</div>
+
+    <!-- 우측 상단 토글 -->
+    <div class="login-toggles">
+      <label class="login-toggle-row">
+        <span class="login-toggle-label">게임하기</span>
+        <span class="login-toggle">
+          <input type="checkbox" id="loginGameToggle" onchange="onGameToggleChange()">
+          <span class="login-toggle-slider"></span>
+        </span>
+      </label>
+      <label class="login-toggle-row">
+        <span class="login-toggle-label">점수리셋</span>
+        <span class="login-toggle">
+          <input type="checkbox" id="loginResetToggle" onchange="onResetToggleChange()">
+          <span class="login-toggle-slider"></span>
+        </span>
+      </label>
+    </div>
     <!-- 축구장 SVG (세로 모바일) -->
     <svg class="login-field-svg" id="loginFieldSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
       <!-- 센터라인 (가로) -->
@@ -2014,7 +2092,7 @@
   </div>
   <div class="settings-body">
     <div class="settings-view show" id="settingsMenuView">
-      <button class="settings-menu-btn" onclick="showSettingsSection('login')"><span class="settings-menu-dot"></span><span>로그인 사진 이름 바꾸기</span></button>
+      <button class="settings-menu-btn" onclick="showSettingsSection('login')"><span class="settings-menu-dot"></span><span>프로필 추가/삭제</span></button>
       <button class="settings-menu-btn" onclick="showSettingsSection('title')"><span class="settings-menu-dot"></span><span>제목 바꾸기 · 메인화면 · 숙제노트</span></button>
       <button class="settings-menu-btn" onclick="showSettingsSection('password')"><span class="settings-menu-dot"></span><span>비밀번호 변경</span></button>
       <button class="settings-menu-btn" onclick="openCoinReset()"><span class="settings-menu-dot"></span><span>코인 리셋</span></button>
@@ -2880,8 +2958,26 @@ async function showLoginScreen() {
       ball.btn.style.left = ball.x + 'px';
       ball.btn.style.top = ball.y + 'px';
     });
-    startLoginPhysics();
+    const gameOn = document.getElementById('loginGameToggle');
+    if (gameOn && gameOn.checked) startLoginPhysics();
   });
+}
+
+function onGameToggleChange() {
+  const on = document.getElementById('loginGameToggle').checked;
+  if (on) {
+    startLoginPhysics();
+  } else {
+    stopLoginPhysics();
+    loginBalls.forEach(b => { b.vx = 0; b.vy = 0; });
+  }
+}
+
+function onResetToggleChange() {
+  const el = document.getElementById('loginResetToggle');
+  const eL = document.getElementById('loginScoreLeft'); if(eL) eL.textContent='0';
+  const eR = document.getElementById('loginScoreRight'); if(eR) eR.textContent='0';
+  setTimeout(() => { if(el) el.checked = false; }, 300);
 }
 
 function startLoginPhysics() {
