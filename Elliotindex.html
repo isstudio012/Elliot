@@ -2235,6 +2235,11 @@
           <button onclick="saveAppTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">과목추가</div>
+          <input type="text" id="settingsAddSubjectBtn" maxlength="20" placeholder="+ 과목 추가" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveAddSubjectBtnText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;width:100%;">
           <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">숙제노트</div>
           <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
@@ -3652,7 +3657,7 @@ async function loadAllData() {
     document.getElementById('appTitle').textContent = settings.app_title;
   }
   if (settings.add_subject_btn) {
-    const btn = document.querySelector('.add-subject-btn');
+    const btn = document.querySelector('.add-sub-bar-btn');
     if (btn) btn.textContent = settings.add_subject_btn;
   }
   if (settings.delete_subject_btn) {
@@ -4479,7 +4484,7 @@ function renderPresetList() {
     return `
       <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${isActive?'#5A8A5E':'white'};color:${isActive?'white':'#4A2F1B'};border:2px solid ${isActive?'#2E5A32':'#4A2F1B'};border-radius:22px;box-shadow:2px 2px 0 ${isActive?'#2E5A32':'#4A2F1B'};font-family:'Gaegu',cursive;font-weight:700;overflow:hidden;margin:4px;">
         <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
-          style="background:${fav?'#E87722':'transparent'};color:${fav?'white':'#E87722'};border:none;border-right:1.5px dashed ${isActive?'rgba(255,255,255,0.4)':'#C8A47C'};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">★</button>
+          style="background:transparent;color:#E87722;border:none;border-right:1.5px dashed ${isActive?'rgba(255,255,255,0.6)':'#C8A47C'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
         <button onclick="togglePresetSubject('${safe}')"
           style="background:transparent;color:inherit;border:none;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;padding:7px 14px;flex:1;white-space:nowrap;">
           ${escapeHTML(name)}
@@ -4702,6 +4707,11 @@ async function openSettings() {
   if (appTitleEl) appTitleEl.value = document.getElementById('appTitle').textContent || '';
   const noteTitleEl = document.getElementById('settingsNoteTitle');
   if (noteTitleEl) noteTitleEl.value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
+  const addSubBtnEl = document.getElementById('settingsAddSubjectBtn');
+  if (addSubBtnEl) {
+    const cur = document.querySelector('.add-sub-bar-btn');
+    addSubBtnEl.value = cur ? cur.textContent.trim() : '+ 과목 추가';
+  }
   renderMemberSettings();
   renderPasswordSettings();
   showSettingsMenu();
@@ -4980,9 +4990,9 @@ async function saveProfileSettings() {
 async function saveAddSubjectBtnText() {
   const val = document.getElementById('settingsAddSubjectBtn').value.trim() || '+ 과목 추가';
   await sb.from('app_settings').upsert({ key: 'add_subject_btn', value: val });
-  const btn = document.querySelector('.add-subject-btn');
+  const btn = document.querySelector('.add-sub-bar-btn');
   if (btn) btn.textContent = val;
-  showToast('✅ 저장!');
+  showToast('✅ 과목추가 버튼 저장!');
 }
 
 async function saveDeleteSubjectBtnText() {
