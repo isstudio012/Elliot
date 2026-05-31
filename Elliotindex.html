@@ -3979,13 +3979,14 @@ async function requestConfirm() {
 async function addSubject() {
   const name = document.getElementById('newSubjectInput').value.trim();
   const err = document.getElementById('addSubjectError');
-  
+
   if (!name) { err.textContent = '과목 이름을 입력하세요'; soundError(); return; }
-  
+
   const id = genId();
   const familyCode = getFamilyCode();
-  const memberId = getActiveMemberId();
-  if (!memberId) { err.textContent = '자녀를 먼저 선택하세요'; soundError(); return; }
+  // 자녀가 있으면 선택된 자녀 ID, 없으면 null (모두에게 보임)
+  const children = cachedMembers.filter(m => m.role === 'child');
+  const memberId = children.length > 0 ? getActiveMemberId() : null;
   const { error } = await sb.from('subjects').insert({
     id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000, family_id: familyCode, member_id: memberId
   });
@@ -4666,6 +4667,7 @@ async function confirmAddProfile(role) {
   renderMemberSettings();
   renderPasswordSettings();
   refreshLoginCardsIfVisible();
+  renderControlBar(); // 자녀 추가 즉시 드롭다운 반영
   showToast(`${role === 'parent' ? '부모' : '자녀'} 프로필 추가됨! 이름과 비밀번호(0000)를 변경해주세요.`);
 }
 
