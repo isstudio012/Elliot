@@ -4376,15 +4376,26 @@ async function togglePresetSubject(name) {
     sb.from('subjects').delete().eq('id', existing.id).then(() => {});
   } else {
     const id = genId();
-    const newSub = { id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000 };
+    const familyCode = getFamilyCode();
+    if (!familyCode) { showToast('❌ 가족 코드 없음 — 다시 로그인하세요'); return; }
+    // 자녀가 있으면 선택된 자녀 ID, 없으면 null (모두에게 보임)
+    const children = cachedMembers.filter(m => m.role === 'child');
+    const memberId = children.length > 0 ? getActiveMemberId() : null;
+    const newSub = { id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000, family_id: familyCode, member_id: memberId };
     // 즉시 캐시에 추가
     cachedSubjects.push(newSub);
     renderAll();
     renderPresetList();
     soundClick();
     showToast(`"${name}" 추가됨 ✨`);
-    // 백그라운드 DB 추가
-    sb.from('subjects').insert(newSub).then(() => {});
+    // 백그라운드 DB 추가 (실패 시 롤백)
+    const { error } = await sb.from('subjects').insert(newSub);
+    if (error) {
+      cachedSubjects = cachedSubjects.filter(s => s.id !== id);
+      renderAll();
+      renderPresetList();
+      showToast('❌ ' + (error.message || '추가 실패'));
+    }
   }
 }
 
