@@ -2231,31 +2231,6 @@
           <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">과목추가</div>
-          <input type="text" id="settingsAddSubjectBtn" maxlength="20" placeholder="+ 과목 추가" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveAddSubjectBtnText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">과목삭제</div>
-          <input type="text" id="settingsDeleteSubjectBtn" maxlength="20" placeholder="선택 과목 삭제" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveDeleteSubjectBtnText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">입력창</div>
-          <input type="text" id="settingsNewSubjectPlaceholder" maxlength="30" placeholder="새 과목 입력" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveNewSubjectPlaceholder()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">과목선택</div>
-          <input type="text" id="settingsSubjectModalTitle" maxlength="20" placeholder="과목 선택" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveSubjectModalTitle()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">안내문구</div>
-          <input type="text" id="settingsSubjectGuide" maxlength="40" placeholder="탭해서 오늘 과목을 선택하세요" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveSubjectGuideText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
-        </div>
       </div>
     </div>
     </div>
@@ -2276,18 +2251,28 @@
 
 <!-- 과목 추가 -->
 <div id="addSubjectModal" style="display:none;position:fixed;z-index:300;">
-  <div class="modal pwd-modal" id="subjectModalInner" style="max-width:320px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;">
-    <button onclick="closeAddSubject()" style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:#4A2F1B;color:white;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;">✕</button>
-    <div class="pwd-modal-title" id="subjectModalTitle" style="cursor:grab;padding-right:30px;user-select:none;" id="subjectModalDragHandle">과목 선택</div>
-    <div class="pwd-modal-sub" style="font-size:14px;">탭해서 오늘 과목을 선택하세요</div>
-    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;min-height:40px;"></div>
-    <div style="border-top:1px dashed #ccc;padding-top:8px;margin-top:4px;">
-      <div style="display:flex;gap:6px;align-items:center;">
-        <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="새 과목 입력" style="flex:1;padding:8px 10px;font-size:15px;">
-        <button class="preset-subject-btn" onclick="addPresetSubject()" style="padding:8px 16px;white-space:nowrap;background:#4A90D9;color:white;border-color:#2E6AAA;box-shadow:2px 2px 0 #2E6AAA;">등록</button>
-      </div>
-      <div class="pwd-error" id="addSubjectError"></div>
+  <div class="modal pwd-modal" id="subjectModalInner" style="max-width:340px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;padding:16px;">
+    <button onclick="closeAddSubject()" style="position:absolute;bottom:10px;right:10px;width:34px;height:34px;border-radius:50%;background:#4A2F1B;color:white;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:2px 2px 0 #2A1A0A;">✕</button>
+
+    <!-- 즐겨찾기 등록 배지 -->
+    <div id="subjectModalTitle" style="display:inline-block;background:#E87722;color:white;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;padding:6px 14px;border-radius:8px;margin-bottom:12px;cursor:grab;user-select:none;box-shadow:2px 2px 0 #8A3F0F;">즐겨찾기 등록</div>
+
+    <!-- 입력 + 등록 -->
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="flex:1;padding:10px 12px;font-size:15px;margin-bottom:0;border-radius:10px;border:2px solid #4A2F1B;">
+      <button onclick="addPresetSubject()" style="padding:10px 18px;white-space:nowrap;background:#4A90D9;color:white;border:2px solid #2E5A8A;border-radius:18px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #2E5A8A;">등록</button>
     </div>
+    <div class="pwd-error" id="addSubjectError" style="margin-bottom:4px;"></div>
+
+    <!-- 점선 구분 -->
+    <div style="border-top:1px dashed #C8A47C;margin:8px 0 10px;"></div>
+
+    <!-- 즐겨찾기 목록 -->
+    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-start;margin-bottom:14px;min-height:50px;padding:4px;"></div>
+
+    <!-- 하단 점선 + 여백 -->
+    <div style="border-top:1px dashed #C8A47C;margin-top:4px;padding-bottom:34px;"></div>
+
     <div style="margin-top:6px;text-align:center;">
       <button id="bulkDeleteSubjectsBtn" onclick="bulkDeleteSubjects()" style="display:none;background:#E53935;color:white;border:1.5px solid #B71C1C;border-radius:8px;padding:4px 14px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">선택 과목 삭제</button>
     </div>
@@ -4412,7 +4397,7 @@ function renderPresetList() {
   const todaySubjects = getSubjectsForDate(selectedDate).map(s => s.name.trim().toLowerCase());
   
   if (presets.length === 0) {
-    container.innerHTML = '<div style="color:#aaa;font-family:Gaegu,cursive;font-size:14px;padding:8px;">아래에서 과목을 등록하세요</div>';
+    container.innerHTML = '<div style="color:#aaa;font-family:Gaegu,cursive;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
     return;
   }
   
@@ -4588,13 +4573,10 @@ async function openSettings() {
   const familyCode = getFamilyCode();
   const { data: members } = await sb.from('members').select('*').eq('family_id', familyCode);
   cachedMembers = members || [];
-  document.getElementById('settingsAppTitle').value = document.getElementById('appTitle').textContent || '';
-  document.getElementById('settingsNoteTitle').value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
-  document.getElementById('settingsAddSubjectBtn').value = document.querySelector('.add-subject-btn') ? document.querySelector('.add-subject-btn').textContent : '+ 과목 추가';
-  document.getElementById('settingsDeleteSubjectBtn').value = document.getElementById('bulkDeleteSubjectsBtn') ? document.getElementById('bulkDeleteSubjectsBtn').textContent : '선택 과목 삭제';
-  document.getElementById('settingsNewSubjectPlaceholder').value = document.getElementById('newSubjectInput') ? document.getElementById('newSubjectInput').placeholder : '새 과목 입력';
-  document.getElementById('settingsSubjectModalTitle').value = document.getElementById('subjectModalTitle') ? document.getElementById('subjectModalTitle').textContent : '과목 선택';
-  document.getElementById('settingsSubjectGuide').value = document.querySelector('.pwd-modal-sub') ? document.querySelector('.pwd-modal-sub').textContent : '탭해서 오늘 과목을 선택하세요';
+  const appTitleEl = document.getElementById('settingsAppTitle');
+  if (appTitleEl) appTitleEl.value = document.getElementById('appTitle').textContent || '';
+  const noteTitleEl = document.getElementById('settingsNoteTitle');
+  if (noteTitleEl) noteTitleEl.value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
   renderMemberSettings();
   renderPasswordSettings();
   showSettingsMenu();
