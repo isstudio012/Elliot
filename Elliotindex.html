@@ -2252,10 +2252,14 @@
 <!-- 과목 추가 -->
 <div id="addSubjectModal" style="display:none;position:fixed;z-index:300;">
   <div class="modal pwd-modal" id="subjectModalInner" style="max-width:340px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;padding:16px;">
-    <button onclick="closeAddSubject()" style="position:absolute;bottom:10px;right:10px;width:34px;height:34px;border-radius:50%;background:#4A2F1B;color:white;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:2px 2px 0 #2A1A0A;">✕</button>
+    <!-- 닫기 (빨간 동그라미, 우상단) -->
+    <button onclick="closeAddSubject()" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:#E53935;color:white;border:2px solid #B71C1C;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:2px 2px 0 #B71C1C;line-height:1;">✕</button>
 
-    <!-- 즐겨찾기 등록 배지 -->
-    <div id="subjectModalTitle" style="display:inline-block;background:#E87722;color:white;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;padding:6px 14px;border-radius:8px;margin-bottom:12px;cursor:grab;user-select:none;box-shadow:2px 2px 0 #8A3F0F;">즐겨찾기 등록</div>
+    <!-- 즐겨찾기 모드 토글 (★ 즐겨찾기 등록) -->
+    <button id="subjectModalTitle" onclick="togglePresetView()" style="display:inline-flex;align-items:center;gap:5px;background:#E87722;color:white;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;padding:6px 14px;border:none;border-radius:8px;margin-bottom:12px;cursor:pointer;user-select:none;box-shadow:2px 2px 0 #8A3F0F;">
+      <span id="presetViewStar" style="color:white;font-size:16px;">☆</span>
+      <span id="presetViewLabel">즐겨찾기 등록</span>
+    </button>
 
     <!-- 입력 + 등록 -->
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
@@ -2267,15 +2271,11 @@
     <!-- 점선 구분 -->
     <div style="border-top:1px dashed #C8A47C;margin:8px 0 10px;"></div>
 
-    <!-- 즐겨찾기 목록 -->
-    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-start;margin-bottom:14px;min-height:50px;padding:4px;"></div>
+    <!-- 과목 목록 (즐겨찾기 모드면 즐겨찾기만, 아니면 전체) -->
+    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:14px 10px;justify-content:flex-start;margin-bottom:14px;min-height:60px;padding:8px 4px 4px;"></div>
 
     <!-- 하단 점선 + 여백 -->
-    <div style="border-top:1px dashed #C8A47C;margin-top:4px;padding-bottom:34px;"></div>
-
-    <div style="margin-top:6px;text-align:center;">
-      <button id="bulkDeleteSubjectsBtn" onclick="bulkDeleteSubjects()" style="display:none;background:#E53935;color:white;border:1.5px solid #B71C1C;border-radius:8px;padding:4px 14px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">선택 과목 삭제</button>
-    </div>
+    <div style="border-top:1px dashed #C8A47C;margin-top:4px;padding-bottom:10px;"></div>
   </div>
 </div>
 
@@ -4328,8 +4328,14 @@ function openAddSubject() {
   soundClick();
   document.getElementById('newSubjectInput').value = '';
   document.getElementById('addSubjectError').textContent = '';
-  const bulkBtn = document.getElementById('bulkDeleteSubjectsBtn');
-  if (bulkBtn) bulkBtn.style.display = isParent() ? '' : 'none';
+  // 뷰 모드 항상 '전체'로 초기화
+  _presetViewMode = 'all';
+  const star = document.getElementById('presetViewStar');
+  const label = document.getElementById('presetViewLabel');
+  const btn = document.getElementById('subjectModalTitle');
+  if (star) star.textContent = '☆';
+  if (label) label.textContent = '즐겨찾기 등록';
+  if (btn) btn.style.background = '#E87722';
   renderPresetList();
   const modal = document.getElementById('subjectModalInner');
   modal.style.top = '80px';
@@ -4391,24 +4397,81 @@ function savePresets(list) {
   localStorage.setItem('subject_presets', JSON.stringify(list));
 }
 
+/* ====== 즐겨찾기 ====== */
+function getFavorites() {
+  try {
+    return JSON.parse(localStorage.getItem('subject_favorites') || '[]');
+  } catch(e) { return []; }
+}
+function saveFavorites(list) {
+  localStorage.setItem('subject_favorites', JSON.stringify(list));
+}
+function isFavorite(name) {
+  return getFavorites().some(f => f.toLowerCase() === name.toLowerCase());
+}
+function toggleFavorite(name) {
+  let favs = getFavorites();
+  if (isFavorite(name)) {
+    favs = favs.filter(f => f.toLowerCase() !== name.toLowerCase());
+  } else {
+    favs.push(name);
+  }
+  saveFavorites(favs);
+  renderPresetList();
+  soundClick();
+}
+
+let _presetViewMode = 'all'; // 'all' or 'favorites'
+
+function togglePresetView() {
+  _presetViewMode = _presetViewMode === 'all' ? 'favorites' : 'all';
+  const star = document.getElementById('presetViewStar');
+  const label = document.getElementById('presetViewLabel');
+  const btn = document.getElementById('subjectModalTitle');
+  if (_presetViewMode === 'favorites') {
+    if (star) star.textContent = '★';
+    if (label) label.textContent = '즐겨찾기 보기';
+    if (btn) btn.style.background = '#FFB74D';
+  } else {
+    if (star) star.textContent = '☆';
+    if (label) label.textContent = '즐겨찾기 등록';
+    if (btn) btn.style.background = '#E87722';
+  }
+  renderPresetList();
+  soundClick();
+}
+
 function renderPresetList() {
   const container = document.getElementById('presetSubjectList');
-  const presets = getPresets();
+  const allPresets = getPresets();
+  const favs = getFavorites();
+  const presets = _presetViewMode === 'favorites'
+    ? allPresets.filter(p => favs.some(f => f.toLowerCase() === p.toLowerCase()))
+    : allPresets;
   const todaySubjects = getSubjectsForDate(selectedDate).map(s => s.name.trim().toLowerCase());
-  
+
   if (presets.length === 0) {
-    container.innerHTML = '<div style="color:#aaa;font-family:Gaegu,cursive;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
+    if (_presetViewMode === 'favorites') {
+      container.innerHTML = '<div style="color:#aaa;font-family:Gaegu,cursive;font-size:14px;padding:10px;text-align:center;width:100%;">즐겨찾기가 비어있어요<br>과목의 ☆를 눌러 등록하세요</div>';
+    } else {
+      container.innerHTML = '<div style="color:#aaa;font-family:Gaegu,cursive;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
+    }
     return;
   }
-  
-  container.innerHTML = presets.map((name, i) => {
+
+  container.innerHTML = presets.map((name) => {
     const isActive = todaySubjects.includes(name.trim().toLowerCase());
+    const fav = isFavorite(name);
+    const origIdx = allPresets.findIndex(p => p === name);
+    const safe = escapeHTML(name).replace(/'/g, "\\'");
     return `
-      <div style="position:relative;display:inline-block;">
-        <button class="preset-subject-btn ${isActive ? 'active' : ''}" onclick="togglePresetSubject('${escapeHTML(name)}')">
+      <div style="position:relative;display:inline-block;margin:8px 4px 4px;">
+        <button class="preset-subject-btn ${isActive ? 'active' : ''}" onclick="togglePresetSubject('${safe}')">
           ${escapeHTML(name)}
         </button>
-        <button class="preset-delete" onclick="event.stopPropagation();deletePreset(${i})">✕</button>
+        <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
+          style="position:absolute;top:-10px;left:-8px;width:22px;height:22px;border-radius:50%;background:${fav?'#E87722':'white'};color:${fav?'white':'#E87722'};border:2px solid #E87722;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;box-shadow:1px 1px 0 #8A3F0F;">★</button>
+        <button class="preset-delete" onclick="event.stopPropagation();deletePreset(${origIdx})">✕</button>
       </div>
     `;
   }).join('');
@@ -4436,8 +4499,14 @@ function addPresetSubject() {
 function deletePreset(idx) {
   if (!confirm('이 과목을 목록에서 삭제할까요?')) return;
   const presets = getPresets();
+  const removed = presets[idx];
   presets.splice(idx, 1);
   savePresets(presets);
+  // 즐겨찾기에서도 같이 제거
+  if (removed) {
+    const favs = getFavorites().filter(f => f.toLowerCase() !== removed.toLowerCase());
+    saveFavorites(favs);
+  }
   renderPresetList();
 }
 
