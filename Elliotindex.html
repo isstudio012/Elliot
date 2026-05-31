@@ -2282,6 +2282,16 @@ const SUPABASE_URL = 'https://keyplmiiyknlpzpfdkuk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtleXBsbWlpeWtubHB6cGZka3VrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MzkzODksImV4cCI6MjA5NTExNTM4OX0.15UFo2n9g-nfBjuP7eAttSAEBs5FpTEY_qmYMms7274';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* ====== family_code 헬퍼 ====== */
+function getFamilyCode() {
+  const code = localStorage.getItem('family_code');
+  if (!code) {
+    console.error('[family_code] 없음 — 작업 차단. 가족 코드 발급/입장 필요.');
+    return null;
+  }
+  return code;
+}
+
 /* ====== 상태 ====== */
 let currentUser = null; // { id, name, role, pin }
 let justAddedSubjectId = null; // 방금 숙제 추가된 과목 (등장 애니메이션용)
@@ -2403,10 +2413,10 @@ function debounceSaveNotes() {
 async function saveNoteLines() {
   if (!currentUser) return;
   try {
-    const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
-    const noteUserId = familyCode === 'ELLIOT' ? 'elliot' : familyCode;
+    const familyCode = getFamilyCode();
+    if (!familyCode) return;
     await sb.from('homework_notes').upsert({
-      user_id: noteUserId,
+      user_id: familyCode,
       family_id: familyCode,
       note_title: document.getElementById('homeworkNoteTitle').textContent || '숙제노트',
       note_lines: JSON.stringify(noteLines),
@@ -2422,7 +2432,7 @@ async function saveNoteTitle() {
 async function loadNotes() {
   if (!currentUser) return;
   try {
-    const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+    const familyCode = getFamilyCode();
     const { data } = await sb.from('homework_notes').select('*').eq('family_id', familyCode).maybeSingle();
     if (data) {
       noteLines = JSON.parse(data.note_lines || '[]');
@@ -2564,7 +2574,7 @@ async function confirmCoinReset() {
       amount: 0,
       pending: {},
       updated_at: new Date().toISOString()
-    }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT');
+    }).eq('family_id', getFamilyCode());
     
     cachedCoins.amount = 0;
     cachedCoins.pending = {};
@@ -2817,7 +2827,7 @@ async function completeSetup() {
   if (!_setupGeneratedCode) { errEl.textContent = '코드를 먼저 생성해주세요.'; return; }
   errEl.textContent = '저장 중...';
   try {
-    await sb.from('families').insert({ code: _setupGeneratedCode });
+    await sb.from('families').insert({ code: _setupGeneratedCode, name: familyName });
     const memberId = 'member_' + Date.now();
     const member = { id: memberId, name: profileName, role: 'parent', pin, family_id: _setupGeneratedCode };
     await sb.from('members').insert(member);
@@ -2908,7 +2918,7 @@ async function showLoginScreen() {
   document.getElementById('chatFab').style.display = 'none';
   stopLoginPhysics();
 
-  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  const familyCode = getFamilyCode();
   const { data: members, error } = await sb.from('members').select('*').eq('family_id', familyCode);
   if (error) throw error;
   cachedMembers = members || [];
@@ -3389,7 +3399,7 @@ async function showMainApp() {
 
 /* ====== 데이터 로드 ====== */
 async function loadAllData() {
-  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  const familyCode = getFamilyCode();
   const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes, memRes] = await Promise.all([
     sb.from('subjects').select('*').eq('family_id', familyCode).order('sort_order'),
     sb.from('tasks').select('*').eq('family_id', familyCode).order('sort_order'),
@@ -3504,7 +3514,7 @@ function refreshMembers() {
 }
 
 async function refreshMembersNow() {
-  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  const familyCode = getFamilyCode();
   const { data: members } = await sb.from('members').select('*').eq('family_id', familyCode);
   cachedMembers = members || [];
   renderMemberSettings();
@@ -3786,6 +3796,7 @@ async function requestConfirm() {
   await sb.from('chat_messages').insert({
     sender_id: currentUser.id,
     sender_name: currentUser.name,
+    family_id: getFamilyCode(),
     message: msg
   });
   showToast('📢 엄마 아빠에게 요청했어요!');
@@ -3799,7 +3810,7 @@ async function addSubject() {
   if (!name) { err.textContent = '과목 이름을 입력하세요'; soundError(); return; }
   
   const id = genId();
-  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  const familyCode = getFamilyCode();
   const { error } = await sb.from('subjects').insert({
     id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000, family_id: familyCode
   });
@@ -3842,7 +3853,7 @@ async function addTask(subjectId, dk) {
   soundClick();
   const sortOrder = Date.now() % 2000000000;
   const tempId = 'tmp_' + Date.now();
-  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  const familyCode = getFamilyCode();
   // ---- 화면 먼저 (낙관적) ----
   cachedTasks.push({ id: tempId, subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder });
   justAddedSubjectId = subjectId;
@@ -3892,12 +3903,12 @@ async function toggleTask(task) {
   // ---- 서버 저장 (백그라운드, 화면 안 막음) ----
   sb.from('tasks').update({ done: newDone }).eq('id', task.id).then(() => {});
   if (newDone) {
-    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT').then(() => {});
+    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).then(() => {});
   } else if (wasConfirmed) {
-    sb.from('coins').update({ amount: cachedCoins.amount }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT').then(() => {});
+    sb.from('coins').update({ amount: cachedCoins.amount }).eq('family_id', getFamilyCode()).then(() => {});
     sb.from('confirmations').delete().eq('date_key', dk).then(() => {});
   } else {
-    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT').then(() => {});
+    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).then(() => {});
   }
 }
 
@@ -3920,7 +3931,7 @@ async function deleteTask(taskId, dk) {
     } else {
       cachedCoins.pending[dk] = Math.max(0, (cachedCoins.pending[dk] || 0) - 1);
     }
-    await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT');
+    await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode());
   }
   await sb.from('tasks').delete().eq('id', taskId);
   await sb.from('confirmations').delete().eq('date_key', dk);
@@ -3985,7 +3996,7 @@ async function confirmDeleteSelected() {
       else cachedCoins.pending[t.date_key] = Math.max(0, (cachedCoins.pending[t.date_key] || 0) - 1);
     }
   }
-  await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT');
+  await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode());
 
   // 과목 삭제 (안의 숙제 포함)
   for (const sid of subIds) {
@@ -4012,7 +4023,7 @@ async function doConfirm() {
   
   await Promise.all([
     sb.from('confirmations').upsert({ date_key: selectedDate, confirmed_by: currentUser.id }),
-    sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT')
+    sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('family_id', getFamilyCode())
   ]);
   
   soundFanfare();
@@ -4287,7 +4298,7 @@ function orderedMembers() {
 async function openSettings() {
   if (!isParent()) { showToast('부모만 설정할 수 있어요 🔒'); return; }
   soundClick();
-  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  const familyCode = getFamilyCode();
   const { data: members } = await sb.from('members').select('*').eq('family_id', familyCode);
   cachedMembers = members || [];
   document.getElementById('settingsAppTitle').value = document.getElementById('appTitle').textContent || '';
@@ -4748,9 +4759,9 @@ async function buyItem(item) {
   const newCount = (cachedTickets[item.id] || 0) + 1;
   
   await Promise.all([
-    sb.from('coins').update({ amount: newAmount }).eq('family_id', localStorage.getItem('family_code') || 'ELLIOT'),
-    sb.from('tickets').upsert({ item_id: item.id, member_id: 'elliot', family_id: localStorage.getItem('family_code') || 'ELLIOT', count: newCount }),
-    sb.from('purchase_history').insert({ member_id: currentUser.id, item_name: item.name, item_icon: item.icon || '🎁', price: item.price })
+    sb.from('coins').update({ amount: newAmount }).eq('family_id', getFamilyCode()),
+    sb.from('tickets').upsert({ item_id: item.id, member_id: getFamilyCode(), family_id: getFamilyCode(), count: newCount }),
+    sb.from('purchase_history').insert({ member_id: currentUser.id, item_name: item.name, item_icon: item.icon || '🎁', price: item.price, family_id: getFamilyCode() })
   ]);
   
   // 채팅으로 요청 메시지 자동 전송
@@ -4758,6 +4769,7 @@ async function buyItem(item) {
   await sb.from('chat_messages').insert({
     sender_id: currentUser.id,
     sender_name: currentUser.name,
+    family_id: getFamilyCode(),
     message: reqMsg
   });
   
@@ -4816,7 +4828,7 @@ async function addShopItem() {
   
   const id = 'item_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
   const icon = guessIcon(name);
-  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
+  const familyCode = getFamilyCode();
   await sb.from('shop_items').insert({ id, name, icon, price, family_id: familyCode });
   
   // 데이터 먼저 새로고침
@@ -4832,11 +4844,14 @@ async function addShopItem() {
 
 /* ====== 채팅 ====== */
 async function loadChat() {
+  const fc = getFamilyCode();
+  if (!fc) { chatMessages = []; renderChatMessages(); return; }
   const { data } = await sb.from('chat_messages')
     .select('*')
+    .eq('family_id', fc)
     .order('created_at', { ascending: false })
     .limit(50);
-  
+
   chatMessages = (data || []).reverse();
   if (chatMessages.length > 0) {
     lastSeenChatId = chatMessages[chatMessages.length - 1].id;
@@ -4845,6 +4860,8 @@ async function loadChat() {
 }
 
 function onNewChatMessage(msg) {
+  const fc = getFamilyCode();
+  if (!fc || msg.family_id !== fc) return;
   chatMessages.push(msg);
   if (chatMessages.length > 100) chatMessages = chatMessages.slice(-50);
   
@@ -4891,7 +4908,7 @@ function toggleChat() {
 async function resetChat() {
   if (!confirm('모든 채팅 메시지를 삭제할까요?\n이 작업은 되돌릴 수 없어요.')) return;
   try {
-    await sb.from('chat_messages').delete().neq('id', 0);
+    await sb.from('chat_messages').delete().eq('family_id', getFamilyCode());
     chatMessages = [];
     renderChatMessages();
     showToast('채팅이 초기화되었습니다 🗑️');
@@ -4989,6 +5006,7 @@ async function sendChat() {
   await sb.from('chat_messages').insert({
     sender_id: currentUser.id,
     sender_name: currentUser.name,
+    family_id: getFamilyCode(),
     message: text
   });
 }
@@ -5029,6 +5047,7 @@ async function sendChatPhoto(event) {
     await sb.from('chat_messages').insert({
       sender_id: currentUser.id,
       sender_name: currentUser.name,
+      family_id: getFamilyCode(),
       message: `[img]${photoUrl}[/img]`
     });
     
