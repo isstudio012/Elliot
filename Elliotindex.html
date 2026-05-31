@@ -1465,23 +1465,6 @@
     color: #7C5A3A;
     text-align: center;
   }
-  .fc-input {
-    width: 220px;
-    padding: 12px 16px;
-    border: 2px solid #4A2F1B;
-    border-radius: 12px;
-    font-family: 'Gaegu', cursive;
-    font-size: 22px;
-    font-weight: 700;
-    text-align: center;
-    letter-spacing: 4px;
-    background: white;
-    color: #4A2F1B;
-    outline: none;
-    box-shadow: 3px 3px 0 #4A2F1B;
-    text-transform: uppercase;
-  }
-  .fc-input:focus { border-color: #5A8A5E; box-shadow: 3px 3px 0 #5A8A5E; }
   .fc-btn {
     width: 220px;
     padding: 12px;
@@ -1502,171 +1485,261 @@
     box-shadow: 3px 3px 0 #2E5A32;
   }
   .fc-btn.green:active { box-shadow: 1px 1px 0 #2E5A32; }
-  .fc-error {
-    font-family: 'Gaegu', cursive;
-    font-size: 13px;
-    color: #B86B6B;
-    min-height: 16px;
-    text-align: center;
-  }
-  .fc-divider {
-    width: 220px;
-    border: none;
-    border-top: 1px dashed #C8A87A;
-  }
-  #familyCreateScreen {
+
+  /* ====== 프로필/가족 코드 발급 화면 ====== */
+  #familySetupScreen {
     display: none;
     position: fixed;
     inset: 0;
     background: #F5EDD7;
     z-index: 998;
+    overflow-y: auto;
+  }
+  #familySetupScreen.show { display: block; }
+  .setup-content {
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 14px;
+    padding: 24px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 2;
   }
-  #familyCreateScreen.show { display: flex; }
-  .fc-code-box {
+  .setup-section-title {
     font-family: 'Gaegu', cursive;
-    font-size: 36px;
+    font-size: 20px;
     font-weight: 700;
     color: #4A2F1B;
-    letter-spacing: 6px;
-    background: white;
-    border: 3px solid #4A2F1B;
-    border-radius: 12px;
-    padding: 14px 28px;
-    box-shadow: 4px 4px 0 #4A2F1B;
     text-align: center;
-    min-width: 220px;
   }
-  .fc-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  .fc-code-row {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    border: 3px solid #4A2F1B;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 4px 4px 0 #4A2F1B;
-    width: 280px;
-  }
-  .fc-code-row .fc-code-box {
-    flex: 1;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    border-right: 2px solid #4A2F1B;
-    padding: 12px 16px;
-    font-size: 28px;
-    min-width: 0;
-  }
-  .fc-copy-btn {
+  .setup-card {
+    background: #5A8A5E;
+    border-radius: 18px;
+    padding: 14px;
+    width: 100%;
+    max-width: 300px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    width: 70px;
-    min-width: 70px;
-    background: #E87722;
+    gap: 8px;
+    box-shadow: 4px 4px 0 #2E5A32;
+  }
+  .setup-input {
+    width: 100%;
+    padding: 10px 14px;
     border: none;
-    cursor: pointer;
+    border-radius: 8px;
     font-family: 'Gaegu', cursive;
-    font-size: 13px;
-    color: white;
+    font-size: 16px;
+    color: #4A2F1B;
+    background: white;
+    outline: none;
+    text-align: center;
+  }
+  .setup-divider-label {
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
     font-weight: 700;
-    padding: 0;
-    transition: background 0.3s;
-    flex-shrink: 0;
+    color: white;
+    text-align: center;
+    margin-top: 4px;
   }
-  .fc-copy-btn.copied {
-    background: #2e7d32;
-  }
-  .fc-copy-btn.copied .fc-code-box-text { opacity: 0.5; }
-  .fc-copy-btn:active { background: #FFF3E0; }
-  .fc-btn.orange {
-    background: #E87722;
-    border-color: #C45E10;
-    box-shadow: 3px 3px 0 #C45E10;
-  }
-  .fc-btn.orange:active { box-shadow: 1px 1px 0 #C45E10; }
-  .fc-copy-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    width: 64px;
-    background: #E87722;
-    border: none;
-    cursor: pointer;
+  .setup-code-warning {
     font-family: 'Gaegu', cursive;
     font-size: 12px;
-    color: white;
-    font-weight: 700;
-    padding: 8px 0;
-    transition: background 0.2s;
+    color: rgba(255,255,255,0.85);
+    text-align: center;
+    margin-top: -2px;
   }
-  .fc-copy-btn.copied { background: #2e7d32; }
+  .setup-code-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+  }
+  .setup-code-box {
+    flex: 1;
+    background: white;
+    font-family: 'Gaegu', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    color: #4A2F1B;
+    letter-spacing: 3px;
+    text-align: center;
+    padding: 8px 10px;
+    line-height: 1.2;
+    border-radius: 8px;
+  }
+  .setup-code-gen-btn {
+    background: #E87722;
+    border: none;
+    color: white;
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 12px;
+    cursor: pointer;
+    line-height: 1.3;
+    flex-shrink: 0;
+    border-radius: 8px;
+    box-shadow: 2px 2px 0 #8A3F0F;
+  }
+  .setup-code-gen-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #8A3F0F; }
+  .setup-family-preview {
+    font-family: 'Gaegu', cursive;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    background: #1A1A1A;
+    border-radius: 6px;
+    padding: 8px 10px;
+    letter-spacing: 1px;
+  }
+  .setup-done-btn {
+    width: auto;
+    align-self: center;
+    padding: 6px 28px;
+    background: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Gaegu', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    color: #4A2F1B;
+    cursor: pointer;
+    margin-top: 2px;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.35);
+    transition: background 0.2s, color 0.2s;
+  }
+  .setup-done-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 rgba(0,0,0,0.35); }
+  .setup-done-btn.done {
+    background: #4A90D9;
+    color: white;
+    box-shadow: 2px 2px 0 #2E5A8A;
+  }
+  .setup-done-btn.done:active { box-shadow: 1px 1px 0 #2E5A8A; }
+  .setup-main-btn {
+    width: 100%;
+    max-width: 300px;
+    padding: 14px;
+    background: #4A90D9;
+    border: 2px solid #2E5A8A;
+    border-radius: 14px;
+    font-family: 'Gaegu', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #2E5A8A;
+    display: none;
+  }
+  .setup-main-btn.show { display: block; }
+  .setup-main-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A8A; }
+  .setup-join-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 40px;
+    align-items: stretch;
+  }
+  .setup-join-input {
+    flex: 1;
+    padding: 12px 14px;
+    border: 2px solid #5A8A5E;
+    border-radius: 12px;
+    font-family: 'Gaegu', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    color: #4A2F1B;
+    background: white;
+    outline: none;
+    text-align: center;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 0 #2E5A32;
+  }
+  .setup-join-btn {
+    background: #5A8A5E;
+    border: 2px solid #2E5A32;
+    border-radius: 12px;
+    color: white;
+    font-size: 20px;
+    padding: 0 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: 2px 2px 0 #2E5A32;
+  }
+  .setup-join-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A32; }
+  .setup-error {
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    color: #B86B6B;
+    text-align: center;
+    min-height: 16px;
+  }
 </style>
 </head>
 <body>
 
 <div class="loading-overlay" id="loadingOverlay">불러오는 중...</div>
 
-<!-- 화면1: 새 가족 만들기 -->
+<!-- 화면1: 처음 오셨나요? -->
 <div id="familyCodeScreen">
   <div class="fc-title">👋 처음 오셨나요?</div>
   <div class="fc-sub">가족을 만들어보세요!</div>
-  <button class="fc-btn green" onclick="showFamilyCreateScreen()">새 가족 만들기</button>
+  <button class="fc-btn green" onclick="showFamilySetupScreen()">새 가족 만들기</button>
 </div>
 
-<!-- 화면2: 코드 발급 -->
-<div id="familyCreateScreen">
-  <div class="fc-title">🔑 가족코드 발급</div>
-  <div class="fc-sub">코드를 꼭 저장해두세요!</div>
-  <div id="fcIssueBtnRow" style="display:flex;align-items:center;gap:10px;">
-    <button onclick="backToFamilyCodeScreen()" style="width:44px;height:44px;background:white;border:2px solid #E0D4BC;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 rgba(74,47,27,0.18);flex-shrink:0;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A2F1B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <button class="fc-btn orange" id="fcIssueBtn" onclick="generateAndShowCode()">코드 발급받기</button>
-  </div>
-  <div class="fc-code-row" id="fcCodeRow" style="display:none;">
-    <div class="fc-code-box" id="generatedCodeBox">------</div>
-    <button class="fc-copy-btn" id="fcCopyBtn" onclick="copyGeneratedCode()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      복사
-    </button>
-  </div>
-  <div class="fc-error" id="fcCreateError"></div>
-  <div id="fcEnterRow" style="display:none;align-items:center;gap:10px;">
-    <button onclick="backToFamilyCodeScreen()" style="width:44px;height:44px;background:white;border:2px solid #E0D4BC;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 rgba(74,47,27,0.18);flex-shrink:0;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A2F1B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <button class="fc-btn green" id="fcEnterBtn" onclick="enterWithGeneratedCode()">프로필 만들러 가기 →</button>
-  </div>
-</div>
+<!-- 화면2: 프로필/가족 코드 발급 -->
+<div id="familySetupScreen">
+  <!-- 축구장 배경 -->
+  <svg class="login-field-svg" viewBox="0 0 100 100" preserveAspectRatio="none" style="pointer-events:none;">
+    <line x1="33.5" y1="0" x2="33.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+    <line x1="66.5" y1="0" x2="66.5" y2="3" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+    <line x1="33.5" y1="0" x2="66.5" y2="0" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+    <line x1="33.5" y1="97" x2="33.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+    <line x1="66.5" y1="97" x2="66.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+    <line x1="33.5" y1="100" x2="66.5" y2="100" stroke="#4A2F1B" stroke-width="0.9" stroke-opacity="0.55"/>
+  </svg>
 
-<!-- 코드입력 팝업 - 화면 중앙 -->
-<div id="fcCodeInputSection" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#F5EDD7;border:2px solid #4A2F1B;border-radius:16px;padding:24px 20px;box-shadow:4px 4px 0 #4A2F1B;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:260px;">
-    <div style="font-family:'Gaegu',cursive;font-size:17px;font-weight:700;color:#4A2F1B;">🔑 가족코드를 입력하세요</div>
-    <div class="login-pin-row">
-      <input type="text" class="login-pin-input" id="fcCodeInput" maxlength="10" placeholder="코드 6자리"
-        style="text-transform:uppercase;width:140px;-webkit-text-security:none;text-security:none;"
-        onkeydown="if(event.key==='Enter')confirmFcCode()">
-      <button class="login-confirm-btn" onclick="confirmFcCode()">✓</button>
-      <button onclick="backFromCodeInput()" style="width:44px;height:44px;background:white;border:2px solid #E0D4BC;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 rgba(74,47,27,0.18);flex-shrink:0;margin-left:4px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4A2F1B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
+  <div class="setup-content">
+    <div class="setup-section-title">🔑 프로필/가족 코드 발급</div>
+
+    <div class="setup-card">
+      <input class="setup-input" id="setupProfileName" placeholder="프로필이름" maxlength="10">
+      <input class="setup-input" id="setupPin" placeholder="비밀번호 4자리" type="tel" maxlength="4" inputmode="numeric">
+
+      <button class="setup-done-btn" id="setupProfileDoneBtn" onclick="completeProfileOnly()">완료</button>
+
+      <div class="setup-divider-label">가족 코드 발급</div>
+
+      <input class="setup-input" id="setupFamilyName" placeholder="가족이름" maxlength="12" oninput="updateSetupFamilyPreview()">
+
+      <div class="setup-code-warning">코드를 꼭 저장해두세요!</div>
+
+      <div class="setup-code-row">
+        <div class="setup-code-box" id="setupCodeBox">------</div>
+        <button class="setup-code-gen-btn" onclick="generateSetupCode()">코드<br>생성</button>
+      </div>
+
+      <div class="setup-family-preview" id="setupFamilyPreview">가족이름 ( ------ )</div>
+
+      <button class="setup-done-btn" id="setupFamilyDoneBtn" onclick="completeSetup()">완료</button>
     </div>
-    <div class="login-error" id="fcCodeInputError"></div>
+
+    <button class="setup-main-btn" id="setupMainBtn" onclick="goToMainFromSetup()">메인 화면으로 가기</button>
+
+    <div class="setup-join-row">
+      <input class="setup-join-input" id="setupJoinCode" placeholder="가족코드로 입장" maxlength="10"
+        onkeydown="if(event.key==='Enter')joinWithFamilyCode()">
+      <button class="setup-join-btn" onclick="joinWithFamilyCode()">▶</button>
+    </div>
+
+    <div class="setup-error" id="setupError"></div>
   </div>
 </div>
+
 
 <div class="container">
   <!-- 로그인 화면 -->
@@ -2107,15 +2180,6 @@
   </div>
 </div>
 
-<div class="modal-bg" id="roleSelectModal">
-  <div class="modal" style="padding:18px 20px;text-align:center;max-width:260px;">
-    <div style="font-family:'Gaegu',cursive;font-size:17px;font-weight:700;color:#4A2F1B;margin-bottom:14px;">권한 선택하세요</div>
-    <div style="display:flex;gap:10px;justify-content:center;">
-      <button onclick="confirmAddProfile('parent')" style="background:#4CAF50;border:2px solid #2E7D32;color:white;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 #2E7D32;">부모</button>
-      <button onclick="confirmAddProfile('child')" style="background:#1976D2;border:2px solid #0D47A1;color:white;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 #0D47A1;">자녀</button>
-    </div>
-  </div>
-</div>
 
 
 
@@ -2608,118 +2672,111 @@ async function initApp() {
   }
 }
 
-/* ====== 가족코드 화면 함수들 ====== */
-function showFamilyCreateScreen() {
+/* ====== 가족 설정 화면 ====== */
+function showFamilySetupScreen() {
   document.getElementById('familyCodeScreen').classList.remove('show');
-  document.getElementById('familyCreateScreen').classList.add('show');
+  document.getElementById('familySetupScreen').classList.add('show');
+  // 입력 초기화
+  document.getElementById('setupProfileName').value = '';
+  document.getElementById('setupPin').value = '';
+  document.getElementById('setupFamilyName').value = '';
+  document.getElementById('setupCodeBox').textContent = '------';
+  document.getElementById('setupFamilyPreview').textContent = '가족이름 ( ------ )';
+  document.getElementById('setupMainBtn').classList.remove('show');
+  document.getElementById('setupProfileDoneBtn').classList.remove('done');
+  document.getElementById('setupFamilyDoneBtn').classList.remove('done');
+  document.getElementById('setupError').textContent = '';
+  _setupGeneratedCode = '';
+  _setupProfileSaved = false;
 }
 
-let _generatedCode = '';
+function updateSetupFamilyPreview() {
+  const name = document.getElementById('setupFamilyName').value.trim() || '가족이름';
+  const code = document.getElementById('setupCodeBox').textContent || '------';
+  document.getElementById('setupFamilyPreview').textContent = `${name} ( ${code} )`;
+}
 
-async function generateAndShowCode() {
-  const errEl = document.getElementById('fcCreateError');
-  const issueBtn = document.getElementById('fcIssueBtn');
+let _setupGeneratedCode = '';
+let _setupProfileSaved = false;
+
+function completeProfileOnly() {
+  const profileName = document.getElementById('setupProfileName').value.trim();
+  const pin = document.getElementById('setupPin').value.trim();
+  const errEl = document.getElementById('setupError');
+  if (!profileName) { errEl.textContent = '프로필 이름을 입력해주세요.'; return; }
+  if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) { errEl.textContent = '숫자 4자리 비밀번호를 입력해주세요.'; return; }
+  _setupProfileSaved = true;
+  document.getElementById('setupProfileDoneBtn').classList.add('done');
+  errEl.textContent = '';
+}
+
+async function generateSetupCode() {
+  const errEl = document.getElementById('setupError');
   errEl.textContent = '생성 중...';
-  issueBtn.disabled = true;
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
   try {
     const { data: exist } = await sb.from('families').select('code').eq('code', code).maybeSingle();
-    if (exist) { issueBtn.disabled = false; await generateAndShowCode(); return; }
-    const { error: insertErr } = await sb.from('families').insert({ code });
-    if (insertErr) { throw insertErr; }
-    _generatedCode = code;
-    document.getElementById('generatedCodeBox').textContent = code;
-    document.getElementById('fcCodeRow').style.display = 'flex';
-    document.getElementById('fcEnterRow').style.display = 'flex';
-    document.getElementById('fcIssueBtnRow').style.display = 'none';
-    errEl.textContent = '✅ 코드 저장 필수!';
+    if (exist) { await generateSetupCode(); return; }
+    _setupGeneratedCode = code;
+    document.getElementById('setupCodeBox').textContent = code;
+    errEl.textContent = '';
+    updateSetupFamilyPreview();
   } catch(e) {
     errEl.textContent = '오류 발생. 다시 시도해주세요.';
-    issueBtn.disabled = false;
   }
 }
 
-function copyGeneratedCode() {
-  if (!_generatedCode) return;
-  navigator.clipboard.writeText(_generatedCode).then(() => {
-    document.getElementById('fcCreateError').textContent = '📋 복사됐어요!';
-    const btn = document.getElementById('fcCopyBtn');
-    const codeBox = document.getElementById('generatedCodeBox');
-    btn.classList.add('copied');
-    codeBox.style.opacity = '0.4';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      codeBox.style.opacity = '1';
-      document.getElementById('fcCreateError').textContent = '';
-    }, 3000);
-  });
+async function completeSetup() {
+  const profileName = document.getElementById('setupProfileName').value.trim();
+  const pin = document.getElementById('setupPin').value.trim();
+  const familyName = document.getElementById('setupFamilyName').value.trim();
+  const errEl = document.getElementById('setupError');
+  if (!profileName) { errEl.textContent = '프로필 이름을 입력해주세요.'; return; }
+  if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) { errEl.textContent = '숫자 4자리 비밀번호를 입력해주세요.'; return; }
+  if (!familyName) { errEl.textContent = '가족 이름을 입력해주세요.'; return; }
+  if (!_setupGeneratedCode) { errEl.textContent = '코드를 먼저 생성해주세요.'; return; }
+  errEl.textContent = '저장 중...';
+  try {
+    await sb.from('families').insert({ code: _setupGeneratedCode });
+    const memberId = 'member_' + Date.now();
+    const member = { id: memberId, name: profileName, role: 'parent', pin, family_id: _setupGeneratedCode };
+    await sb.from('members').insert(member);
+    localStorage.setItem('family_code', _setupGeneratedCode);
+    currentUser = member;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    cachedMembers = [member];
+    saveMemberColor(memberId, '#5A8A5E');
+    errEl.textContent = '';
+    document.getElementById('setupFamilyDoneBtn').classList.add('done');
+    document.getElementById('setupMainBtn').classList.add('show');
+  } catch(e) {
+    errEl.textContent = '저장 실패. 다시 시도해주세요.';
+  }
 }
 
-async function enterWithGeneratedCode() {
-  if (!_generatedCode) return;
-  localStorage.setItem('family_code', _generatedCode);
-  document.getElementById('familyCreateScreen').classList.remove('show');
-  const { data: members } = await sb.from('members').select('*').eq('family_id', _generatedCode);
-  cachedMembers = members || [];
-  renderMemberSettings();
-  renderPasswordSettings();
-  document.getElementById('settingsPanel').classList.add('open');
-  showSettingsSection('login');
-  setTimeout(() => {
-    document.getElementById('fcCodeInputSection').style.display = 'flex';
-    const input = document.getElementById('fcCodeInput');
-    input.value = _generatedCode;
-    input.focus();
-  }, 300);
+function goToMainFromSetup() {
+  if (!currentUser) { document.getElementById('setupError').textContent = '먼저 완료 버튼을 눌러주세요.'; return; }
+  document.getElementById('familySetupScreen').classList.remove('show');
+  showMainApp();
 }
 
-async function confirmFcCode() {
-  const code = document.getElementById('fcCodeInput').value.trim().toUpperCase();
-  const errEl = document.getElementById('fcCodeInputError');
-  errEl.textContent = '';
+async function joinWithFamilyCode() {
+  const code = document.getElementById('setupJoinCode').value.trim().toUpperCase();
+  const errEl = document.getElementById('setupError');
   if (!code) { errEl.textContent = '코드를 입력해주세요.'; return; }
+  errEl.textContent = '확인 중...';
   try {
     const { data } = await sb.from('families').select('code').eq('code', code).maybeSingle();
     if (!data) { errEl.textContent = '코드를 찾을 수 없어요.'; return; }
     localStorage.setItem('family_code', code);
-    closeFcCodeInput();
-    // 코드 확인 후 프로필 추가 모달 열기
-    document.getElementById('roleSelectModal').classList.add('show');
+    document.getElementById('familySetupScreen').classList.remove('show');
+    errEl.textContent = '';
+    await showLoginScreen();
   } catch(e) {
     errEl.textContent = '오류가 발생했어요.';
   }
-}
-
-function backToFamilyCodeScreen() {
-  // 발급된 코드가 있으면 DB에서 삭제
-  if (_generatedCode) {
-    sb.from('families').delete().eq('code', _generatedCode).then(() => {});
-    _generatedCode = '';
-  }
-  localStorage.removeItem('family_code');
-  document.getElementById('familyCreateScreen').classList.remove('show');
-  // 화면2 초기화
-  document.getElementById('fcIssueBtnRow').style.display = 'flex';
-  document.getElementById('fcIssueBtn').disabled = false;
-  document.getElementById('fcCodeRow').style.display = 'none';
-  document.getElementById('fcEnterRow').style.display = 'none';
-  document.getElementById('fcCreateError').textContent = '';
-  document.getElementById('familyCodeScreen').classList.add('show');
-}
-
-function backFromCodeInput() {
-  document.getElementById('fcCodeInputSection').style.display = 'none';
-  document.getElementById('settingsPanel').classList.remove('open');
-  // 코드발급화면으로 돌아가기 (처음화면 아님)
-  document.getElementById('familyCreateScreen').classList.add('show');
-}
-
-function closeFcCodeInput() {
-  document.getElementById('fcCodeInputSection').style.display = 'none';
-  document.getElementById('fcCodeInput').value = '';
-  document.getElementById('fcCodeInputError').textContent = '';
 }
 
 /* ====== 로그인 물리엔진 ====== */
@@ -4157,7 +4214,6 @@ function closeSettings() {
     currentUser = parent;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     document.getElementById('familyCodeScreen').classList.remove('show');
-    document.getElementById('familyCreateScreen').classList.remove('show');
     showMainApp();
   }
 }
@@ -4308,29 +4364,7 @@ function handleMemberPhotoUpload(event, memberId) {
 }
 
 async function addLoginProfile() {
-  const savedCode = localStorage.getItem('family_code');
-  if (!savedCode) {
-    // 코드 없으면 팝업으로 입력 요청
-    document.getElementById('fcCodeInputSection').style.display = 'flex';
-    document.getElementById('fcCodeInput').focus();
-    return;
-  }
-  document.getElementById('roleSelectModal').classList.add('show');
-}
-
-async function confirmAddProfile(role) {
-  document.getElementById('roleSelectModal').classList.remove('show');
-  const id = 'member_' + Date.now();
-  const count = cachedMembers.length + 1;
-  const familyCode = localStorage.getItem('family_code') || 'ELLIOT';
-  const member = { id, name: '프로필 ' + count, role, pin: '0000', family_id: familyCode };
-  await sb.from('members').insert(member);
-  saveMemberColor(id, role === 'parent' ? '#5A8A5E' : '#5A5A5A');
-  await refreshMembersNow();
-  renderMemberSettings();
-  renderPasswordSettings();
-  refreshLoginCardsIfVisible();
-  showToast(`${role === 'parent' ? '부모' : '자녀'} 프로필이 추가됐어요. 비밀번호는 0000이에요.`);
+  // 추후 구현
 }
 
 async function deleteLoginProfile(memberId) {
