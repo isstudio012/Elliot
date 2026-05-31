@@ -1493,6 +1493,22 @@
     gap: 6px;
     margin-bottom: 8px;
   }
+  .subject-ctrl-side {
+    flex: 0 0 auto;
+    min-width: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .subject-ctrl-side-right {
+    justify-content: flex-end;
+  }
+  .subject-ctrl-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
   .subject-ctrl-left {
     flex: 1;
     min-width: 0;
@@ -1559,13 +1575,13 @@
   .child-dropdown-item.active { background: #E8F5E9; color: #2E7D32; }
   .child-dropdown-check { font-size: 14px; color: #5A8A5E; }
   .add-sub-bar-btn {
-    padding: 6px 12px;
+    padding: 8px 18px;
     background: #4A90D9;
     color: white;
-    border: 1.5px solid #2E5A8A;
-    border-radius: 8px;
+    border: 2px solid #2E5A8A;
+    border-radius: 10px;
     font-family: 'Gaegu', cursive;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
     cursor: pointer;
     box-shadow: 2px 2px 0 #2E5A8A;
@@ -2083,13 +2099,15 @@
     </div>
     
     <div class="selected-date" id="selectedDate"></div>
-    <!-- 과목 컨트롤 바: 자녀선택 드롭다운 + 과목추가 + 선택삭제 -->
+    <!-- 과목 컨트롤 바: 자녀선택 드롭다운(좌) + 과목추가(중앙) + 선택삭제(우) -->
     <div class="subject-ctrl-bar" id="subjectCtrlBar">
-      <div class="subject-ctrl-left" id="childDropdownWrap">
+      <div class="subject-ctrl-side" id="childDropdownWrap">
         <!-- 드롭다운 버튼 (renderControlBar에서 채워짐) -->
       </div>
-      <div class="subject-ctrl-right">
-        <button class="add-sub-bar-btn" onclick="openAddSubject()">+ 과목추가</button>
+      <div class="subject-ctrl-center">
+        <button class="add-sub-bar-btn" onclick="openAddSubject()">+ 과목 추가</button>
+      </div>
+      <div class="subject-ctrl-side subject-ctrl-side-right">
         <div class="select-bar-wrap" id="selectBarWrap"></div>
       </div>
     </div>
