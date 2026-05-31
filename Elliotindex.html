@@ -4034,6 +4034,7 @@ async function addTask(subjectId, dk) {
   // ---- 화면 먼저 (낙관적) ----
   cachedTasks.push({ id: tempId, subject_id: subjectId, date_key: dk, text: '', done: false, sort_order: sortOrder });
   justAddedSubjectId = subjectId;
+  collapsedSubjects[subjectId] = false; // 펼친 상태 유지
   renderAll();
   showToast('✏️ 숙제가 추가됐어요');
   // ---- 서버 저장 (백그라운드) ----
