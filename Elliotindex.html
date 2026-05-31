@@ -2260,9 +2260,14 @@
 <!-- 과목 추가 -->
 <div id="addSubjectModal" style="display:none;position:fixed;z-index:300;">
   <div class="modal pwd-modal" id="subjectModalInner" style="max-width:340px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;padding:16px;">
+    <!-- 드래그 핸들 바 -->
+    <div id="subjectModalDragHandle" style="position:absolute;top:0;left:0;right:0;height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none;z-index:5;">
+      <div style="width:42px;height:5px;border-radius:3px;background:#C8A47C;"></div>
+    </div>
     <!-- 닫기 (빨간 동그라미, 우상단) -->
     <button onclick="closeAddSubject()" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:#E53935;color:white;border:2px solid #B71C1C;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:2px 2px 0 #B71C1C;line-height:1;">✕</button>
 
+    <div style="height:14px;"></div>
     <!-- 즐겨찾기 모드 토글 (★ 즐겨찾기 등록) -->
     <button id="subjectModalTitle" onclick="togglePresetView()" style="display:inline-flex;align-items:center;gap:5px;background:#E87722;color:white;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;padding:6px 14px;border:none;border-radius:8px;margin-bottom:12px;cursor:pointer;user-select:none;box-shadow:2px 2px 0 #8A3F0F;">
       <span id="presetViewStar" style="color:white;font-size:16px;">☆</span>
@@ -3588,9 +3593,8 @@ async function showMainApp() {
   loadProfilePhoto();
   
   // 상단 로그아웃 버튼에 이름 표시
-  const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
   const navBtn = document.getElementById('navLogoutBtn');
-  if (navBtn) navBtn.innerHTML = `${emojis[currentUser.id] || '👤'} ${currentUser.name}`;
+  if (navBtn) navBtn.innerHTML = `${currentUser.name}`;
   
   // 코인 리셋 버튼 (부모만)
   showCoinResetBtn();
@@ -4473,17 +4477,61 @@ function renderPresetList() {
     const origIdx = allPresets.findIndex(p => p === name);
     const safe = escapeHTML(name).replace(/'/g, "\\'");
     return `
-      <div style="position:relative;display:inline-block;margin:8px 4px 4px;">
-        <button class="preset-subject-btn ${isActive ? 'active' : ''}" onclick="togglePresetSubject('${safe}')">
+      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${isActive?'#5A8A5E':'white'};color:${isActive?'white':'#4A2F1B'};border:2px solid ${isActive?'#2E5A32':'#4A2F1B'};border-radius:22px;box-shadow:2px 2px 0 ${isActive?'#2E5A32':'#4A2F1B'};font-family:'Gaegu',cursive;font-weight:700;overflow:hidden;margin:4px;">
+        <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
+          style="background:${fav?'#E87722':'transparent'};color:${fav?'white':'#E87722'};border:none;border-right:1.5px dashed ${isActive?'rgba(255,255,255,0.4)':'#C8A47C'};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">★</button>
+        <button onclick="togglePresetSubject('${safe}')"
+          style="background:transparent;color:inherit;border:none;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;padding:7px 14px;flex:1;white-space:nowrap;">
           ${escapeHTML(name)}
         </button>
-        <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
-          style="position:absolute;top:-10px;left:-8px;width:22px;height:22px;border-radius:50%;background:${fav?'#E87722':'white'};color:${fav?'white':'#E87722'};border:2px solid #E87722;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;box-shadow:1px 1px 0 #8A3F0F;">★</button>
-        <button class="preset-delete" onclick="event.stopPropagation();deletePreset(${origIdx})">✕</button>
+        <button onclick="event.stopPropagation();deletePreset(${origIdx})" title="삭제"
+          style="background:transparent;color:${isActive?'white':'#E53935'};border:none;border-left:1.5px dashed ${isActive?'rgba(255,255,255,0.4)':'#C8A47C'};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 10px;flex-shrink:0;">✕</button>
       </div>
     `;
   }).join('');
 }
+
+/* 모달 드래그 핸들러 (런타임에 즉시 바인딩) */
+(function setupSubjectModalDrag() {
+  let dragging = false, offX = 0, offY = 0, modal = null;
+
+  function onStart(cx, cy, e) {
+    modal = document.getElementById('subjectModalInner');
+    if (!modal) return;
+    dragging = true;
+    const rect = modal.getBoundingClientRect();
+    offX = cx - rect.left;
+    offY = cy - rect.top;
+    modal.style.transform = 'none';
+    modal.style.left = rect.left + 'px';
+    modal.style.top = rect.top + 'px';
+    if (e) e.preventDefault();
+  }
+  function onMove(cx, cy, e) {
+    if (!dragging || !modal) return;
+    modal.style.left = Math.max(0, cx - offX) + 'px';
+    modal.style.top = Math.max(0, cy - offY) + 'px';
+    if (e) e.preventDefault();
+  }
+  function onEnd() { dragging = false; }
+
+  function bind() {
+    const handle = document.getElementById('subjectModalDragHandle');
+    if (!handle || handle.dataset.bound) return;
+    handle.dataset.bound = '1';
+    handle.addEventListener('touchstart', (e) => onStart(e.touches[0].clientX, e.touches[0].clientY, e), {passive:false});
+    handle.addEventListener('mousedown', (e) => onStart(e.clientX, e.clientY, e));
+    document.addEventListener('touchmove', (e) => { if (dragging) onMove(e.touches[0].clientX, e.touches[0].clientY, e); }, {passive:false});
+    document.addEventListener('mousemove', (e) => { if (dragging) onMove(e.clientX, e.clientY); });
+    document.addEventListener('touchend', onEnd);
+    document.addEventListener('mouseup', onEnd);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
 
 function addPresetSubject() {
   const input = document.getElementById('newSubjectInput');
