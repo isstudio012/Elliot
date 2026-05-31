@@ -644,6 +644,14 @@
     line-height: 1.2;
     -webkit-text-stroke: 0.5px #3A2010;
   }
+  .profile-msg h1:empty::before {
+    content: '설정에서 한마디를 적어주세요 ✏️';
+    color: #A8967C;
+    font-size: 18px;
+    font-weight: 700;
+    -webkit-text-stroke: 0;
+    opacity: 0.85;
+  }
 
   /* ====== 숙제노트 (접이식) ====== */
   .homework-note-card {
@@ -2212,18 +2220,18 @@
   <div class="settings-body">
     <div class="settings-view show" id="settingsMenuView">
       <button class="settings-menu-btn" onclick="showSettingsSection('login')"><span class="settings-menu-dot"></span><span>프로필 추가/삭제</span></button>
-      <button class="settings-menu-btn" onclick="showSettingsSection('title')"><span class="settings-menu-dot"></span><span>제목 바꾸기 · 메인화면 · 숙제노트</span></button>
+      <button class="settings-menu-btn" onclick="showSettingsSection('title')"><span class="settings-menu-dot"></span><span>한마디 바꾸기</span></button>
       <button class="settings-menu-btn" onclick="showSettingsSection('password')"><span class="settings-menu-dot"></span><span>비밀번호 변경</span></button>
       <button class="settings-menu-btn" onclick="openCoinReset()"><span class="settings-menu-dot"></span><span>코인 리셋</span></button>
       <button class="settings-menu-btn" onclick="openFamilyCodeCheck()"><span class="settings-menu-dot"></span><span>가족코드 확인하기</span></button>
     </div>
     <div class="settings-view" id="settingsTitleView">
     <div class="settings-card">
-      <div class="settings-card-title">제목 바꾸기</div>
+      <div class="settings-card-title">한마디 바꾸기</div>
       <div style="display:flex;flex-direction:column;gap:12px;padding:10px 12px;">
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">메인화면</div>
-          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="메인화면 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">한마디</div>
+          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="응원 한마디를 적어주세요" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <button onclick="saveAppTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
@@ -4962,12 +4970,12 @@ async function saveSubjectGuideText() {
 }
 
 async function saveAppTitleOnly() {
-  const appTitle = document.getElementById('settingsAppTitle').value.trim() || '숙제 체크리스트';
+  const appTitle = document.getElementById('settingsAppTitle').value.trim();
   await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle });
   const el = document.getElementById('appTitle');
   if (el) el.textContent = appTitle;
-  document.title = appTitle;
-  showToast('✅ 메인화면 제목 저장!');
+  if (appTitle) document.title = appTitle;
+  showToast(appTitle ? '✅ 한마디 저장!' : '✅ 한마디 비움');
 }
 
 async function saveNoteTitleOnly() {
