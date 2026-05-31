@@ -2215,6 +2215,7 @@
       <button class="settings-menu-btn" onclick="showSettingsSection('title')"><span class="settings-menu-dot"></span><span>제목 바꾸기 · 메인화면 · 숙제노트</span></button>
       <button class="settings-menu-btn" onclick="showSettingsSection('password')"><span class="settings-menu-dot"></span><span>비밀번호 변경</span></button>
       <button class="settings-menu-btn" onclick="openCoinReset()"><span class="settings-menu-dot"></span><span>코인 리셋</span></button>
+      <button class="settings-menu-btn" onclick="openFamilyCodeCheck()"><span class="settings-menu-dot"></span><span>가족코드 확인하기</span></button>
     </div>
     <div class="settings-view" id="settingsTitleView">
     <div class="settings-card">
@@ -2332,6 +2333,32 @@
       <button onclick="closeCoinReset()" title="닫기" style="width:32px;height:32px;font-size:18px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;flex-shrink:0;line-height:1;">×</button>
     </div>
     <div class="pwd-error" id="coinResetError" style="margin-top:6px;margin-bottom:0;"></div>
+  </div>
+</div>
+
+<!-- 가족코드 확인 비밀번호 모달 -->
+<div class="modal-bg" id="familyCodePwdModal" onclick="if(event.target===this)closeFamilyCodePwd()">
+  <div class="modal pwd-modal" style="padding:14px;">
+    <div class="confirm-msg" style="font-size:16px;margin-bottom:8px;">가족코드를 확인할까요?<br>비밀번호를 입력하세요</div>
+    <div style="display:flex;align-items:center;gap:6px;justify-content:center;">
+      <input type="tel" class="pwd-input" id="familyCodePwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="margin-bottom:0;flex:1;" onkeypress="if(event.key==='Enter')confirmFamilyCodePwd()">
+      <button class="login-confirm-btn" onclick="confirmFamilyCodePwd()" title="확인">✓</button>
+      <button onclick="closeFamilyCodePwd()" title="닫기" style="width:32px;height:32px;font-size:18px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;flex-shrink:0;line-height:1;">×</button>
+    </div>
+    <div class="pwd-error" id="familyCodePwdError" style="margin-top:6px;margin-bottom:0;"></div>
+  </div>
+</div>
+
+<!-- 가족코드 표시 모달 -->
+<div class="modal-bg" id="familyCodeShowModal" onclick="if(event.target===this)closeFamilyCodeShow()">
+  <div class="modal pwd-modal" style="padding:18px;">
+    <div class="pwd-modal-title">우리 가족 코드</div>
+    <div class="pwd-modal-sub" style="margin-bottom:12px;font-size:13px;color:#888;">코드를 공유하면 가족이 입장할 수 있어요</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
+      <div id="familyCodeDisplay" style="flex:1;background:#F5EDD7;border:2px solid #4A2F1B;border-radius:8px;padding:14px;font-family:'Gaegu',cursive;font-size:26px;font-weight:700;color:#4A2F1B;text-align:center;letter-spacing:4px;">------</div>
+      <button onclick="copyFamilyCode()" title="복사" style="background:#5A8A5E;color:white;border:2px solid #2E5A32;border-radius:8px;padding:0 14px;height:54px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #2E5A32;flex-shrink:0;">📋<br>복사</button>
+    </div>
+    <button onclick="closeFamilyCodeShow()" style="width:100%;padding:10px;background:#4A2F1B;color:white;border:none;border-radius:8px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;">닫기</button>
   </div>
 </div>
 
@@ -2675,6 +2702,57 @@ function deleteNoteLineFromModal(idx) {
   noteLines.splice(idx, 1);
   renderNoteModal();
   saveNoteLines();
+}
+
+/* ====== 가족코드 확인 ====== */
+function openFamilyCodeCheck() {
+  document.getElementById('familyCodePwd').value = '';
+  document.getElementById('familyCodePwdError').textContent = '';
+  document.getElementById('familyCodePwdModal').classList.add('show');
+  setTimeout(() => document.getElementById('familyCodePwd').focus(), 100);
+}
+function closeFamilyCodePwd() {
+  document.getElementById('familyCodePwdModal').classList.remove('show');
+}
+function confirmFamilyCodePwd() {
+  const pwd = document.getElementById('familyCodePwd').value;
+  if (!pwd) { document.getElementById('familyCodePwdError').textContent = '비밀번호를 입력하세요'; return; }
+  if (pwd !== currentUser.pin) {
+    document.getElementById('familyCodePwdError').textContent = '비밀번호가 틀려요 ❌';
+    soundError();
+    document.getElementById('familyCodePwd').value = '';
+    return;
+  }
+  closeFamilyCodePwd();
+  const code = getFamilyCode() || '------';
+  document.getElementById('familyCodeDisplay').textContent = code;
+  document.getElementById('familyCodeShowModal').classList.add('show');
+}
+function closeFamilyCodeShow() {
+  document.getElementById('familyCodeShowModal').classList.remove('show');
+}
+function copyFamilyCode() {
+  const code = document.getElementById('familyCodeDisplay').textContent;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(() => {
+      showToast('📋 가족코드 복사됨!');
+    }).catch(() => fallbackCopy(code));
+  } else {
+    fallbackCopy(code);
+  }
+}
+function fallbackCopy(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('📋 가족코드 복사됨!');
+  } catch(e) { showToast('복사 실패. 수동으로 복사해주세요.'); }
 }
 
 /* ====== 코인 리셋 ====== */
