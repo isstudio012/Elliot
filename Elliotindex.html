@@ -3468,8 +3468,21 @@ async function loadAllData() {
   }
 }
 
+/* 자녀별 필터링: 자녀 본인은 자기것만, 부모는 selectedChildId 선택자 것만 */
+let selectedChildId = null; // 부모가 보고 있는 자녀 ID
+
+function getActiveMemberId() {
+  if (!currentUser) return null;
+  if (currentUser.role === 'child') return currentUser.id;
+  // 부모: 선택된 자녀 ID, 없으면 첫 번째 자녀
+  if (selectedChildId) return selectedChildId;
+  const firstChild = cachedMembers.find(m => m.role === 'child');
+  return firstChild ? firstChild.id : null;
+}
+
 function getSubjectsForDate(dk) {
-  return cachedSubjects.filter(s => s.date_key === dk);
+  const memberId = getActiveMemberId();
+  return cachedSubjects.filter(s => s.date_key === dk && (!memberId || !s.member_id || s.member_id === memberId));
 }
 function getTasksForSubject(dk, subjectId) {
   return cachedTasks.filter(t => t.date_key === dk && t.subject_id === subjectId).sort((a,b) => a.sort_order - b.sort_order);
@@ -3657,14 +3670,30 @@ function renderTasks() {
   
   const container = document.getElementById('subjects');
   container.innerHTML = '';
-  
+
+  // 자녀 선택 칩 (부모만)
+  if (isParent()) {
+    const children = cachedMembers.filter(m => m.role === 'child');
+    if (children.length > 0) {
+      if (!selectedChildId || !children.find(c => c.id === selectedChildId)) {
+        selectedChildId = children[0].id;
+      }
+      const chipBar = document.createElement('div');
+      chipBar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px;';
+      chipBar.innerHTML = children.map(c => {
+        const active = c.id === selectedChildId;
+        return `<button onclick="selectChild('${c.id}')" style="padding:5px 14px;border-radius:16px;border:1.5px solid ${active?'#2E7D32':'#C8A47C'};background:${active?'#5A8A5E':'white'};color:${active?'white':'#4A2F1B'};font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">${c.name}</button>`;
+      }).join('');
+      container.appendChild(chipBar);
+    }
+  }
+
   const subs = getSubjectsForDate(dk);
-  
+
   if (subs.length === 0) {
-    container.innerHTML = '';
     return;
   }
-  
+
   // 선택삭제 컨트롤 바 (부모만)
   if (isParent()) {
     const bar = document.createElement('div');
@@ -3824,8 +3853,10 @@ async function addSubject() {
   
   const id = genId();
   const familyCode = getFamilyCode();
+  const memberId = getActiveMemberId();
+  if (!memberId) { err.textContent = '자녀를 먼저 선택하세요'; soundError(); return; }
   const { error } = await sb.from('subjects').insert({
-    id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000, family_id: familyCode
+    id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000, family_id: familyCode, member_id: memberId
   });
   
   if (error) { err.textContent = '오류: ' + error.message; soundError(); return; }
@@ -3955,6 +3986,7 @@ async function deleteTask(taskId, dk) {
 }
 
 /* ====== 선택 삭제 (부모) ====== */
+function selectChild(memberId) { selectedChildId = memberId; renderAll(); }
 function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderTasks(); }
 function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderTasks(); }
 function toggleSelectSubject(e, id) {
