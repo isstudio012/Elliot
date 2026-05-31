@@ -1486,6 +1486,98 @@
   }
   .chat-emoji-panel button:active { background: #F0F0F0; }
 
+  /* ====== 과목 컨트롤 바 ====== */
+  .subject-ctrl-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .subject-ctrl-left {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+  }
+  .subject-ctrl-right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  /* 자녀 선택 드롭다운 버튼 */
+  .child-select-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #5A8A5E;
+    color: white;
+    border: 1.5px solid #2E5A32;
+    border-radius: 20px;
+    font-family: 'Gaegu', cursive;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #2E5A32;
+    white-space: nowrap;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .child-select-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A32; }
+  .child-select-arrow { font-size: 10px; flex-shrink: 0; transition: transform 0.2s; }
+  .child-select-arrow.open { transform: rotate(180deg); }
+  /* 드롭다운 목록 */
+  .child-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 140px;
+    background: white;
+    border: 2px solid #4A2F1B;
+    border-radius: 12px;
+    box-shadow: 4px 4px 0 #4A2F1B;
+    z-index: 200;
+    overflow: hidden;
+  }
+  .child-dropdown.open { display: block; }
+  .child-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    font-family: 'Gaegu', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: #4A2F1B;
+    cursor: pointer;
+    border-bottom: 1px dashed #E0D0BC;
+  }
+  .child-dropdown-item:last-child { border-bottom: none; }
+  .child-dropdown-item:active { background: #F5EDD7; }
+  .child-dropdown-item.active { background: #E8F5E9; color: #2E7D32; }
+  .child-dropdown-check { font-size: 14px; color: #5A8A5E; }
+  .add-sub-bar-btn {
+    padding: 6px 12px;
+    background: #4A90D9;
+    color: white;
+    border: 1.5px solid #2E5A8A;
+    border-radius: 8px;
+    font-family: 'Gaegu', cursive;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 #2E5A8A;
+    white-space: nowrap;
+  }
+  .add-sub-bar-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A8A; }
+  .select-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
   /* 앱 영역 숨김 */
   .app-main { display: none; }
   .app-main.show { display: block; }
@@ -1991,8 +2083,17 @@
     </div>
     
     <div class="selected-date" id="selectedDate"></div>
+    <!-- 과목 컨트롤 바: 자녀선택 드롭다운 + 과목추가 + 선택삭제 -->
+    <div class="subject-ctrl-bar" id="subjectCtrlBar">
+      <div class="subject-ctrl-left" id="childDropdownWrap">
+        <!-- 드롭다운 버튼 (renderControlBar에서 채워짐) -->
+      </div>
+      <div class="subject-ctrl-right">
+        <button class="add-sub-bar-btn" onclick="openAddSubject()">+ 과목추가</button>
+        <div class="select-bar-wrap" id="selectBarWrap"></div>
+      </div>
+    </div>
     <div id="subjects"></div>
-    <button class="add-subject-btn" onclick="openAddSubject()">+ 과목 추가</button>
     <div id="momSection"></div>
   </div>
 </div>
@@ -2226,6 +2327,17 @@
       <button onclick="closeDeleteSelectedModal()" title="닫기" style="width:32px;height:32px;font-size:18px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;flex-shrink:0;line-height:1;">×</button>
     </div>
     <div class="pwd-error" id="deleteSelectedError" style="margin-top:6px;margin-bottom:0;"></div>
+  </div>
+</div>
+
+<!-- 권한 선택 모달 (프로필 추가) -->
+<div class="modal-bg" id="roleSelectModal">
+  <div class="modal" style="padding:18px 20px;text-align:center;max-width:260px;">
+    <div style="font-family:'Gaegu',cursive;font-size:17px;font-weight:700;color:#4A2F1B;margin-bottom:14px;">권한 선택하세요</div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button onclick="confirmAddProfile('parent')" style="background:#4CAF50;border:2px solid #2E7D32;color:white;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 #2E7D32;">부모</button>
+      <button onclick="confirmAddProfile('child')" style="background:#1976D2;border:2px solid #0D47A1;color:white;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 #0D47A1;">자녀</button>
+    </div>
   </div>
 </div>
 
@@ -3474,10 +3586,10 @@ let selectedChildId = null; // 부모가 보고 있는 자녀 ID
 function getActiveMemberId() {
   if (!currentUser) return null;
   if (currentUser.role === 'child') return currentUser.id;
-  // 부모: 선택된 자녀 ID, 없으면 첫 번째 자녀
+  // 부모: 선택된 자녀 ID, 없으면 첫 번째 자녀, 자녀 없으면 부모 자신
   if (selectedChildId) return selectedChildId;
   const firstChild = cachedMembers.find(m => m.role === 'child');
-  return firstChild ? firstChild.id : null;
+  return firstChild ? firstChild.id : currentUser.id;
 }
 
 function getSubjectsForDate(dk) {
@@ -3552,10 +3664,86 @@ async function refreshMembersNow() {
 /* ====== 렌더링 ====== */
 function renderAll() {
   renderCalendar();
+  renderControlBar();
   renderTasks();
   renderMomSection();
   renderCoins();
 }
+
+let _childDropdownOpen = false;
+
+function renderControlBar() {
+  const dropWrap = document.getElementById('childDropdownWrap');
+  const selectWrap = document.getElementById('selectBarWrap');
+  if (!dropWrap || !selectWrap) return;
+
+  // 자녀 드롭다운 (부모만)
+  dropWrap.innerHTML = '';
+  if (isParent()) {
+    const children = cachedMembers.filter(m => m.role === 'child');
+    if (children.length > 0) {
+      if (!selectedChildId || !children.find(c => c.id === selectedChildId)) {
+        selectedChildId = children[0].id;
+      }
+      const selected = children.find(c => c.id === selectedChildId) || children[0];
+
+      const wrap = document.createElement('div');
+      wrap.style.position = 'relative';
+
+      // 드롭다운 버튼
+      const btn = document.createElement('button');
+      btn.className = 'child-select-btn';
+      btn.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;">${esc(selected.name)}</span><span class="child-select-arrow${_childDropdownOpen ? ' open' : ''}">▼</span>`;
+      btn.onclick = (e) => { e.stopPropagation(); toggleChildDropdown(); };
+      wrap.appendChild(btn);
+
+      // 드롭다운 목록
+      const dropdown = document.createElement('div');
+      dropdown.className = 'child-dropdown' + (_childDropdownOpen ? ' open' : '');
+      dropdown.id = 'childDropdownList';
+      children.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'child-dropdown-item' + (c.id === selectedChildId ? ' active' : '');
+        item.innerHTML = `${c.id === selectedChildId ? '<span class="child-dropdown-check">✓</span>' : '<span style="width:14px;display:inline-block;"></span>'} ${esc(c.name)}`;
+        item.onclick = (e) => { e.stopPropagation(); selectChild(c.id); };
+        dropdown.appendChild(item);
+      });
+      wrap.appendChild(dropdown);
+      dropWrap.appendChild(wrap);
+    }
+  }
+
+  // 선택/삭제 버튼 (부모만, 과목이 있을 때만)
+  selectWrap.innerHTML = '';
+  if (isParent()) {
+    const subs = getSubjectsForDate(selectedDate);
+    if (subs.length > 0) {
+      if (!selectMode) {
+        selectWrap.innerHTML = `<button onclick="enterSelectMode()" style="padding:6px 10px;background:white;color:#2E7D32;border:1.5px solid #2E7D32;border-radius:8px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">선택/삭제</button>`;
+      } else {
+        const n = selectedSubjects.size + selectedTasks.size;
+        selectWrap.innerHTML = `
+          <div style="display:flex;background:white;border:1.5px solid #2E7D32;border-radius:8px;overflow:hidden;">
+            <button onclick="deleteSelected()" ${n===0?'disabled':''} style="background:${n===0?'#ccc':'#2E7D32'};color:white;border:none;padding:6px 8px;font-family:Gaegu,cursive;font-size:12px;font-weight:700;cursor:${n===0?'default':'pointer'};white-space:nowrap;">삭제(${n})</button>
+            <button onclick="exitSelectMode()" style="background:white;color:#999;border:none;border-left:1px solid #2E7D32;padding:6px 6px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">✕</button>
+          </div>
+        `;
+      }
+    }
+  }
+}
+
+function toggleChildDropdown() {
+  _childDropdownOpen = !_childDropdownOpen;
+  renderControlBar();
+}
+
+function closeChildDropdown() {
+  if (_childDropdownOpen) { _childDropdownOpen = false; renderControlBar(); }
+}
+
+// 드롭다운 외부 클릭 시 닫기
+document.addEventListener('click', () => closeChildDropdown());
 
 function renderCoins() {
   document.getElementById('coinAmount').textContent = cachedCoins.amount;
@@ -3671,47 +3859,10 @@ function renderTasks() {
   const container = document.getElementById('subjects');
   container.innerHTML = '';
 
-  // 자녀 선택 칩 (부모만)
-  if (isParent()) {
-    const children = cachedMembers.filter(m => m.role === 'child');
-    if (children.length > 0) {
-      if (!selectedChildId || !children.find(c => c.id === selectedChildId)) {
-        selectedChildId = children[0].id;
-      }
-      const chipBar = document.createElement('div');
-      chipBar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px;';
-      chipBar.innerHTML = children.map(c => {
-        const active = c.id === selectedChildId;
-        return `<button onclick="selectChild('${c.id}')" style="padding:5px 14px;border-radius:16px;border:1.5px solid ${active?'#2E7D32':'#C8A47C'};background:${active?'#5A8A5E':'white'};color:${active?'white':'#4A2F1B'};font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">${c.name}</button>`;
-      }).join('');
-      container.appendChild(chipBar);
-    }
-  }
-
   const subs = getSubjectsForDate(dk);
 
   if (subs.length === 0) {
     return;
-  }
-
-  // 선택삭제 컨트롤 바 (부모만)
-  if (isParent()) {
-    const bar = document.createElement('div');
-    bar.style.cssText = 'display:flex;gap:8px;margin:0 0 8px;';
-    if (!selectMode) {
-      bar.style.justifyContent = 'flex-end';
-      bar.innerHTML = `<button onclick="enterSelectMode()" style="width:110px;background:white;color:#2E7D32;border:1.5px solid #2E7D32;border-radius:8px;padding:5px 0;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">선택/삭제</button>`;
-    } else {
-      const n = selectedSubjects.size + selectedTasks.size;
-      bar.style.justifyContent = 'flex-end';
-      bar.innerHTML = `
-        <div style="display:flex;width:110px;background:white;border:1.5px solid #2E7D32;border-radius:8px;overflow:hidden;">
-          <button onclick="deleteSelected()" ${n===0?'disabled':''} style="flex:7;background:${n===0?'#ccc':'#2E7D32'};color:white;border:none;padding:5px 1px;font-family:Gaegu,cursive;font-size:12px;font-weight:700;cursor:${n===0?'default':'pointer'};white-space:nowrap;">선택 삭제 (${n})</button>
-          <button onclick="exitSelectMode()" style="flex:3;background:white;color:#999;border:none;border-left:1px solid #2E7D32;padding:5px 0;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">✕</button>
-        </div>
-      `;
-    }
-    container.appendChild(bar);
   }
   
   subs.forEach(s => {
@@ -3722,17 +3873,11 @@ function renderTasks() {
     const sEl = document.createElement('div');
     sEl.className = 'subject';
     
-    // 삭제 버튼은 부모만 보이게
-    const deleteBtn = isParent() 
-      ? `<button class="subject-delete-btn" title="과목 삭제" onclick="event.stopPropagation();">−</button>` 
-      : '';
-    
     sEl.innerHTML = `
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};" onclick="toggleSubject('${s.id}')">
         <span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}">▼</span>
         <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
         <span class="subject-status">${done}/${tasks.length}</span>
-        ${deleteBtn}
         ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
       </div>
       <div class="subject-body ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-body-${s.id}">
@@ -3741,11 +3886,7 @@ function renderTasks() {
       </div>
     `;
     container.appendChild(sEl);
-    
-    if (isParent()) {
-      const delBtn = sEl.querySelector('.subject-delete-btn');
-      if (delBtn) delBtn.addEventListener('click', () => openDeleteSubject(s.id));
-    }
+
     sEl.querySelector('.add-btn').addEventListener('click', () => addTask(s.id, dk));
     
     const list = sEl.querySelector(`#list-${s.id}`);
@@ -3753,24 +3894,14 @@ function renderTasks() {
       const tEl = document.createElement('div');
       tEl.className = 'task' + (task.done ? ' done' : '');
       
-      // 삭제 버튼은 부모만
-      const taskDel = isParent() 
-        ? `<button class="delete-btn" title="삭제">−</button>` 
-        : '';
-      
       tEl.innerHTML = `
         <div class="checkbox"></div>
         <input type="text" class="task-input" placeholder="내용을 입력하세요" value="${esc(task.text)}" onfocus="this.select()">
-        ${taskDel}
         ${isParent() && selectMode ? `<span class="sel-box ${selectedTasks.has(task.id)?'on':''}" onclick="toggleSelectTask(event,'${task.id}')">${selectedTasks.has(task.id)?'✓':''}</span>` : ''}
       `;
       tEl.querySelector('.checkbox').addEventListener('click', () => toggleTask(task));
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
       tEl.querySelector('.task-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
-      if (isParent()) {
-        const db = tEl.querySelector('.delete-btn');
-        if (db) db.addEventListener('click', () => deleteTask(task.id, dk));
-      }
       list.appendChild(tEl);
     });
     // 방금 추가된 과목이면 마지막 숙제 줄만 부드럽게 등장
@@ -3986,18 +4117,18 @@ async function deleteTask(taskId, dk) {
 }
 
 /* ====== 선택 삭제 (부모) ====== */
-function selectChild(memberId) { selectedChildId = memberId; renderAll(); }
-function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderTasks(); }
-function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderTasks(); }
+function selectChild(memberId) { selectedChildId = memberId; _childDropdownOpen = false; renderAll(); }
+function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
+function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
 function toggleSelectSubject(e, id) {
   e.stopPropagation();
   if (selectedSubjects.has(id)) selectedSubjects.delete(id); else selectedSubjects.add(id);
-  renderTasks();
+  renderControlBar(); renderTasks();
 }
 function toggleSelectTask(e, id) {
   e.stopPropagation();
   if (selectedTasks.has(id)) selectedTasks.delete(id); else selectedTasks.add(id);
-  renderTasks();
+  renderControlBar(); renderTasks();
 }
 async function deleteSelected() {
   if (!isParent()) return;
@@ -4518,7 +4649,24 @@ function handleMemberPhotoUpload(event, memberId) {
 }
 
 async function addLoginProfile() {
-  // 추후 구현
+  document.getElementById('roleSelectModal').classList.add('show');
+}
+
+async function confirmAddProfile(role) {
+  document.getElementById('roleSelectModal').classList.remove('show');
+  const familyCode = getFamilyCode();
+  if (!familyCode) return;
+  const id = 'member_' + Date.now();
+  const count = cachedMembers.length + 1;
+  const member = { id, name: '프로필 ' + count, role, pin: '0000', family_id: familyCode };
+  const { error } = await sb.from('members').insert(member);
+  if (error) { showToast('추가 실패: ' + error.message); return; }
+  saveMemberColor(id, role === 'parent' ? '#5A8A5E' : '#4A90D9');
+  cachedMembers.push(member);
+  renderMemberSettings();
+  renderPasswordSettings();
+  refreshLoginCardsIfVisible();
+  showToast(`${role === 'parent' ? '부모' : '자녀'} 프로필 추가됨! 이름과 비밀번호(0000)를 변경해주세요.`);
 }
 
 async function deleteLoginProfile(memberId) {
