@@ -4183,7 +4183,7 @@ async function toggleTask(task) {
     sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).then(() => {});
   } else if (wasConfirmed) {
     sb.from('coins').update({ amount: cachedCoins.amount }).eq('family_id', getFamilyCode()).then(() => {});
-    sb.from('confirmations').delete().eq('date_key', dk).then(() => {});
+    sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).then(() => {});
   } else {
     sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).then(() => {});
   }
@@ -4211,7 +4211,7 @@ async function deleteTask(taskId, dk) {
     await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode());
   }
   await sb.from('tasks').delete().eq('id', taskId);
-  await sb.from('confirmations').delete().eq('date_key', dk);
+  await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode());
   showToast('🗑️ 숙제가 삭제됐어요');
   await refreshData();
 }
@@ -4284,7 +4284,7 @@ async function confirmDeleteSelected() {
   // 개별 선택 숙제 삭제
   if (taskIds.length) await sb.from('tasks').delete().in('id', taskIds);
   // 영향받은 날짜 확정 취소
-  for (const dk of affectedDates) await sb.from('confirmations').delete().eq('date_key', dk);
+  for (const dk of affectedDates) await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode());
 
   selectMode = false; selectedSubjects.clear(); selectedTasks.clear();
   showToast('선택 항목 삭제됨 🗑️');
@@ -4405,23 +4405,33 @@ function openAddSubject() {
   };
 })();
 
+/* ====== 가족코드별 localStorage 키 ====== */
+function presetKey() {
+  const fc = getFamilyCode();
+  return fc ? ('subject_presets_' + fc) : 'subject_presets';
+}
+function favoritesKey() {
+  const fc = getFamilyCode();
+  return fc ? ('subject_favorites_' + fc) : 'subject_favorites';
+}
+
 function getPresets() {
   try {
-    return JSON.parse(localStorage.getItem('subject_presets') || '[]');
+    return JSON.parse(localStorage.getItem(presetKey()) || '[]');
   } catch(e) { return []; }
 }
 function savePresets(list) {
-  localStorage.setItem('subject_presets', JSON.stringify(list));
+  localStorage.setItem(presetKey(), JSON.stringify(list));
 }
 
 /* ====== 즐겨찾기 ====== */
 function getFavorites() {
   try {
-    return JSON.parse(localStorage.getItem('subject_favorites') || '[]');
+    return JSON.parse(localStorage.getItem(favoritesKey()) || '[]');
   } catch(e) { return []; }
 }
 function saveFavorites(list) {
-  localStorage.setItem('subject_favorites', JSON.stringify(list));
+  localStorage.setItem(favoritesKey(), JSON.stringify(list));
 }
 function isFavorite(name) {
   return getFavorites().some(f => f.toLowerCase() === name.toLowerCase());
@@ -4791,12 +4801,14 @@ function renderPasswordSettings() {
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
     return `
-      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;flex-wrap:wrap;">
           <span class="member-index-dot" style="background:${color};flex-shrink:0;">${n}</span>
-          <input type="tel" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <input type="tel" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비번" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <span style="font-family:'Gaegu',cursive;font-size:14px;font-weight:700;color:#111;min-width:60px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)}</span>
+          <input type="tel" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비번" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <input type="tel" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비번" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">변경</button>
-        <div class="pwd-error" id="settingsError-${m.id}" style="min-height:0;display:none;"></div>
+          <button onclick="resetMemberPwd('${m.id}')" title="비밀번호를 0000으로 초기화" style="flex-shrink:0;padding:10px 12px;background:#E87722;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:13px;font-weight:700;cursor:pointer;">리셋<br><span style="font-size:11px;">0000</span></button>
+        <div class="pwd-error" id="settingsError-${m.id}" style="min-height:0;display:none;width:100%;"></div>
       </div>
     `;
   }).join('');
@@ -5073,6 +5085,20 @@ async function changePwd() {
   soundFanfare();
   closeSettings();
   showToast('🔐 비밀번호가 변경됐어요!');
+}
+
+async function resetMemberPwd(memberId) {
+  const member = cachedMembers.find(m => m.id === memberId);
+  if (!member) return;
+  if (!confirm(`"${member.name}" 비밀번호를 0000으로 초기화할까요?`)) return;
+  await sb.from('members').update({ pin: '0000' }).eq('id', memberId);
+  member.pin = '0000';
+  if (currentUser && currentUser.id === memberId) {
+    currentUser.pin = '0000';
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }
+  soundFanfare();
+  showToast(`✅ "${member.name}" 비밀번호가 0000으로 리셋됐어요!`);
 }
 
 async function changeMemberPwd(memberId) {
@@ -5672,8 +5698,10 @@ function renderDayDetail(dk) {
 
 async function loadDayMemo(dk) {
   if (dayMemos[dk]) return;
+  const familyCode = getFamilyCode();
+  if (!familyCode) { dayMemos[dk] = ['']; return; }
   try {
-    const { data } = await sb.from('day_memos').select('*').eq('date_key', dk).single();
+    const { data } = await sb.from('day_memos').select('*').eq('date_key', dk).eq('family_id', familyCode).maybeSingle();
     if (data) {
       dayMemos[dk] = JSON.parse(data.memo_lines || '[""]');
     } else {
@@ -5689,12 +5717,15 @@ function debounceSaveDayMemo(dk) {
 }
 
 async function saveDayMemo(dk) {
+  const familyCode = getFamilyCode();
+  if (!familyCode) return;
   try {
     await sb.from('day_memos').upsert({
       date_key: dk,
+      family_id: familyCode,
       memo_lines: JSON.stringify(dayMemos[dk] || ['']),
       updated_at: new Date().toISOString()
-    }, { onConflict: 'date_key' });
+    }, { onConflict: 'date_key,family_id' });
   } catch(e) { console.log('day memo save error', e); }
 }
 
