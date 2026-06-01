@@ -2461,9 +2461,11 @@ let selectedTasks = new Set();
 let cachedSubjects = [];
 let cachedTasks = [];
 let cachedCoins = { amount: 0, pending: {} };
+let cachedCoinsMap = {};   // { memberId: {amount, pending} } — 자녀별 코인
 let cachedConfirmations = {};
 let cachedShopItems = [];
-let cachedTickets = {};
+let cachedTickets = {};            // 활성 자녀의 티켓 { item_id: count }
+let cachedTicketsMap = {};         // { memberId: { item_id: count } }
 let cachedMembers = [];
 let noteLines = [];
 let noteTitle = '숙제노트';
@@ -2570,13 +2572,18 @@ function debounceSaveNotes() {
   noteSaveTimer = setTimeout(saveNoteLines, 800);
 }
 
+// 노트 키: 가족_자녀_날짜 (날짜별 + 자녀별 + 가족별 분리)
+function noteKey() {
+  return `${getFamilyCode()}_${getActiveMemberId()}_${selectedDate}`;
+}
+
 async function saveNoteLines() {
   if (!currentUser) return;
   try {
     const familyCode = getFamilyCode();
     if (!familyCode) return;
     await sb.from('homework_notes').upsert({
-      user_id: familyCode,
+      user_id: noteKey(),
       family_id: familyCode,
       note_title: document.getElementById('homeworkNoteTitle').textContent || '숙제노트',
       note_lines: JSON.stringify(noteLines),
@@ -2592,8 +2599,7 @@ async function saveNoteTitle() {
 async function loadNotes() {
   if (!currentUser) return;
   try {
-    const familyCode = getFamilyCode();
-    const { data } = await sb.from('homework_notes').select('*').eq('family_id', familyCode).maybeSingle();
+    const { data } = await sb.from('homework_notes').select('*').eq('user_id', noteKey()).maybeSingle();
     if (data) {
       noteLines = JSON.parse(data.note_lines || '[]');
       const titleEl = document.getElementById('homeworkNoteTitle');
@@ -2785,8 +2791,8 @@ async function confirmCoinReset() {
       amount: 0,
       pending: {},
       updated_at: new Date().toISOString()
-    }).eq('family_id', getFamilyCode());
-    
+    }).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
+
     cachedCoins.amount = 0;
     cachedCoins.pending = {};
     renderCoins();
@@ -2962,9 +2968,19 @@ async function initApp() {
       document.getElementById('familyCodeScreen').classList.add('show');
       return;
     }
-    // 재방문 시 항상 운동장(로그인) 화면으로 진입
-    localStorage.removeItem('currentUser');
-    currentUser = null;
+    // 이전 로그인 사용자가 있으면 로그인 상태 유지 (바로 메인)
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+      try {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('loadingOverlay').classList.add('hide');
+        await showMainApp();
+        return;
+      } catch (e) {
+        localStorage.removeItem('currentUser');
+        currentUser = null;
+      }
+    }
     await showLoginScreen();
   } catch (e) {
     console.log('init/showLoginScreen error', JSON.stringify(e), e?.message, e?.code);
@@ -3615,7 +3631,7 @@ async function loadAllData() {
   const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes, memRes] = await Promise.all([
     sb.from('subjects').select('*').eq('family_id', familyCode).order('sort_order'),
     sb.from('tasks').select('*').eq('family_id', familyCode).order('sort_order'),
-    sb.from('coins').select('*').eq('family_id', familyCode).maybeSingle(),
+    sb.from('coins').select('*').eq('family_id', familyCode),
     sb.from('confirmations').select('*').eq('family_id', familyCode),
     sb.from('shop_items').select('*').eq('family_id', familyCode),
     sb.from('tickets').select('*').eq('family_id', familyCode),
@@ -3625,19 +3641,35 @@ async function loadAllData() {
   
   cachedSubjects = subRes.data || [];
   cachedTasks = taskRes.data || [];
-  if (coinRes.data) {
-    cachedCoins = { amount: coinRes.data.amount, pending: coinRes.data.pending || {} };
-  } else {
-    // 새 가족이면 coins row 자동 생성 (id는 정수 auto-increment이므로 생략)
-    cachedCoins = { amount: 0, pending: {} };
-    await sb.from('coins').insert({ member_id: 'coin_' + familyCode, family_id: familyCode, amount: 0, pending: {} });
+  cachedMembers = memRes.data || [];
+
+  // 코인: 자녀(member_id)별 맵 구성 (중복 행은 첫 행만)
+  cachedCoinsMap = {};
+  (coinRes.data || []).forEach(c => {
+    if (!cachedCoinsMap[c.member_id]) cachedCoinsMap[c.member_id] = { amount: c.amount || 0, pending: c.pending || {} };
+  });
+  // 모든 자녀(자녀 없으면 현재 사용자) 코인 행 보장 — 자녀 전환 시 UPDATE 대상 보장
+  const _childMembers = cachedMembers.filter(m => m.role === 'child');
+  const _ensureIds = _childMembers.length > 0 ? _childMembers.map(m => m.id) : (currentUser ? [currentUser.id] : []);
+  for (const cid of _ensureIds) {
+    if (cid && !cachedCoinsMap[cid]) {
+      cachedCoinsMap[cid] = { amount: 0, pending: {} };
+      await sb.from('coins').insert({ member_id: cid, family_id: familyCode, amount: 0, pending: {} });
+    }
   }
+
+  // 티켓: 자녀(member_id)별 맵 구성
+  cachedTicketsMap = {};
+  (tickRes.data || []).forEach(t => {
+    if (!cachedTicketsMap[t.member_id]) cachedTicketsMap[t.member_id] = {};
+    cachedTicketsMap[t.member_id][t.item_id] = t.count;
+  });
+
+  syncActiveCoins(); // cachedCoins / cachedTickets 를 활성 자녀로 설정
+
   cachedConfirmations = {};
   (confRes.data || []).forEach(c => { cachedConfirmations[c.date_key] = c; });
   cachedShopItems = shopRes.data || [];
-  cachedTickets = {};
-  (tickRes.data || []).forEach(t => { cachedTickets[t.item_id] = t.count; });
-  cachedMembers = memRes.data || [];
   
   const settings = {};
   (settRes.data || []).forEach(s => { settings[s.key] = s.value; });
@@ -3676,6 +3708,15 @@ function getActiveMemberId() {
   if (selectedChildId) return selectedChildId;
   const firstChild = cachedMembers.find(m => m.role === 'child');
   return firstChild ? firstChild.id : currentUser.id;
+}
+
+/* ====== 자녀별 코인/티켓 헬퍼 ====== */
+function coinOwnerId() { return getActiveMemberId(); }
+function syncActiveCoins() {
+  const mid = coinOwnerId();
+  if (!cachedCoinsMap[mid]) cachedCoinsMap[mid] = { amount: 0, pending: {} };
+  cachedCoins = cachedCoinsMap[mid];
+  cachedTickets = cachedTicketsMap[mid] || (cachedTicketsMap[mid] = {});
 }
 
 function getSubjectsForDate(dk) {
@@ -3757,6 +3798,7 @@ async function refreshMembersNow() {
 
 /* ====== 렌더링 ====== */
 function renderAll() {
+  syncActiveCoins(); // 활성 자녀의 코인/티켓으로 동기화
   renderCalendar();
   renderControlBar();
   renderTasks();
@@ -3929,7 +3971,7 @@ function renderCalendar() {
     }
     
     cell.innerHTML = html;
-    cell.onclick = () => { soundClick(); selectedDate = key; renderAll(); };
+    cell.onclick = () => { soundClick(); selectedDate = key; renderAll(); loadNotes(); };
     cell.ondblclick = () => { soundClick(); cell.style.transform='scale(0.88)'; setTimeout(()=>{ cell.style.transform=''; openDayDetail(key); }, 120); };
     grid.appendChild(cell);
   }
@@ -4022,9 +4064,11 @@ function renderMomSection() {
   if (confirmed) {
     const confirmer = cachedMembers.find(m => m.id === confirmed.confirmed_by);
     const cName = confirmer ? confirmer.name : '부모';
+    const childMember = cachedMembers.find(m => m.id === getActiveMemberId());
+    const childName = childMember ? childMember.name : '';
     container.innerHTML = `
       <div style="text-align:center;margin:10px 0;font-family:'Gaegu',cursive;font-size:17px;font-weight:700;color:#4A2F1B;">
-        참 잘했어요 엘리엇 <span style="color:#B86B6B;font-size:19px;">💕</span><br>
+        참 잘했어요 ${esc(childName)} <span style="color:#B86B6B;font-size:19px;">💕</span><br>
         <span style="font-size:14px;">${esc(cName)}가 확인했어요 👩</span>
       </div>
     `;
@@ -4185,13 +4229,14 @@ async function toggleTask(task) {
 
   // ---- 서버 저장 (백그라운드, 화면 안 막음) ----
   sb.from('tasks').update({ done: newDone }).eq('id', task.id).then(() => {});
+  const _co = coinOwnerId();
   if (newDone) {
-    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).then(() => {});
+    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', _co).then(() => {});
   } else if (wasConfirmed) {
-    sb.from('coins').update({ amount: cachedCoins.amount }).eq('family_id', getFamilyCode()).then(() => {});
+    sb.from('coins').update({ amount: cachedCoins.amount }).eq('family_id', getFamilyCode()).eq('member_id', _co).then(() => {});
     sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).then(() => {});
   } else {
-    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).then(() => {});
+    sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', _co).then(() => {});
   }
 }
 
@@ -4214,7 +4259,7 @@ async function deleteTask(taskId, dk) {
     } else {
       cachedCoins.pending[dk] = Math.max(0, (cachedCoins.pending[dk] || 0) - 1);
     }
-    await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode());
+    await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
   }
   await sb.from('tasks').delete().eq('id', taskId);
   await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode());
@@ -4223,7 +4268,7 @@ async function deleteTask(taskId, dk) {
 }
 
 /* ====== 선택 삭제 (부모) ====== */
-function selectChild(memberId) { selectedChildId = memberId; _childDropdownOpen = false; renderAll(); }
+function selectChild(memberId) { selectedChildId = memberId; _childDropdownOpen = false; renderAll(); loadNotes(); }
 function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
 function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
 function toggleSelectSubject(e, id) {
@@ -4280,7 +4325,7 @@ async function confirmDeleteSelected() {
       else cachedCoins.pending[t.date_key] = Math.max(0, (cachedCoins.pending[t.date_key] || 0) - 1);
     }
   }
-  await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode());
+  await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
 
   // 과목 삭제 (안의 숙제 포함)
   for (const sid of subIds) {
@@ -4307,7 +4352,7 @@ async function doConfirm() {
   
   await Promise.all([
     sb.from('confirmations').upsert({ date_key: selectedDate, confirmed_by: currentUser.id, family_id: getFamilyCode() }, { onConflict: 'date_key,family_id' }),
-    sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('family_id', getFamilyCode())
+    sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId())
   ]);
   
   soundFanfare();
@@ -4414,11 +4459,13 @@ function openAddSubject() {
 /* ====== 가족코드별 localStorage 키 ====== */
 function presetKey() {
   const fc = getFamilyCode();
-  return fc ? ('subject_presets_' + fc) : 'subject_presets';
+  const mid = getActiveMemberId();
+  return (fc ? ('subject_presets_' + fc) : 'subject_presets') + (mid ? ('_' + mid) : '');
 }
 function favoritesKey() {
   const fc = getFamilyCode();
-  return fc ? ('subject_favorites_' + fc) : 'subject_favorites';
+  const mid = getActiveMemberId();
+  return (fc ? ('subject_favorites_' + fc) : 'subject_favorites') + (mid ? ('_' + mid) : '');
 }
 
 function getPresets() {
@@ -4495,18 +4542,19 @@ function renderPresetList() {
   container.innerHTML = presets.map((name) => {
     const isActive = todaySubjects.includes(name.trim().toLowerCase());
     const fav = isFavorite(name);
+    const green = fav || isActive; // 즐겨찾기 or 오늘 추가됨 → 녹색
     const origIdx = allPresets.findIndex(p => p === name);
     const safe = escapeHTML(name).replace(/'/g, "\\'");
     return `
-      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${isActive?'#5A8A5E':'white'};color:${isActive?'white':'#4A2F1B'};border:2px solid ${isActive?'#2E5A32':'#4A2F1B'};border-radius:22px;box-shadow:2px 2px 0 ${isActive?'#2E5A32':'#4A2F1B'};font-family:'Gaegu',cursive;font-weight:700;overflow:hidden;margin:4px;">
+      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${green?'#5A8A5E':'white'};color:${green?'white':'#4A2F1B'};border:2px solid ${green?'#2E5A32':'#4A2F1B'};border-radius:22px;box-shadow:2px 2px 0 ${green?'#2E5A32':'#4A2F1B'};font-family:'Gaegu',cursive;font-weight:700;overflow:hidden;margin:4px;">
         <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
-          style="background:transparent;color:#E87722;border:none;border-right:1.5px dashed ${isActive?'rgba(255,255,255,0.6)':'#C8A47C'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
+          style="background:transparent;color:${green?'white':'#E87722'};border:none;border-right:1.5px dashed ${green?'rgba(255,255,255,0.6)':'#C8A47C'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
         <button onclick="togglePresetSubject('${safe}')"
           style="background:transparent;color:inherit;border:none;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;padding:7px 14px;flex:1;white-space:nowrap;">
           ${escapeHTML(name)}
         </button>
         <button onclick="event.stopPropagation();deletePreset(${origIdx})" title="삭제"
-          style="background:transparent;color:${isActive?'white':'#E53935'};border:none;border-left:1.5px dashed ${isActive?'rgba(255,255,255,0.4)':'#C8A47C'};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 10px;flex-shrink:0;">✕</button>
+          style="background:transparent;color:${green?'white':'#E53935'};border:none;border-left:1.5px dashed ${green?'rgba(255,255,255,0.4)':'#C8A47C'};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 10px;flex-shrink:0;">✕</button>
       </div>
     `;
   }).join('');
@@ -4609,8 +4657,14 @@ async function togglePresetSubject(name) {
     const children = cachedMembers.filter(m => m.role === 'child');
     const memberId = children.length > 0 ? getActiveMemberId() : null;
     const newSub = { id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000, family_id: familyCode, member_id: memberId };
+    // 빈 숙제 한 줄 자동 생성
+    const taskId = 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const newTask = { id: taskId, subject_id: id, date_key: selectedDate, text: '', done: false, sort_order: Date.now() % 2000000000, family_id: familyCode };
     // 즉시 캐시에 추가
     cachedSubjects.push(newSub);
+    cachedTasks.push(newTask);
+    collapsedSubjects[id] = false;
+    justAddedSubjectId = id;
     renderAll();
     renderPresetList();
     soundClick();
@@ -4619,10 +4673,13 @@ async function togglePresetSubject(name) {
     const { error } = await sb.from('subjects').insert(newSub);
     if (error) {
       cachedSubjects = cachedSubjects.filter(s => s.id !== id);
+      cachedTasks = cachedTasks.filter(t => t.id !== taskId);
       renderAll();
       renderPresetList();
       showToast('❌ ' + (error.message || '추가 실패'));
+      return;
     }
+    await sb.from('tasks').insert(newTask);
   }
 }
 
@@ -5211,6 +5268,8 @@ function renderOwned() {
 async function renderPurchaseHistory() {
   const { data } = await sb.from('purchase_history')
     .select('*')
+    .eq('family_id', getFamilyCode())
+    .eq('member_id', coinOwnerId())
     .order('created_at', { ascending: false })
     .limit(10);
   const el = document.getElementById('purchaseHistoryList');
@@ -5229,13 +5288,16 @@ async function buyItem(item) {
   if (cachedCoins.amount < item.price) return;
   if (!confirm(`${item.icon || '🎁'} ${item.name} 을(를) 구매할까요? (${item.price} 💰)`)) return;
   
+  const ownerId = coinOwnerId();
   const newAmount = cachedCoins.amount - item.price;
   const newCount = (cachedTickets[item.id] || 0) + 1;
-  
+  cachedCoins.amount = newAmount;
+  cachedTickets[item.id] = newCount;
+
   await Promise.all([
-    sb.from('coins').update({ amount: newAmount }).eq('family_id', getFamilyCode()),
-    sb.from('tickets').upsert({ item_id: item.id, member_id: getFamilyCode(), family_id: getFamilyCode(), count: newCount }),
-    sb.from('purchase_history').insert({ member_id: currentUser.id, item_name: item.name, item_icon: item.icon || '🎁', price: item.price, family_id: getFamilyCode() })
+    sb.from('coins').update({ amount: newAmount }).eq('family_id', getFamilyCode()).eq('member_id', ownerId),
+    sb.from('tickets').upsert({ item_id: item.id, member_id: ownerId, family_id: getFamilyCode(), count: newCount }, { onConflict: 'item_id,member_id' }),
+    sb.from('purchase_history').insert({ member_id: ownerId, item_name: item.name, item_icon: item.icon || '🎁', price: item.price, family_id: getFamilyCode() })
   ]);
   
   // 채팅으로 요청 메시지 자동 전송
