@@ -15,13 +15,18 @@
 <meta property="og:description" content="가족 숙제 체크 & 코인 보상 앱">
 <meta property="og:image" content="https://isstudio012.github.io/Elliot/OG.png">
 <meta property="og:url" content="https://isstudio012.github.io">
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  /* Pretendard 굵기 규칙 */
+  h1, h2, h3, .subject-name-input, .settings-header-title,
+  .setup-section-title, .homework-note-title, .subject-header { font-weight: 700; }
+  button { font-family: 'Pretendard', sans-serif; font-weight: 600; }
+  input, textarea { font-family: 'Pretendard', sans-serif; font-weight: 400; }
   
   body {
-    font-family: 'Gowun Dodum', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     background: #F5EDD7;
     min-height: 100vh;
     padding: 12px 10px 30px;
@@ -57,7 +62,7 @@
     left: 50%;
     top: calc(50% - 44px);
     transform: translateX(-50%);
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: #5A3A2A;
@@ -103,7 +108,7 @@
     cursor: pointer;
   }
   .login-toggle-label {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
     color: #4A2F1B;
@@ -152,7 +157,7 @@
     left: 50%;
     top: 10px;
     transform: translateX(-50%);
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 32px;
     font-weight: 700;
     color: rgba(74,47,27,0.35);
@@ -165,7 +170,7 @@
     left: 50%;
     bottom: 10px;
     transform: translateX(-50%);
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 32px;
     font-weight: 700;
     color: rgba(74,47,27,0.35);
@@ -237,7 +242,7 @@
     flex: 0 0 auto;
   }
   .login-member-btn .name {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 11px;
     font-weight: 700;
     color: #4A2F1B;
@@ -272,7 +277,7 @@
     padding: 5px 8px;
     border: 2px solid #555555;
     border-radius: 8px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     text-align: center;
     outline: none;
@@ -282,7 +287,7 @@
   .login-pin-input:focus { border-color: #333333; }
   .login-error {
     color: #B86B6B;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 12px;
     min-height: 14px;
   }
@@ -319,7 +324,7 @@
     border: none;
     background: transparent;
     color: #1F1711;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 18px;
     font-weight: 700;
     text-align: left;
@@ -341,7 +346,7 @@
     box-shadow: none;
   }
   .settings-card-title {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     font-weight: 700;
     color: #2E5A32;
@@ -352,7 +357,7 @@
   .settings-line-label {
     width: 80px;
     color: #111;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 15px;
     font-weight: 700;
     flex: 0 0 auto;
@@ -376,7 +381,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 18px;
     font-weight: 700;
     border: none;
@@ -407,7 +412,7 @@
     box-shadow: 0 8px 32px rgba(0,0,0,0.25);
   }
   .color-palette-title {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 15px;
     font-weight: 700;
     color: #4A2F1B;
@@ -449,7 +454,7 @@
     gap: 8px;
   }
   .color-palette-cancel {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
     color: #888;
@@ -459,7 +464,7 @@
     padding: 5px 10px;
   }
   .color-palette-confirm {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
     color: white;
@@ -479,7 +484,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
@@ -500,7 +505,7 @@
     border: none;
     background: transparent;
     color: #111;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 24px;
     font-weight: 700;
     cursor: pointer;
@@ -514,7 +519,7 @@
     background: transparent;
     color: #5A8A5E;
     border: none;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 34px;
     font-weight: 700;
     cursor: pointer;
@@ -528,7 +533,7 @@
     margin-left: 30px;
   }
   .member-add-label {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
     color: #111;
@@ -541,13 +546,13 @@
     color: white;
     border: none;
     border-radius: 6px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
   }
   .logout-btn {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     color: #A8967C;
     background: none;
@@ -567,7 +572,7 @@
     border-bottom: 1px solid #7C5A3A;
   }
   .top-nav-btn {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     font-weight: 700;
     color: #7C5A3A;
@@ -638,7 +643,7 @@
     min-width: 0;
   }
   .profile-msg h1 {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 26px;
     font-weight: 700;
     letter-spacing: -1px;
@@ -684,7 +689,7 @@
     min-width: 0;
   }
   .homework-note-title {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: white;
@@ -731,7 +736,7 @@
     flex: 1;
     border: none;
     background: transparent;
-    font-family: 'Gowun Dodum', sans-serif;
+    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     color: #222222;
     outline: none;
@@ -762,7 +767,7 @@
     background: #FFFFFF;
     border: none;
     border-top: 1px dashed #D0D0D0;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     font-weight: 700;
     color: #888888;
@@ -791,7 +796,7 @@
     padding: 10px 14px; background: #5A8A5E; flex-shrink: 0;
   }
   .note-modal-title {
-    font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700; color: white;
+    font-family: 'Pretendard', sans-serif; font-size: 20px; font-weight: 700; color: white;
   }
   .note-modal-close {
     background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding: 2px 6px;
@@ -805,13 +810,13 @@
   }
   .note-modal-body .note-input {
     flex: 1; border: none; background: transparent;
-    font-family: 'Gowun Dodum', sans-serif; font-size: 15px; color: #222222;
+    font-family: 'Pretendard', sans-serif; font-size: 15px; color: #222222;
     outline: none; padding: 4px 2px; min-width: 0;
     resize: none; overflow: hidden; line-height: 1.5; min-height: 26px;
   }
   .note-modal-add {
     width: 100%; padding: 10px; background: #FFFFFF; border: none;
-    border-top: 1px dashed #D0D0D0; font-family: 'Gaegu', cursive;
+    border-top: 1px dashed #D0D0D0; font-family: 'Pretendard', sans-serif;
     font-size: 16px; font-weight: 700; color: #888888; cursor: pointer; flex-shrink: 0;
   }
   .note-modal-add:active { background: #F5F5F5; }
@@ -825,7 +830,7 @@
   /* ====== 코인 리셋 버튼 ====== */
   .coin-reset-btn {
     background: #94605E; color: white; border: 2px solid #4A2F1B;
-    border-radius: 8px; padding: 3px 8px; font-family: 'Gaegu', cursive;
+    border-radius: 8px; padding: 3px 8px; font-family: 'Pretendard', sans-serif;
     font-size: 11px; font-weight: 700; cursor: pointer;
     box-shadow: 2px 2px 0 #4A2F1B; flex-shrink: 0;
     display: none;
@@ -861,7 +866,7 @@
   }
   
   .header h1 {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 22px;
     font-weight: 700;
     letter-spacing: -1.5px;
@@ -880,7 +885,7 @@
   .header h1:hover { background: rgba(74,47,27,0.08); }
   
   .header-title-input {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 22px;
     font-weight: 700;
     letter-spacing: -1.5px;
@@ -919,7 +924,7 @@
     align-items: center;
     justify-content: center;
     color: #4A2F1B;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-weight: 700;
   }
   
@@ -952,8 +957,8 @@
     95% { transform: rotateY(360deg); }
   }
   
-  .coin-amount { font-family: 'Gaegu', cursive; font-size: clamp(32px, 8vw, 55px); font-weight: 700; color: white; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); }
-  .coin-pending { font-family: 'Gaegu', cursive; font-size: clamp(14px, 4vw, 25px); color: #D4EDDA; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .coin-amount { font-family: 'Pretendard', sans-serif; font-size: clamp(32px, 8vw, 55px); font-weight: 700; color: white; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); }
+  .coin-pending { font-family: 'Pretendard', sans-serif; font-size: clamp(14px, 4vw, 25px); color: #D4EDDA; font-weight: 700; line-height: 1; white-space: nowrap; }
   .coin-stack { font-size: 18px; margin-left: auto; }
   
   .shop-btn {
@@ -961,7 +966,7 @@
     border: 2px solid #4A2F1B;
     border-radius: 12px;
     padding: 6px 10px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     font-weight: 700;
     color: white;
@@ -998,20 +1003,20 @@
     border-radius: 6px;
     width: 26px;
     height: 26px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     cursor: pointer;
     font-weight: 700;
     color: #4A2F1B;
   }
   
-  .cal-title { font-family: 'Gaegu', cursive; font-size: 17px; font-weight: 700; color: #4A2F1B; }
+  .cal-title { font-family: 'Pretendard', sans-serif; font-size: 17px; font-weight: 700; color: #4A2F1B; }
   
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 100%; }
   
   .cal-day-name {
     text-align: center;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 11px;
     font-weight: 700;
     color: #7C5A3A;
@@ -1030,7 +1035,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     font-weight: 700;
     background: #EAE0C2;
@@ -1083,7 +1088,7 @@
   
   .selected-date {
     text-align: center; margin-bottom: 8px;
-    font-family: 'Gaegu', cursive; font-size: 19px; font-weight: 700; color: #4A2F1B;
+    font-family: 'Pretendard', sans-serif; font-size: 19px; font-weight: 700; color: #4A2F1B;
     -webkit-text-stroke: 0.2px #4A2F1B;
   }
   
@@ -1109,13 +1114,13 @@
     overflow: hidden;
   }
   .subject-name-input {
-    flex: 1; font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700;
+    flex: 1; font-family: 'Pretendard', sans-serif; font-size: 20px; font-weight: 700;
     border: none; background: transparent; outline: none; padding: 2px 4px;
     border-radius: 6px; color: #3A2010; min-width: 0;
     -webkit-text-stroke: 0.5px #3A2010;
   }
   .subject-name-input:focus { background: rgba(255,255,255,0.7); }
-  .subject-status { font-size: 14px; color: #7C2D12; font-weight: 700; font-family: 'Gaegu', cursive; }
+  .subject-status { font-size: 14px; color: #7C2D12; font-weight: 700; font-family: 'Pretendard', sans-serif; }
   .subject-delete-btn {
     background: transparent; border: none; color: #4A2F1B; font-size: 22px;
     cursor: pointer; padding: 2px 8px; opacity: 0.7; font-weight: 700; line-height: 1;
@@ -1154,7 +1159,7 @@
   .task.done .checkbox { background: #2E7D32; border-color: #2E7D32; }
   .task.done .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 15px; }
   .task-input {
-    flex: 1; border: none; background: transparent; font-family: 'Gowun Dodum', sans-serif;
+    flex: 1; border: none; background: transparent; font-family: 'Pretendard', sans-serif;
     font-size: 15px; color: #222222; outline: none; padding: 2px 0; min-width: 0;
     font-weight: 700;
   }
@@ -1167,14 +1172,14 @@
   
   .add-btn {
     width: 100%; padding: 8px; background: #FFFFFF; border: none;
-    border-top: 1px dashed #C8A47C; font-family: 'Gaegu', cursive;
+    border-top: 1px dashed #C8A47C; font-family: 'Pretendard', sans-serif;
     font-size: 28px; font-weight: 700; color: #5A3A1B; cursor: pointer; line-height: 1;
   }
   .add-btn:active { background: #F5EDD7; color: #4A2F1B; }
   
   .add-subject-btn {
     width: 100%; padding: 10px; background: #4A90D9; border: 2px solid #2E5A8A;
-    border-radius: 10px; font-family: 'Gaegu', cursive; font-size: 16px;
+    border-radius: 10px; font-family: 'Pretendard', sans-serif; font-size: 16px;
     font-weight: 700; color: white; cursor: pointer; margin-bottom: 12px;
     box-shadow: 2px 2px 0 #2E5A8A;
   }
@@ -1183,7 +1188,7 @@
   .preset-subject-btn {
     position: relative;
     padding: 8px 16px; border-radius: 20px;
-    font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700;
+    font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700;
     cursor: pointer; border: 2px solid #4A2F1B;
     background: white; color: #4A2F1B;
     box-shadow: 2px 2px 0 #4A2F1B; transition: all 0.15s;
@@ -1203,7 +1208,7 @@
   
   .empty-subjects {
     text-align: center; padding: 16px 12px; color: #7C5A3A;
-    font-family: 'Gaegu', cursive; font-size: 15px; background: white;
+    font-family: 'Pretendard', sans-serif; font-size: 15px; background: white;
     border: 2px dashed #7C5A3A; border-radius: 14px; margin-bottom: 12px;
   }
   
@@ -1212,14 +1217,14 @@
     padding: 10px; margin-bottom: 10px; box-shadow: 3px 3px 0 #4A2F1B; text-align: center;
   }
   .mom-card.confirmed { background: linear-gradient(135deg, #E8C97A, #D9B97A); padding: 10px; }
-  .mom-title { font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #4A2F1B; }
+  .mom-title { font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #4A2F1B; }
   .mom-btn {
     background: linear-gradient(180deg, #B89AD8 0%, #9B7EC8 40%, #7A5EA8 100%);
     color: white;
     border: 2px solid #6B4E98;
     border-radius: 24px;
     padding: 10px 28px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 17px;
     font-weight: 700;
     cursor: pointer;
@@ -1235,7 +1240,7 @@
     50% { opacity: 0.5; box-shadow: 0 0 20px rgba(155,126,200,0.6), inset 0 1px 2px rgba(255,255,255,0.3); }
   }
   .mom-btn:disabled { background: linear-gradient(180deg, #D0C8B0 0%, #B8B0A0 100%); color: #8A8070; border-color: #A09888; cursor: not-allowed; box-shadow: none; text-shadow: none; }
-  .mom-confirmed-text { font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; color: #4A2F1B; line-height: 1.3; }
+  .mom-confirmed-text { font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700; color: #4A2F1B; line-height: 1.3; }
   .mom-confirmed-text .heart { color: #B86B6B; font-size: 19px; }
   
   .dog-reward {
@@ -1248,7 +1253,7 @@
   .dog-reward.show { opacity: 1; pointer-events: auto; }
   .dog-face { font-size: 22px; animation: wiggle 0.5s ease infinite; }
   @keyframes wiggle { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
-  .dog-msg { font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 700; line-height: 1.2; color: #4A2F1B; }
+  .dog-msg { font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700; line-height: 1.2; color: #4A2F1B; }
   
   .flying-coin {
     position: fixed; font-size: 32px; z-index: 199; pointer-events: none;
@@ -1267,20 +1272,20 @@
     max-width: 320px !important; width: 100% !important;
     box-shadow: 4px 4px 0 #4A2F1B !important;
   }
-  .pwd-modal-title { font-family: 'Gaegu', cursive; font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 8px; color: #4A2F1B; }
-  .pwd-modal-sub { text-align: center; margin-bottom: 10px; font-family: 'Gaegu', cursive; font-size: 15px; color: #7C5A3A; }
+  .pwd-modal-title { font-family: 'Pretendard', sans-serif; font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 8px; color: #4A2F1B; }
+  .pwd-modal-sub { text-align: center; margin-bottom: 10px; font-family: 'Pretendard', sans-serif; font-size: 15px; color: #7C5A3A; }
   
   .modal {
     background: #F5EDD7; border: 4px solid #4A2F1B; border-radius: 22px;
     padding: 24px; max-width: 380px; width: 100%; box-shadow: 8px 8px 0 #4A2F1B;
     max-height: 85vh; overflow-y: auto;
   }
-  .modal-title { font-family: 'Gaegu', cursive; font-size: 30px; font-weight: 700; text-align: center; margin-bottom: 8px; color: #4A2F1B; }
-  .modal-sub { text-align: center; margin-bottom: 20px; font-family: 'Gaegu', cursive; font-size: 20px; color: #4A90D9; }
+  .modal-title { font-family: 'Pretendard', sans-serif; font-size: 30px; font-weight: 700; text-align: center; margin-bottom: 8px; color: #4A2F1B; }
+  .modal-sub { text-align: center; margin-bottom: 20px; font-family: 'Pretendard', sans-serif; font-size: 20px; color: #4A90D9; }
   
   .shop-modal { max-width: 320px !important; padding: 14px !important; background: #E8F0E0 !important; border-color: #5A8A5E !important; box-shadow: 4px 4px 0 #5A8A5E !important; }
-  .shop-modal-title { font-family: 'Gaegu', cursive; font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 2px; color: #2E5A32; -webkit-text-stroke: 0.3px #2E5A32; }
-  .shop-modal-sub { text-align: center; margin-bottom: 8px; font-family: 'Gaegu', cursive; font-size: 14px; color: #4A2F1B; font-weight: 700; -webkit-text-stroke: 0.2px #4A2F1B; }
+  .shop-modal-title { font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 2px; color: #2E5A32; -webkit-text-stroke: 0.3px #2E5A32; }
+  .shop-modal-sub { text-align: center; margin-bottom: 8px; font-family: 'Pretendard', sans-serif; font-size: 14px; color: #4A2F1B; font-weight: 700; -webkit-text-stroke: 0.2px #4A2F1B; }
   .shop-items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
   .shop-item {
     background: #FFFFFF; border: 1.5px solid #5A8A5E; border-radius: 8px;
@@ -1288,50 +1293,50 @@
     gap: 2px; box-shadow: 2px 2px 0 #5A8A5E;
   }
   .shop-item-icon { font-size: 22px; }
-  .shop-item-name { font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 700; text-align: center; color: #2E5A32; line-height: 1.1; word-break: keep-all; -webkit-text-stroke: 0.2px #2E5A32; }
-  .shop-item-price { font-family: 'Gaegu', cursive; font-size: 13px; color: #4A2F1B; font-weight: 700; -webkit-text-stroke: 0.2px #4A2F1B; }
+  .shop-item-name { font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700; text-align: center; color: #2E5A32; line-height: 1.1; word-break: keep-all; -webkit-text-stroke: 0.2px #2E5A32; }
+  .shop-item-price { font-family: 'Pretendard', sans-serif; font-size: 13px; color: #4A2F1B; font-weight: 700; -webkit-text-stroke: 0.2px #4A2F1B; }
   .shop-item-actions { display: flex; gap: 3px; width: 100%; margin-top: 2px; }
-  .buy-btn { flex: 1; background: #5A8A5E; border: 1.5px solid #2E5A32; color: white; font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700; padding: 4px 0; border-radius: 5px; cursor: pointer; -webkit-text-stroke: 0.2px white; }
+  .buy-btn { flex: 1; background: #5A8A5E; border: 1.5px solid #2E5A32; color: white; font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700; padding: 4px 0; border-radius: 5px; cursor: pointer; -webkit-text-stroke: 0.2px white; }
   .buy-btn:disabled { background: #B0B8AC; cursor: not-allowed; }
-  .shop-item-delete { background: white; border: 1.5px solid #5A8A5E; color: #5A8A5E; font-family: 'Gaegu', cursive; font-size: 14px; font-weight: 700; padding: 0 6px; border-radius: 5px; cursor: pointer; line-height: 1; }
-  .add-shop-item-btn { width: 100%; padding: 7px; background: white; border: 2px dashed #5A8A5E; border-radius: 6px; font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700; color: #2E5A32; cursor: pointer; margin-bottom: 6px; -webkit-text-stroke: 0.2px #2E5A32; }
-  .modal-close { width: 100%; margin-top: 4px; padding: 9px; background: #2E5A32; color: white; border: none; border-radius: 8px; font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .shop-item-delete { background: white; border: 1.5px solid #5A8A5E; color: #5A8A5E; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700; padding: 0 6px; border-radius: 5px; cursor: pointer; line-height: 1; }
+  .add-shop-item-btn { width: 100%; padding: 7px; background: white; border: 2px dashed #5A8A5E; border-radius: 6px; font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700; color: #2E5A32; cursor: pointer; margin-bottom: 6px; -webkit-text-stroke: 0.2px #2E5A32; }
+  .modal-close { width: 100%; margin-top: 4px; padding: 9px; background: #2E5A32; color: white; border: none; border-radius: 8px; font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
   .owned-tickets { background: #FFFFFF; border: 1.5px dashed #5A8A5E; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; }
-  .owned-title { font-family: 'Gaegu', cursive; font-size: 15px; font-weight: 700; margin-bottom: 2px; color: #2E5A32; }
-  .owned-list { font-family: 'Gaegu', cursive; font-size: 14px; color: #4A2F1B; font-weight: 700; }
+  .owned-title { font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 2px; color: #2E5A32; }
+  .owned-list { font-family: 'Pretendard', sans-serif; font-size: 14px; color: #4A2F1B; font-weight: 700; }
   .owned-empty { color: #A8B0A4; font-style: italic; }
   
   .pwd-input {
     -webkit-text-security: disc;
     text-security: disc;
     width: 100%; padding: 10px; border: 2px solid #4A2F1B; border-radius: 10px;
-    font-family: 'Gaegu', cursive; font-size: 20px; text-align: center;
+    font-family: 'Pretendard', sans-serif; font-size: 20px; text-align: center;
     margin-bottom: 8px; letter-spacing: 6px; outline: none; color: #4A2F1B; background: white;
   }
   .pwd-input:focus { border-color: #4A90D9; }
   .text-input {
     width: 100%; padding: 10px; border: 2px solid #4A2F1B; border-radius: 10px;
-    font-family: 'Gaegu', cursive; font-size: 18px; text-align: center;
+    font-family: 'Pretendard', sans-serif; font-size: 18px; text-align: center;
     margin-bottom: 8px; outline: none; background: white; color: #4A2F1B;
   }
   .text-input:focus { border-color: #4A90D9; }
   .modal-btns { display: flex; gap: 8px; margin-top: 4px; }
   .modal-btn {
     flex: 1; padding: 10px; border: 2px solid #4A2F1B; border-radius: 10px;
-    font-family: 'Gaegu', cursive; font-size: 17px; font-weight: 700;
+    font-family: 'Pretendard', sans-serif; font-size: 17px; font-weight: 700;
     cursor: pointer; box-shadow: 2px 2px 0 #4A2F1B;
   }
   .modal-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #4A2F1B; }
   .modal-btn.primary { background: #4A90D9; color: white; }
   .modal-btn.danger { background: #94605E; color: white; }
   .modal-btn.cancel { background: white; color: #4A2F1B; }
-  .pwd-error { color: #B86B6B; text-align: center; font-family: 'Gaegu', cursive; font-size: 14px; margin-bottom: 6px; min-height: 18px; }
-  .confirm-msg { text-align: center; font-family: 'Gaegu', cursive; font-size: 20px; margin-bottom: 16px; line-height: 1.4; color: #4A2F1B; }
+  .pwd-error { color: #B86B6B; text-align: center; font-family: 'Pretendard', sans-serif; font-size: 14px; margin-bottom: 6px; min-height: 18px; }
+  .confirm-msg { text-align: center; font-family: 'Pretendard', sans-serif; font-size: 20px; margin-bottom: 16px; line-height: 1.4; color: #4A2F1B; }
   
   .toast {
     position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
     background: #9B7EC8; color: white; padding: 14px 22px; border: 3px solid #6B4E98;
-    border-radius: 16px; font-family: 'Gaegu', cursive; font-size: 18px; font-weight: 700;
+    border-radius: 16px; font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 700;
     box-shadow: 4px 4px 0 #6B4E98; opacity: 0; pointer-events: none;
     transition: opacity 0.3s; z-index: 400; max-width: 80%; text-align: center;
   }
@@ -1357,7 +1362,7 @@
   .chat-fab .badge {
     position: absolute; top: -4px; right: -4px;
     background: #E53935; color: white;
-    font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700;
+    font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700;
     width: 22px; height: 22px; border-radius: 50%;
     display: none; align-items: center; justify-content: center;
   }
@@ -1380,7 +1385,7 @@
     padding: 8px 12px; border-bottom: 2px solid #4A2F1B;
     background: white; border-radius: 0;
   }
-  .chat-header-title { font-family: 'Gaegu', cursive; font-size: 16px; font-weight: 700; color: #4A2F1B; }
+  .chat-header-title { font-family: 'Pretendard', sans-serif; font-size: 16px; font-weight: 700; color: #4A2F1B; }
   .settings-title-wrap {
     display: flex;
     align-items: center;
@@ -1419,7 +1424,7 @@
   }
   .chat-msg {
     max-width: 78%; padding: 8px 12px; border-radius: 12px;
-    font-family: 'Gowun Dodum', sans-serif; font-size: 15px;
+    font-family: 'Pretendard', sans-serif; font-size: 15px;
     font-weight: 700;
     line-height: 1.4; word-break: break-word;
   }
@@ -1444,14 +1449,14 @@
     border: 1.5px solid #D0D0D0; border-bottom-left-radius: 4px;
   }
   .chat-msg .msg-sender {
-    font-family: 'Gaegu', cursive; font-size: 13px; font-weight: 700;
+    font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700;
     margin-bottom: 2px; color: #5A8A5E;
   }
   .chat-msg.from-dad .msg-sender { color: rgba(255,255,255,0.7); }
   .chat-msg.from-mom .msg-sender { color: #C06080; }
   .chat-msg.mine .msg-sender { color: rgba(255,255,255,0.7); }
   .chat-msg .msg-time {
-    font-family: 'Gaegu', cursive; font-size: 11px; opacity: 0.5;
+    font-family: 'Pretendard', sans-serif; font-size: 11px; opacity: 0.5;
     margin-top: 2px; text-align: right;
   }
   .chat-msg img.chat-photo {
@@ -1466,7 +1471,7 @@
   }
   .chat-input {
     flex: 1; border: 2px solid #5A8A5E; border-radius: 10px;
-    padding: 6px 8px; font-family: 'Gowun Dodum', sans-serif; font-size: 14px;
+    padding: 6px 8px; font-family: 'Pretendard', sans-serif; font-size: 14px;
     outline: none; background: white; color: #222222; min-width: 0;
   }
   .chat-input:focus { border-color: #3D6B40; }
@@ -1479,7 +1484,7 @@
   .chat-photo-btn svg { width: 18px; height: 18px; }
   .chat-send-btn {
     background: #5A8A5E; color: white; border: 2px solid #2E5A32;
-    border-radius: 10px; padding: 6px 12px; font-family: 'Gaegu', cursive;
+    border-radius: 10px; padding: 6px 12px; font-family: 'Pretendard', sans-serif;
     font-size: 14px; font-weight: 700; cursor: pointer;
   }
   .chat-send-btn:active { background: #3D6B40; }
@@ -1543,7 +1548,7 @@
     color: white;
     border: 1.5px solid #2E5A32;
     border-radius: 20px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -1576,7 +1581,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 15px;
     font-weight: 700;
     color: #4A2F1B;
@@ -1593,7 +1598,7 @@
     color: white;
     border: 2px solid #2E5A8A;
     border-radius: 10px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
@@ -1615,7 +1620,7 @@
   .loading-overlay {
     position: fixed; inset: 0; background: #F5EDD7;
     display: flex; align-items: center; justify-content: center;
-    z-index: 999; font-family: 'Gaegu', cursive; font-size: 24px; color: #4A2F1B;
+    z-index: 999; font-family: 'Pretendard', sans-serif; font-size: 24px; color: #4A2F1B;
   }
   .loading-overlay.hide { display: none; }
 
@@ -1633,7 +1638,7 @@
   }
   #familyCodeScreen.show { display: flex; }
   .fc-title {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 28px;
     font-weight: 700;
     color: #4A2F1B;
@@ -1641,7 +1646,7 @@
     line-height: 1.3;
   }
   .fc-sub {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 15px;
     color: #7C5A3A;
     text-align: center;
@@ -1652,7 +1657,7 @@
     background: #4A2F1B;
     border: 2px solid #4A2F1B;
     border-radius: 12px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: white;
@@ -1689,7 +1694,7 @@
     z-index: 2;
   }
   .setup-section-title {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 20px;
     font-weight: 700;
     color: #4A2F1B;
@@ -1711,7 +1716,7 @@
     padding: 10px 14px;
     border: none;
     border-radius: 8px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     color: #4A2F1B;
     background: white;
@@ -1719,7 +1724,7 @@
     text-align: center;
   }
   .setup-divider-label {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 15px;
     font-weight: 700;
     color: white;
@@ -1727,7 +1732,7 @@
     margin-top: 4px;
   }
   .setup-code-warning {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 12px;
     color: rgba(255,255,255,0.85);
     text-align: center;
@@ -1741,7 +1746,7 @@
   .setup-code-box {
     flex: 1;
     background: white;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 22px;
     font-weight: 700;
     color: #4A2F1B;
@@ -1755,7 +1760,7 @@
     background: #E87722;
     border: none;
     color: white;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
     padding: 0 12px;
@@ -1767,7 +1772,7 @@
   }
   .setup-code-gen-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #8A3F0F; }
   .setup-family-preview {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
     font-weight: 700;
     color: white;
@@ -1784,7 +1789,7 @@
     background: white;
     border: none;
     border-radius: 8px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     font-weight: 700;
     color: #4A2F1B;
@@ -1807,7 +1812,7 @@
     background: #4A90D9;
     border: 2px solid #2E5A8A;
     border-radius: 14px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 18px;
     font-weight: 700;
     color: white;
@@ -1830,7 +1835,7 @@
     padding: 12px 14px;
     border: 2px solid #5A8A5E;
     border-radius: 12px;
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     font-weight: 700;
     color: #4A2F1B;
@@ -1853,7 +1858,7 @@
   }
   .setup-join-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A32; }
   .setup-error {
-    font-family: 'Gaegu', cursive;
+    font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     color: #B86B6B;
     text-align: center;
@@ -1870,6 +1875,7 @@
   <div class="fc-title">👋 처음 오셨나요?</div>
   <div class="fc-sub">가족을 만들어보세요!</div>
   <button class="fc-btn green" onclick="showFamilySetupScreen()">새 가족 만들기</button>
+  <div class="fc-sub" style="margin-top:20px;">가족 코드가 있으면 아래에서 입장하세요!</div>
   <div class="setup-join-row">
     <input class="setup-join-input" id="fcJoinCode" placeholder="가족코드로 입장" maxlength="10"
       onkeydown="if(event.key==='Enter')joinWithFamilyCode()">
@@ -1981,7 +1987,7 @@
       position:absolute;
       left:50%; top:calc(50% - 5px);
       transform:translate(-50%, -100%);
-      font-family:'Gaegu',cursive;
+      font-family:'Pretendard',sans-serif;
       font-size:min(5.5vw, 27px);
       font-weight:700;
       color:#5A3A2A;
@@ -1996,7 +2002,7 @@
       position:absolute;
       left:50%; top:calc(50% + 5px);
       transform:translateX(-50%);
-      font-family:'Gaegu',cursive;
+      font-family:'Pretendard',sans-serif;
       font-size:min(4.2vw, 21px);
       font-weight:700;
       color:#5A3A2A;
@@ -2012,7 +2018,7 @@
       position:absolute;
       left:50%; top:calc(50% + 30px);
       transform:translateX(-50%);
-      font-family:'Gaegu',cursive;
+      font-family:'Pretendard',sans-serif;
       font-size:min(4.2vw, 21px);
       font-weight:700;
       color:#3A1A0A;
@@ -2087,7 +2093,7 @@
         <div style="display:flex;align-items:center;gap:6px;">
           <button onclick="event.stopPropagation();toggleCalendar()" style="height:26px;padding:0 10px;background:white;border:2px solid #4A2F1B;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
             <span id="calToggleIcon" style="font-size:20px;color:#5A8A5E;transition:transform 0.3s;display:inline-block;line-height:1;transform:rotate(180deg);">▲</span>
-            <span style="font-family:'Gaegu',cursive;font-weight:700;font-size:13px;color:#5A8A5E;line-height:1;white-space:nowrap;">접기/펴기</span>
+            <span style="font-family:'Pretendard',sans-serif;font-weight:700;font-size:13px;color:#5A8A5E;line-height:1;white-space:nowrap;">접기/펴기</span>
           </button>
         </div>
       </div>
@@ -2235,19 +2241,19 @@
       <div class="settings-card-title">한마디 바꾸기</div>
       <div style="display:flex;flex-direction:column;gap:12px;padding:10px 12px;">
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">한마디</div>
-          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="응원 한마디를 적어주세요" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveAppTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+          <div style="width:56px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#111;">한마디</div>
+          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="응원 한마디를 적어주세요" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveAppTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">과목추가</div>
-          <input type="text" id="settingsAddSubjectBtn" maxlength="20" placeholder="+ 과목 추가" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveAddSubjectBtnText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+          <div style="width:56px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#111;">과목추가</div>
+          <input type="text" id="settingsAddSubjectBtn" maxlength="20" placeholder="+ 과목 추가" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveAddSubjectBtnText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
-          <div style="width:56px;flex-shrink:0;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#111;">숙제노트</div>
-          <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+          <div style="width:56px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#111;">숙제노트</div>
+          <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
         </div>
       </div>
     </div>
@@ -2278,7 +2284,7 @@
 
     <div style="height:14px;"></div>
     <!-- 즐겨찾기 모드 토글 (★ 즐겨찾기 등록) -->
-    <button id="subjectModalTitle" onclick="togglePresetView()" style="display:inline-flex;align-items:center;gap:5px;background:#E87722;color:white;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;padding:6px 14px;border:none;border-radius:8px;margin-bottom:12px;cursor:pointer;user-select:none;box-shadow:2px 2px 0 #8A3F0F;">
+    <button id="subjectModalTitle" onclick="togglePresetView()" style="display:inline-flex;align-items:center;gap:5px;background:#E87722;color:white;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:6px 14px;border:none;border-radius:8px;margin-bottom:12px;cursor:pointer;user-select:none;box-shadow:2px 2px 0 #8A3F0F;">
       <span id="presetViewStar" style="color:white;font-size:16px;">☆</span>
       <span id="presetViewLabel">즐겨찾기 등록</span>
     </button>
@@ -2286,7 +2292,7 @@
     <!-- 입력 + 등록 -->
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
       <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="flex:1;padding:10px 12px;font-size:15px;margin-bottom:0;border-radius:10px;border:2px solid #4A2F1B;">
-      <button onclick="addPresetSubject()" style="padding:10px 18px;white-space:nowrap;background:#4A90D9;color:white;border:2px solid #2E5A8A;border-radius:18px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #2E5A8A;">등록</button>
+      <button onclick="addPresetSubject()" style="padding:10px 18px;white-space:nowrap;background:#4A90D9;color:white;border:2px solid #2E5A8A;border-radius:18px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #2E5A8A;">등록</button>
     </div>
     <div class="pwd-error" id="addSubjectError" style="margin-bottom:4px;"></div>
 
@@ -2362,10 +2368,10 @@
     <div class="pwd-modal-title">우리 가족 코드</div>
     <div class="pwd-modal-sub" style="margin-bottom:12px;font-size:13px;color:#888;">코드를 공유하면 가족이 입장할 수 있어요</div>
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
-      <div id="familyCodeDisplay" style="flex:1;background:#F5EDD7;border:2px solid #4A2F1B;border-radius:8px;padding:14px;font-family:'Gaegu',cursive;font-size:26px;font-weight:700;color:#4A2F1B;text-align:center;letter-spacing:4px;">------</div>
-      <button onclick="copyFamilyCode()" title="복사" style="background:#5A8A5E;color:white;border:2px solid #2E5A32;border-radius:8px;padding:0 14px;height:54px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #2E5A32;flex-shrink:0;">📋<br>복사</button>
+      <div id="familyCodeDisplay" style="flex:1;background:#F5EDD7;border:2px solid #4A2F1B;border-radius:8px;padding:14px;font-family:'Pretendard',sans-serif;font-size:26px;font-weight:700;color:#4A2F1B;text-align:center;letter-spacing:4px;">------</div>
+      <button onclick="copyFamilyCode()" title="복사" style="background:#5A8A5E;color:white;border:2px solid #2E5A32;border-radius:8px;padding:0 14px;height:54px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #2E5A32;flex-shrink:0;">📋<br>복사</button>
     </div>
-    <button onclick="closeFamilyCodeShow()" style="width:100%;padding:10px;background:#4A2F1B;color:white;border:none;border-radius:8px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;">닫기</button>
+    <button onclick="closeFamilyCodeShow()" style="width:100%;padding:10px;background:#4A2F1B;color:white;border:none;border-radius:8px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">닫기</button>
   </div>
 </div>
 
@@ -2385,10 +2391,10 @@
 <!-- 권한 선택 모달 (프로필 추가) -->
 <div class="modal-bg" id="roleSelectModal">
   <div class="modal" style="padding:18px 20px;text-align:center;max-width:260px;">
-    <div style="font-family:'Gaegu',cursive;font-size:17px;font-weight:700;color:#4A2F1B;margin-bottom:14px;">권한 선택하세요</div>
+    <div style="font-family:'Pretendard',sans-serif;font-size:17px;font-weight:700;color:#4A2F1B;margin-bottom:14px;">권한 선택하세요</div>
     <div style="display:flex;gap:10px;justify-content:center;">
-      <button onclick="confirmAddProfile('parent')" style="background:#4CAF50;border:2px solid #2E7D32;color:white;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 #2E7D32;">부모</button>
-      <button onclick="confirmAddProfile('child')" style="background:#1976D2;border:2px solid #0D47A1;color:white;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 #0D47A1;">자녀</button>
+      <button onclick="confirmAddProfile('parent')" style="background:#4CAF50;border:2px solid #2E7D32;color:white;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 #2E7D32;">부모</button>
+      <button onclick="confirmAddProfile('child')" style="background:#1976D2;border:2px solid #0D47A1;color:white;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;padding:7px 18px;border-radius:8px;cursor:pointer;box-shadow:2px 2px 0 #0D47A1;">자녀</button>
     </div>
   </div>
 </div>
@@ -2411,9 +2417,9 @@
     <div class="color-palette-grid" id="colorPaletteGrid"></div>
     <div class="color-palette-preview">
       <div class="color-preview-box" id="colorPreviewBox" onclick="document.getElementById('colorDirectInput').click()" title="직접 선택"></div>
-      <span style="font-family:'Gaegu',cursive;font-size:12px;color:#888;">선택한 색상</span>
+      <span style="font-family:'Pretendard',sans-serif;font-size:12px;color:#888;">선택한 색상</span>
       <input type="color" id="colorDirectInput" style="position:absolute;opacity:0;width:1px;height:1px;" onchange="selectPaletteColor(this.value)">
-      <span style="font-family:'Gaegu',cursive;font-size:11px;color:#5A8A5E;cursor:pointer;margin-left:auto;" onclick="document.getElementById('colorDirectInput').click()">직접선택</span>
+      <span style="font-family:'Pretendard',sans-serif;font-size:11px;color:#5A8A5E;cursor:pointer;margin-left:auto;" onclick="document.getElementById('colorDirectInput').click()">직접선택</span>
     </div>
     <div class="color-palette-btns">
       <button class="color-palette-cancel" onclick="closeColorPalette()">취소</button>
@@ -2533,7 +2539,7 @@ function renderNoteLines() {
   }
   container.innerHTML = noteLines.map((text, i) => `
     <div class="note-line">
-      <span style="font-family:Gaegu,cursive;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>
+      <span style="font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>
       <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
         oninput="noteLines[${i}]=this.value; autoResize(this); debounceSaveNotes();"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); noteLineEnter(${i},'inline');}">${escapeHTML(text)}</textarea>
@@ -2690,7 +2696,7 @@ function renderNoteModal() {
   }
   body.innerHTML = noteLines.map((text, i) => `
     <div class="note-line">
-      <span style="font-family:Gaegu,cursive;font-size:15px;font-weight:700;color:#999;min-width:22px;">${i+1}.</span>
+      <span style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#999;min-width:22px;">${i+1}.</span>
       <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
         oninput="noteLines[${i}]=this.value; autoResize(this); debounceSaveNotes();"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); noteLineEnter(${i},'modal');}">${escapeHTML(text)}</textarea>
@@ -3883,13 +3889,13 @@ function renderControlBar() {
     const subs = getSubjectsForDate(selectedDate);
     if (subs.length > 0) {
       if (!selectMode) {
-        selectWrap.innerHTML = `<button onclick="enterSelectMode()" style="padding:6px 10px;background:white;color:#2E7D32;border:1.5px solid #2E7D32;border-radius:8px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">선택/삭제</button>`;
+        selectWrap.innerHTML = `<button onclick="enterSelectMode()" style="padding:6px 10px;background:white;color:#2E7D32;border:1.5px solid #2E7D32;border-radius:8px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">선택/삭제</button>`;
       } else {
         const n = selectedSubjects.size + selectedTasks.size;
         selectWrap.innerHTML = `
           <div style="display:flex;background:white;border:1.5px solid #2E7D32;border-radius:8px;overflow:hidden;">
-            <button onclick="deleteSelected()" ${n===0?'disabled':''} style="background:${n===0?'#ccc':'#2E7D32'};color:white;border:none;padding:6px 8px;font-family:Gaegu,cursive;font-size:12px;font-weight:700;cursor:${n===0?'default':'pointer'};white-space:nowrap;">삭제(${n})</button>
-            <button onclick="exitSelectMode()" style="background:white;color:#999;border:none;border-left:1px solid #2E7D32;padding:6px 6px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;cursor:pointer;">✕</button>
+            <button onclick="deleteSelected()" ${n===0?'disabled':''} style="background:${n===0?'#ccc':'#2E7D32'};color:white;border:none;padding:6px 8px;font-family:'Pretendard',sans-serif;font-size:12px;font-weight:700;cursor:${n===0?'default':'pointer'};white-space:nowrap;">삭제(${n})</button>
+            <button onclick="exitSelectMode()" style="background:white;color:#999;border:none;border-left:1px solid #2E7D32;padding:6px 6px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">✕</button>
           </div>
         `;
       }
@@ -4041,7 +4047,7 @@ function renderTasks() {
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};" onclick="toggleSubject('${s.id}')">
         <span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}">▼</span>
         <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
-        <span class="subject-hint" style="font-family:'Gaegu',cursive;font-size:13px;color:#3A2010;font-weight:700;margin-right:6px;">완료시. ○ 체크.</span>
+        <span class="subject-hint" style="font-family:'Pretendard',sans-serif;font-size:13px;color:#3A2010;font-weight:700;margin-right:6px;">완료시. ○ 체크.</span>
         <span class="subject-status">${done}/${tasks.length}</span>
         ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
       </div>
@@ -4095,7 +4101,7 @@ function renderMomSection() {
     const childMember = cachedMembers.find(m => m.id === getActiveMemberId());
     const childName = childMember ? childMember.name : '';
     container.innerHTML = `
-      <div style="text-align:center;margin:10px 0;font-family:'Gaegu',cursive;font-size:17px;font-weight:700;color:#4A2F1B;">
+      <div style="text-align:center;margin:10px 0;font-family:'Pretendard',sans-serif;font-size:17px;font-weight:700;color:#4A2F1B;">
         참 잘했어요 ${esc(childName)} <span style="color:#B86B6B;font-size:19px;">💕</span><br>
         <span style="font-size:14px;">${esc(cName)}가 확인했어요 👩</span>
       </div>
@@ -4580,9 +4586,9 @@ function renderPresetList() {
 
   if (presets.length === 0) {
     if (_presetViewMode === 'favorites') {
-      container.innerHTML = '<div style="color:#aaa;font-family:Gaegu,cursive;font-size:14px;padding:10px;text-align:center;width:100%;">즐겨찾기가 비어있어요<br>과목의 ☆를 눌러 등록하세요</div>';
+      container.innerHTML = '<div style="color:#aaa;font-family:'Pretendard',sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">즐겨찾기가 비어있어요<br>과목의 ☆를 눌러 등록하세요</div>';
     } else {
-      container.innerHTML = '<div style="color:#aaa;font-family:Gaegu,cursive;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
+      container.innerHTML = '<div style="color:#aaa;font-family:'Pretendard',sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
     }
     return;
   }
@@ -4599,11 +4605,11 @@ function renderPresetList() {
     const origIdx = allPresets.findIndex(p => p === name);
     const safe = escapeHTML(name).replace(/'/g, "\\'");
     return `
-      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${bg};color:${fg};border:2px solid ${bd};border-radius:22px;box-shadow:2px 2px 0 ${bd};font-family:'Gaegu',cursive;font-weight:700;overflow:hidden;margin:4px;">
+      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${bg};color:${fg};border:2px solid ${bd};border-radius:22px;box-shadow:2px 2px 0 ${bd};font-family:'Pretendard',sans-serif;font-weight:700;overflow:hidden;margin:4px;">
         <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
           style="background:transparent;color:${colored?'white':'#E87722'};border:none;border-right:1.5px dashed ${colored?'rgba(255,255,255,0.6)':'#C8A47C'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
         <button onclick="togglePresetSubject('${safe}')"
-          style="background:transparent;color:inherit;border:none;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;padding:7px 14px;flex:1;white-space:nowrap;">
+          style="background:transparent;color:inherit;border:none;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;cursor:pointer;padding:7px 14px;flex:1;white-space:nowrap;">
           ${escapeHTML(name)}
         </button>
         <button onclick="event.stopPropagation();deletePreset(${origIdx})" title="삭제"
@@ -4888,30 +4894,30 @@ function renderMemberSettings() {
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
     const photoHtml = photo
-      ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:44px;height:44px;border-radius:50%;border:none;object-fit:cover;">`
-      : `<div id="memberPhotoPreview-${m.id}" style="width:44px;height:44px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:22px;border:3px solid rgba(0,0,0,0.15);">${emojis[m.id] || '👤'}</div>`;
+      ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:48px;height:48px;border-radius:50%;border:none;object-fit:cover;display:block;">`
+      : `<div id="memberPhotoPreview-${m.id}" style="width:48px;height:48px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:24px;">${emojis[m.id] || '👤'}</div>`;
     const canEdit = isParent();
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
         <button class="member-color-trigger" style="background:${color};flex-shrink:0;${canEdit ? '' : 'pointer-events:none;opacity:0.7;'}" ${canEdit ? `onclick="openColorPalette('${m.id}')"` : ''} title="색 변경">${n}</button>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
-        <div style="width:44px;height:44px;flex-shrink:0;position:relative;">
+        <div style="width:54px;height:54px;flex-shrink:0;position:relative;border-radius:50%;border:3px solid #4A90D9;padding:2px;box-sizing:border-box;">
           <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;" title="${canEdit ? '사진 변경' : ''}">
             ${photoHtml}
             ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);border-radius:50%;"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
           </div>
         </div>
-        <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+        <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
         <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
           <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
-            <button onclick="saveMemberRow('${m.id}')" title="저장" style="padding:8px 12px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+            <button onclick="saveMemberRow('${m.id}')" title="저장" style="padding:8px 12px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
-            <button onclick="deleteMemberPhoto('${m.id}')" title="사진 삭제" ${photo ? '' : 'disabled'} style="padding:8px 10px;background:${photo ? '#E87722' : '#CCC'};color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:12px;font-weight:700;cursor:${photo ? 'pointer' : 'not-allowed'};line-height:1.1;">사진<br>삭제</button>
+            <button onclick="deleteMemberPhoto('${m.id}')" title="사진 삭제" ${photo ? '' : 'disabled'} style="padding:8px 10px;background:${photo ? '#E87722' : '#CCC'};color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:12px;font-weight:700;cursor:${photo ? 'pointer' : 'not-allowed'};line-height:1.1;">사진<br>삭제</button>
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
             <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제" style="margin:0;">−</button>
-            <span style="font-family:'Gaegu',cursive;font-size:9px;color:#555;font-weight:700;">삭제</span>
+            <span style="font-family:'Pretendard',sans-serif;font-size:9px;color:#555;font-weight:700;">삭제</span>
           </div>
         </div>
         <input type="file" id="memberPhotoFile-${m.id}" accept="image/*" style="display:none;" onchange="handleMemberPhotoUpload(event,'${m.id}')">
@@ -4929,19 +4935,21 @@ function renderPasswordSettings() {
     const color = memberColor(m.id);
     const photo = getMemberPhoto(m.id);
     const avatarHtml = photo
-      ? `<img src="${photo}" style="width:44px;height:44px;border-radius:50%;border:none;object-fit:cover;">`
-      : `<div style="width:44px;height:44px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:22px;border:3px solid rgba(0,0,0,0.15);">${emojis[m.id] || '👤'}</div>`;
+      ? `<img src="${photo}" style="width:48px;height:48px;border-radius:50%;border:none;object-fit:cover;display:block;">`
+      : `<div style="width:48px;height:48px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:24px;">${emojis[m.id] || '👤'}</div>`;
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;flex-wrap:wrap;">
-          <div style="position:relative;flex-shrink:0;">
-            ${avatarHtml}
-            <span style="position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:${color};border:2px solid white;display:flex;align-items:center;justify-content:center;font-family:'Gaegu',cursive;font-size:11px;font-weight:700;color:white;">${n}</span>
+          <div style="position:relative;flex-shrink:0;width:54px;height:54px;border-radius:50%;border:3px solid #4A90D9;padding:2px;box-sizing:border-box;">
+            <div style="width:100%;height:100%;border-radius:50%;overflow:hidden;">
+              ${avatarHtml}
+            </div>
+            <span style="position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:${color};border:2px solid white;display:flex;align-items:center;justify-content:center;font-family:'Pretendard',sans-serif;font-size:11px;font-weight:700;color:white;">${n}</span>
           </div>
-          <span style="font-family:'Gaegu',cursive;font-size:14px;font-weight:700;color:#111;min-width:60px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)}</span>
-          <input type="text" id="curPwdInput-${m.id}" maxlength="10" placeholder="현재 비번" autocomplete="off" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <input type="text" id="newPwdInput-${m.id}" maxlength="10" placeholder="새 비번" autocomplete="off" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">변경</button>
-          <button onclick="resetMemberPwd('${m.id}')" title="비밀번호 초기화" style="flex-shrink:0;padding:10px 12px;background:#E87722;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:13px;font-weight:700;cursor:pointer;">리셋</button>
+          <span style="font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;color:#111;min-width:60px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)}</span>
+          <input type="text" id="curPwdInput-${m.id}" maxlength="10" placeholder="현재 비번" autocomplete="off" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:400;outline:none;background:white;color:#111;">
+          <input type="text" id="newPwdInput-${m.id}" maxlength="10" placeholder="새 비번" autocomplete="off" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:400;outline:none;background:white;color:#111;">
+          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">변경</button>
+          <button onclick="resetMemberPwd('${m.id}')" title="비밀번호 초기화" style="flex-shrink:0;padding:10px 12px;background:#E87722;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">리셋</button>
         <div class="pwd-error" id="settingsError-${m.id}" style="min-height:0;display:none;width:100%;"></div>
       </div>
     `;
@@ -5330,7 +5338,7 @@ function renderShopItems() {
   const grid = document.getElementById('shopItemsGrid');
   grid.innerHTML = '';
   if (cachedShopItems.length === 0) {
-    grid.innerHTML = '<div style="grid-column:span 2;text-align:center;font-family:Gaegu,cursive;color:#A8967C;padding:10px;">상품이 없어요</div>';
+    grid.innerHTML = '<div style="grid-column:span 2;text-align:center;font-family:'Pretendard',sans-serif;color:#A8967C;padding:10px;">상품이 없어요</div>';
     return;
   }
   cachedShopItems.forEach(item => {
@@ -5587,7 +5595,7 @@ function renderChatMessages() {
     const dateStr = `${msgDate.getMonth()+1}월 ${msgDate.getDate()}일 (${dayNames[msgDate.getDay()]})`;
     if (dateStr !== lastDateStr) {
       const sep = document.createElement('div');
-      sep.style.cssText = 'text-align:center;padding:8px 0 4px;font-family:Gaegu,cursive;font-size:13px;font-weight:700;color:#A8967C;';
+      sep.style.cssText = 'text-align:center;padding:8px 0 4px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;color:#A8967C;';
       sep.textContent = `— ${dateStr} —`;
       container.appendChild(sep);
       lastDateStr = dateStr;
@@ -5858,18 +5866,18 @@ function renderDayDetail(dk) {
   
   // 과목 + 숙제
   if (subs.length === 0) {
-    html += `<div style="padding:8px 4px;font-family:'Gaegu',cursive;font-size:15px;color:#7C5A3A;">등록된 과목이 없어요</div>`;
+    html += `<div style="padding:8px 4px;font-family:'Pretendard',sans-serif;font-size:15px;color:#7C5A3A;">등록된 과목이 없어요</div>`;
   } else {
     subs.forEach(s => {
       const tasks = getTasksForSubject(dk, s.id);
       const done = tasks.filter(t => t.done).length;
       html += `<div style="background:white;border:2px solid #4A2F1B;border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:2px 2px 0 #4A2F1B;">`;
       html += `<div style="padding:6px 10px;background:${s.color || '#EAE0C2'};display:flex;align-items:center;justify-content:space-between;">`;
-      html += `<span style="font-family:'Gaegu',cursive;font-size:18px;font-weight:700;color:#3A2010;-webkit-text-stroke:0.5px #3A2010;">${esc(s.name)}</span>`;
-      html += `<span style="font-family:'Gaegu',cursive;font-size:14px;font-weight:700;color:#7C2D12;">${done}/${tasks.length}</span>`;
+      html += `<span style="font-family:'Pretendard',sans-serif;font-size:18px;font-weight:700;color:#3A2010;-webkit-text-stroke:0.5px #3A2010;">${esc(s.name)}</span>`;
+      html += `<span style="font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;color:#7C2D12;">${done}/${tasks.length}</span>`;
       html += `</div>`;
       if (tasks.length === 0) {
-        html += `<div style="padding:8px 10px;font-family:'Gowun Dodum',sans-serif;font-size:13px;color:#AAA;">숙제 없음</div>`;
+        html += `<div style="padding:8px 10px;font-family:'Pretendard',sans-serif;font-size:13px;color:#AAA;">숙제 없음</div>`;
       } else {
         tasks.forEach(t => {
           const icon = t.done
@@ -5904,8 +5912,8 @@ function renderDayDetail(dk) {
           }
           html += `<div style="padding:5px 10px;display:flex;align-items:center;gap:6px;border-top:1px dashed #E0D8C8;">`;
           html += icon;
-          html += `<span style="flex:1;font-family:'Gowun Dodum',sans-serif;font-size:14px;font-weight:700;min-width:0;${style}">${esc(t.text)}</span>`;
-          if (timeStr) html += `<span style="font-family:'Gaegu',cursive;font-size:14px;color:#5A3A1B;font-weight:700;text-align:right;line-height:1.3;min-width:fit-content;flex-shrink:0;">${timeStr}</span>`;
+          html += `<span style="flex:1;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;min-width:0;${style}">${esc(t.text)}</span>`;
+          if (timeStr) html += `<span style="font-family:'Pretendard',sans-serif;font-size:14px;color:#5A3A1B;font-weight:700;text-align:right;line-height:1.3;min-width:fit-content;flex-shrink:0;">${timeStr}</span>`;
           html += `</div>`;
         });
       }
@@ -5918,14 +5926,14 @@ function renderDayDetail(dk) {
   if (confirmed) {
     const confirmer = cachedMembers.find(m => m.id === confirmed.confirmed_by);
     const cName = confirmer ? confirmer.name : '부모';
-    html += `<div style="font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#2E5A32;">✅ ${esc(cName)}가 확인 완료</div>`;
+    html += `<div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#2E5A32;">✅ ${esc(cName)}가 확인 완료</div>`;
   } else if (stats.total > 0 && stats.done === stats.total) {
-    html += `<div style="font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#D4A020;">⏳ 확인 대기 중</div>`;
+    html += `<div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#D4A020;">⏳ 확인 대기 중</div>`;
   } else {
-    html += `<div style="font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#7C5A3A;">❌ 부모님 미확인</div>`;
+    html += `<div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#7C5A3A;">❌ 부모님 미확인</div>`;
   }
   if (stats.total > 0) {
-    html += `<div style="font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#2E7D32;margin-top:4px;">💰 코인: ${confirmed ? '확정' : '예비 +' + pending}</div>`;
+    html += `<div style="font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#2E7D32;margin-top:4px;">💰 코인: ${confirmed ? '확정' : '예비 +' + pending}</div>`;
   }
   html += `</div>`;
   
@@ -5938,8 +5946,8 @@ function renderDayDetail(dk) {
     html += `<div class="homework-note-content" style="padding:8px 10px;">`;
     _dayDetailNote.lines.forEach((text, i) => {
       html += `<div class="note-line" style="align-items:center;">`;
-      html += `<span style="font-family:Gaegu,cursive;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>`;
-      html += `<span style="flex:1;font-family:'Gowun Dodum',sans-serif;font-size:15px;color:#222;font-weight:700;">${escapeHTML(text)}</span>`;
+      html += `<span style="font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>`;
+      html += `<span style="flex:1;font-family:'Pretendard',sans-serif;font-size:15px;color:#222;font-weight:700;">${escapeHTML(text)}</span>`;
       html += `</div>`;
     });
     html += `</div></div>`;
@@ -5959,7 +5967,7 @@ function renderDayDetail(dk) {
   html += `<div class="homework-note-content" id="dayMemoContent">`;
   memos.forEach((text, i) => {
     html += `<div class="note-line">`;
-    html += `<span style="font-family:Gaegu,cursive;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>`;
+    html += `<span style="font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>`;
     html += `<textarea class="note-input" placeholder="내용을 입력하세요..." rows="1" oninput="dayMemos['${dk}'][${i}]=this.value;autoResize(this);debounceSaveDayMemo('${dk}');">${escapeHTML(text)}</textarea>`;
     if (memos.length > 1) {
       html += `<button class="note-delete-btn" onclick="deleteDayMemo('${dk}',${i})">✕</button>`;
@@ -6062,7 +6070,7 @@ function renderDayMemoModal(dk) {
   const memos = dayMemos[dk] || [''];
   body.innerHTML = memos.map((text, i) => `
     <div class="note-line">
-      <span style="font-family:Gaegu,cursive;font-size:15px;font-weight:700;color:#999;min-width:22px;">${i+1}.</span>
+      <span style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#999;min-width:22px;">${i+1}.</span>
       <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
         oninput="dayMemos['${dk}'][${i}]=this.value; autoResize(this); debounceSaveDayMemo('${dk}');"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); dayMemoLineEnter('${dk}',${i});}">${escapeHTML(text)}</textarea>
