@@ -4895,14 +4895,16 @@ function renderMemberSettings() {
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
     const photoHtml = photo
-      ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:48px;height:48px;border-radius:50%;border:none;object-fit:cover;display:block;">`
-      : `<div id="memberPhotoPreview-${m.id}" style="width:48px;height:48px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:24px;">${emojis[m.id] || '👤'}</div>`;
+      ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:100%;height:100%;border-radius:50%;border:none;object-fit:cover;display:block;">`
+      : `<div id="memberPhotoPreview-${m.id}" style="width:100%;height:100%;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:24px;">${emojis[m.id] || '👤'}</div>`;
     const canEdit = isParent();
+    const isChild = m.role === 'child';
+    const avatarBorder = isChild ? 'border:3px solid #4A90D9;padding:2px;' : 'border:none;padding:0;';
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
         <button class="member-color-trigger" style="background:${color};flex-shrink:0;${canEdit ? '' : 'pointer-events:none;opacity:0.7;'}" ${canEdit ? `onclick="openColorPalette('${m.id}')"` : ''} title="색 변경">${n}</button>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
-        <div style="width:54px;height:54px;flex-shrink:0;position:relative;border-radius:50%;border:3px solid #4A90D9;padding:2px;box-sizing:border-box;">
+        <div style="width:54px;height:54px;flex-shrink:0;position:relative;border-radius:50%;${avatarBorder}box-sizing:border-box;">
           <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;" title="${canEdit ? '사진 변경' : ''}">
             ${photoHtml}
             ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);border-radius:50%;"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
@@ -4936,11 +4938,13 @@ function renderPasswordSettings() {
     const color = memberColor(m.id);
     const photo = getMemberPhoto(m.id);
     const avatarHtml = photo
-      ? `<img src="${photo}" style="width:48px;height:48px;border-radius:50%;border:none;object-fit:cover;display:block;">`
-      : `<div style="width:48px;height:48px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:24px;">${emojis[m.id] || '👤'}</div>`;
+      ? `<img src="${photo}" style="width:100%;height:100%;border-radius:50%;border:none;object-fit:cover;display:block;">`
+      : `<div style="width:100%;height:100%;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:24px;">${emojis[m.id] || '👤'}</div>`;
+    const isChild = m.role === 'child';
+    const avatarBorder = isChild ? 'border:3px solid #4A90D9;padding:2px;' : 'border:none;padding:0;';
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;flex-wrap:wrap;">
-          <div style="position:relative;flex-shrink:0;width:54px;height:54px;border-radius:50%;border:3px solid #4A90D9;padding:2px;box-sizing:border-box;">
+          <div style="position:relative;flex-shrink:0;width:54px;height:54px;border-radius:50%;${avatarBorder}box-sizing:border-box;">
             <div style="width:100%;height:100%;border-radius:50%;overflow:hidden;">
               ${avatarHtml}
             </div>
