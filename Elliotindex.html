@@ -1624,7 +1624,11 @@
   .child-dropdown-item.active { background: #E8F5E9; color: #2E7D32; }
   .child-dropdown-check { font-size: 14px; color: #5A8A5E; }
   .add-sub-bar-btn {
-    padding: 6px 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 14px;
     background: #4A90D9;
     color: white;
     border: 2px solid #2E5A8A;
@@ -1632,9 +1636,11 @@
     font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
+    line-height: 1;
     cursor: pointer;
     box-shadow: 2px 2px 0 #2E5A8A;
     white-space: nowrap;
+    box-sizing: border-box;
   }
   .add-sub-bar-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A8A; }
   .select-bar-wrap {
@@ -2093,6 +2099,7 @@
       </div>
       <div class="profile-msg">
         <h1 id="appTitle"></h1>
+        <div class="selected-date" id="selectedDate" style="text-align:left;margin:2px 0 0 4px;font-size:16px;"></div>
       </div>
     </div>
     
@@ -2114,6 +2121,9 @@
       </div>
     </div>
     
+    <!-- 다가오는 일정 (자녀별 · 코인박스와 달력 사이) -->
+    <div id="upcomingBox"></div>
+
     <div class="calendar-card">
       <div class="cal-header" style="cursor:pointer;" onclick="toggleCalendar()">
         <div style="display:flex;align-items:center;gap:6px;">
@@ -2133,9 +2143,6 @@
       </div>
     </div>
 
-    <!-- 다가오는 일정 (자녀별 · 달력 더블클릭 상세에서 입력) -->
-    <div id="upcomingBox"></div>
-
     <!-- 숙제노트 (접이식) — 화면에서 숨김, id 참조 유지용. 실제 편집은 + 숙제노트 버튼 → 팝업 -->
     <div class="homework-note-card" style="display:none;">
       <div class="homework-note-header" onclick="toggleHomeworkNote(event)">
@@ -2153,8 +2160,7 @@
         <button class="note-add-btn" onclick="addNoteLine()">+ 메모 추가</button>
       </div>
     </div>
-    
-    <div class="selected-date" id="selectedDate"></div>
+
     <!-- 과목 컨트롤 바: 과목추가(좌) + 선택삭제(우) -->
     <div class="subject-ctrl-bar" id="subjectCtrlBar">
       <div class="subject-ctrl-side" style="display:flex;gap:8px;">
