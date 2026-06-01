@@ -15,7 +15,8 @@
 <meta property="og:description" content="가족 숙제 체크 & 코인 보상 앱">
 <meta property="og:image" content="https://isstudio012.github.io/Elliot/OG.png">
 <meta property="og:url" content="https://isstudio012.github.io">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -4586,9 +4587,9 @@ function renderPresetList() {
 
   if (presets.length === 0) {
     if (_presetViewMode === 'favorites') {
-      container.innerHTML = '<div style="color:#aaa;font-family:'Pretendard',sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">즐겨찾기가 비어있어요<br>과목의 ☆를 눌러 등록하세요</div>';
+      container.innerHTML = '<div style="color:#aaa;font-family:Pretendard,sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">즐겨찾기가 비어있어요<br>과목의 ☆를 눌러 등록하세요</div>';
     } else {
-      container.innerHTML = '<div style="color:#aaa;font-family:'Pretendard',sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
+      container.innerHTML = '<div style="color:#aaa;font-family:Pretendard,sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
     }
     return;
   }
@@ -5338,7 +5339,7 @@ function renderShopItems() {
   const grid = document.getElementById('shopItemsGrid');
   grid.innerHTML = '';
   if (cachedShopItems.length === 0) {
-    grid.innerHTML = '<div style="grid-column:span 2;text-align:center;font-family:'Pretendard',sans-serif;color:#A8967C;padding:10px;">상품이 없어요</div>';
+    grid.innerHTML = '<div style="grid-column:span 2;text-align:center;font-family:Pretendard,sans-serif;color:#A8967C;padding:10px;">상품이 없어요</div>';
     return;
   }
   cachedShopItems.forEach(item => {
@@ -5595,7 +5596,7 @@ function renderChatMessages() {
     const dateStr = `${msgDate.getMonth()+1}월 ${msgDate.getDate()}일 (${dayNames[msgDate.getDay()]})`;
     if (dateStr !== lastDateStr) {
       const sep = document.createElement('div');
-      sep.style.cssText = 'text-align:center;padding:8px 0 4px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;color:#A8967C;';
+      sep.style.cssText = 'text-align:center;padding:8px 0 4px;font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#A8967C;';
       sep.textContent = `— ${dateStr} —`;
       container.appendChild(sep);
       lastDateStr = dateStr;
