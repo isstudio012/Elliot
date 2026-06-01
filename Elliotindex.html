@@ -4110,7 +4110,7 @@ function renderMomSection() {
   } else if (isParent()) {
     container.innerHTML = `
       <div style="text-align:center;margin:10px 0;">
-        <button class="mom-btn ${allDone ? 'blink' : ''}" onclick="doConfirm()" ${allDone ? '' : 'disabled'}>
+        <button id="confirmBtn" class="mom-btn ${allDone ? 'blink' : ''}" onclick="doConfirm()" ${allDone ? '' : 'disabled'}>
           ${allDone ? '확인 승인하기' : '숙제 먼저 완료하기'}
         </button>
       </div>
@@ -4380,7 +4380,9 @@ async function confirmDeleteSelected() {
 
 async function doConfirm() {
   if (!isParent()) return;
-  
+  const btn = document.getElementById('confirmBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
+
   const pending = cachedCoins.pending[selectedDate] || 0;
   const newAmount = cachedCoins.amount + pending;
   const newPending = { ...(cachedCoins.pending || {}) };
@@ -4913,7 +4915,7 @@ function renderMemberSettings() {
         </div>
         <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <button onclick="saveMemberRow('${m.id}')" title="저장" style="padding:18px 12px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
+          <button onclick="saveMemberRow('${m.id}')" title="저장" style="padding:6px 10px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
           <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
             <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제" style="margin:0;">−</button>
             <span style="font-family:'Pretendard',sans-serif;font-size:9px;color:#555;font-weight:700;">삭제</span>
