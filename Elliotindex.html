@@ -559,7 +559,7 @@
     align-items: center;
     margin-bottom: 8px;
     padding: 2px 4px 4px;
-    border-bottom: 1px solid #C8A47C;
+    border-bottom: 1px solid #7C5A3A;
   }
   .top-nav-btn {
     font-family: 'Gaegu', cursive;
@@ -1161,9 +1161,9 @@
   .delete-btn:active { opacity: 1; }
   
   .add-btn {
-    width: 100%; padding: 4px; background: #FFFFFF; border: none;
+    width: 100%; padding: 8px; background: #FFFFFF; border: none;
     border-top: 1px dashed #C8A47C; font-family: 'Gaegu', cursive;
-    font-size: 16px; font-weight: 700; color: #5A3A1B; cursor: pointer;
+    font-size: 28px; font-weight: 700; color: #5A3A1B; cursor: pointer; line-height: 1;
   }
   .add-btn:active { background: #F5EDD7; color: #4A2F1B; }
   
@@ -1815,13 +1815,13 @@
   .setup-join-row {
     display: flex;
     gap: 8px;
-    width: 100%;
-    max-width: 300px;
-    margin-top: 40px;
+    width: 220px;
+    margin-top: 0;
     align-items: stretch;
   }
   .setup-join-input {
     flex: 1;
+    min-width: 0;
     padding: 12px 14px;
     border: 2px solid #5A8A5E;
     border-radius: 12px;
@@ -1865,6 +1865,12 @@
   <div class="fc-title">👋 처음 오셨나요?</div>
   <div class="fc-sub">가족을 만들어보세요!</div>
   <button class="fc-btn green" onclick="showFamilySetupScreen()">새 가족 만들기</button>
+  <div class="setup-join-row">
+    <input class="setup-join-input" id="fcJoinCode" placeholder="가족코드로 입장" maxlength="10"
+      onkeydown="if(event.key==='Enter')joinWithFamilyCode()">
+    <button class="setup-join-btn" onclick="joinWithFamilyCode()">▶</button>
+  </div>
+  <div class="setup-error" id="fcJoinError"></div>
 </div>
 
 <!-- 화면2: 프로필/가족 코드 발급 -->
@@ -1906,11 +1912,6 @@
 
     <button class="setup-main-btn" id="setupMainBtn" onclick="goToMainFromSetup()">메인 화면으로 가기</button>
 
-    <div class="setup-join-row">
-      <input class="setup-join-input" id="setupJoinCode" placeholder="가족코드로 입장" maxlength="10"
-        onkeydown="if(event.key==='Enter')joinWithFamilyCode()">
-      <button class="setup-join-btn" onclick="joinWithFamilyCode()">▶</button>
-    </div>
 
     <div class="setup-error" id="setupError"></div>
   </div>
@@ -2033,8 +2034,10 @@
   <div class="app-main" id="appMain">
     <!-- 상단 네비 -->
     <div class="top-nav">
-      <span class="top-nav-btn" id="navLogoutBtn" style="cursor:default;"></span>
-      <div style="display:flex;align-items:center;gap:4px;">
+      <div id="childDropdownWrap"></div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span class="top-nav-btn" id="navLogoutBtn" style="cursor:default;"></span>
+        <span style="width:1px;height:14px;background:#7C5A3A;display:inline-block;"></span>
         <button class="top-nav-btn" onclick="closeApp()" id="navCloseBtn">로그아웃 ✕</button>
       </div>
     </div>
@@ -2107,15 +2110,12 @@
     </div>
     
     <div class="selected-date" id="selectedDate"></div>
-    <!-- 과목 컨트롤 바: 자녀선택 드롭다운(좌) + 과목추가(중앙) + 선택삭제(우) -->
+    <!-- 과목 컨트롤 바: 과목추가(좌) + 선택삭제(우) -->
     <div class="subject-ctrl-bar" id="subjectCtrlBar">
-      <div class="subject-ctrl-side" id="childDropdownWrap">
-        <!-- 드롭다운 버튼 (renderControlBar에서 채워짐) -->
-      </div>
-      <div class="subject-ctrl-center">
+      <div class="subject-ctrl-side">
         <button class="add-sub-bar-btn" onclick="openAddSubject()">+ 과목 추가</button>
       </div>
-      <div class="subject-ctrl-side subject-ctrl-side-right">
+      <div class="subject-ctrl-side subject-ctrl-side-right" style="margin-left:auto;">
         <div class="select-bar-wrap" id="selectBarWrap"></div>
       </div>
     </div>
@@ -2962,20 +2962,9 @@ async function initApp() {
       document.getElementById('familyCodeScreen').classList.add('show');
       return;
     }
-    // 이전 로그인 사용자가 있으면 바로 메인으로 진입
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      try {
-        currentUser = JSON.parse(savedUser);
-        document.getElementById('loadingOverlay').classList.add('hide');
-        await showMainApp();
-        return;
-      } catch (e) {
-        localStorage.removeItem('currentUser');
-        currentUser = null;
-      }
-    }
-    // 사용자 없으면 로그인 화면
+    // 재방문 시 항상 운동장(로그인) 화면으로 진입
+    localStorage.removeItem('currentUser');
+    currentUser = null;
     await showLoginScreen();
   } catch (e) {
     console.log('init/showLoginScreen error', JSON.stringify(e), e?.message, e?.code);
@@ -3075,15 +3064,15 @@ function goToMainFromSetup() {
 }
 
 async function joinWithFamilyCode() {
-  const code = document.getElementById('setupJoinCode').value.trim().toUpperCase();
-  const errEl = document.getElementById('setupError');
+  const code = document.getElementById('fcJoinCode').value.trim().toUpperCase();
+  const errEl = document.getElementById('fcJoinError');
   if (!code) { errEl.textContent = '코드를 입력해주세요.'; return; }
   errEl.textContent = '확인 중...';
   try {
     const { data } = await sb.from('families').select('code').eq('code', code).maybeSingle();
     if (!data) { errEl.textContent = '코드를 찾을 수 없어요.'; return; }
     localStorage.setItem('family_code', code);
-    document.getElementById('familySetupScreen').classList.remove('show');
+    document.getElementById('familyCodeScreen').classList.remove('show');
     errEl.textContent = '';
     await showLoginScreen();
   } catch(e) {
@@ -3639,10 +3628,9 @@ async function loadAllData() {
   if (coinRes.data) {
     cachedCoins = { amount: coinRes.data.amount, pending: coinRes.data.pending || {} };
   } else {
-    // 새 가족이면 coins row 자동 생성
+    // 새 가족이면 coins row 자동 생성 (id는 정수 auto-increment이므로 생략)
     cachedCoins = { amount: 0, pending: {} };
-    const newCoinId = 'coin_' + familyCode;
-    await sb.from('coins').insert({ id: newCoinId, member_id: newCoinId, family_id: familyCode, amount: 0, pending: {} });
+    await sb.from('coins').insert({ member_id: 'coin_' + familyCode, family_id: familyCode, amount: 0, pending: {} });
   }
   cachedConfirmations = {};
   (confRes.data || []).forEach(c => { cachedConfirmations[c.date_key] = c; });
@@ -3713,8 +3701,14 @@ function hasRealTask(dk) {
 }
 
 /* ====== 실시간 구독 ====== */
+let _realtimeChannels = [];
 function setupRealtime() {
-  sb.channel('app-changes')
+  // 기존 채널 정리 (재로그인/다른 가족 진입 시 중복 방지)
+  _realtimeChannels.forEach(ch => { try { sb.removeChannel(ch); } catch(e){} });
+  _realtimeChannels = [];
+
+  const fc = getFamilyCode();
+  const appCh = sb.channel('app-changes-' + fc)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'subjects' }, () => refreshData())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => refreshData())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'confirmations' }, () => refreshData())
@@ -3724,12 +3718,14 @@ function setupRealtime() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'homework_notes' }, () => loadNotes())
     .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, () => refreshMembers())
     .subscribe();
+  _realtimeChannels.push(appCh);
 
-  sb.channel('chat-channel')
+  const chatCh = sb.channel('chat-channel-' + fc)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
       onNewChatMessage(payload.new);
     })
     .subscribe();
+  _realtimeChannels.push(chatCh);
 }
 
 let refreshTimer = null;
@@ -3975,6 +3971,7 @@ function renderTasks() {
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};" onclick="toggleSubject('${s.id}')">
         <span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}">▼</span>
         <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
+        <span class="subject-hint" style="font-family:'Gaegu',cursive;font-size:12px;color:#7C5A3A;margin-right:6px;">완료시. 동그라미 체크.</span>
         <span class="subject-status">${done}/${tasks.length}</span>
         ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
       </div>
@@ -4088,9 +4085,18 @@ async function addSubject() {
   const { error } = await sb.from('subjects').insert({
     id, date_key: selectedDate, name, color: randomColor(), sort_order: Date.now() % 2000000000, family_id: familyCode, member_id: memberId
   });
-  
+
   if (error) { err.textContent = '오류: ' + error.message; soundError(); return; }
-  
+
+  // 빈 숙제 한 줄 자동 생성
+  await sb.from('tasks').insert({
+    id: 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    subject_id: id, date_key: selectedDate, text: '', done: false,
+    sort_order: Date.now() % 2000000000, family_id: familyCode
+  });
+  collapsedSubjects[id] = false;
+  justAddedSubjectId = id;
+
   soundFanfare();
   closeAddSubject();
   showToast(`✨ "${name}" 과목 추가됨`);
@@ -4300,7 +4306,7 @@ async function doConfirm() {
   delete newPending[selectedDate];
   
   await Promise.all([
-    sb.from('confirmations').upsert({ date_key: selectedDate, confirmed_by: currentUser.id }),
+    sb.from('confirmations').upsert({ date_key: selectedDate, confirmed_by: currentUser.id, family_id: getFamilyCode() }, { onConflict: 'date_key,family_id' }),
     sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('family_id', getFamilyCode())
   ]);
   
@@ -4327,7 +4333,7 @@ function editAppTitle() {
     let val = input.value.trim();
     if (val.length > 30) val = val.slice(0, 30);
     if (!val) val = '숙제 체크리스트';
-    await sb.from('app_settings').upsert({ key: 'app_title', value: val });
+    await sb.from('app_settings').upsert({ key: 'app_title', value: val, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
     const newH1 = document.createElement('h1');
     newH1.id = 'appTitle'; newH1.textContent = val; newH1.onclick = editAppTitle;
     input.replaceWith(newH1);
@@ -4779,9 +4785,12 @@ function renderMemberSettings() {
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
         <button class="member-color-trigger" style="background:${color};flex-shrink:0;${canEdit ? '' : 'pointer-events:none;opacity:0.7;'}" ${canEdit ? `onclick="openColorPalette('${m.id}')"` : ''} title="색 변경">${n}</button>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
-        <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:44px;height:44px;flex-shrink:0;position:relative;border-radius:4px;overflow:hidden;" title="${canEdit ? '사진 변경' : ''}">
-          ${photoHtml}
-          ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
+        <div style="width:44px;height:44px;flex-shrink:0;position:relative;">
+          <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:100%;height:100%;border-radius:4px;overflow:hidden;position:relative;" title="${canEdit ? '사진 변경' : ''}">
+            ${photoHtml}
+            ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
+          </div>
+          ${canEdit && photo ? `<button onclick="event.stopPropagation();deleteMemberPhoto('${m.id}')" title="사진 삭제" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#E53935;color:white;border:1.5px solid white;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;box-shadow:1px 1px 3px rgba(0,0,0,0.3);z-index:5;">✕</button>` : ''}
         </div>
         <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0;">
@@ -4884,6 +4893,23 @@ function handleMemberPhotoUpload(event, memberId) {
     refreshLoginCardsIfVisible();
   };
   reader.readAsDataURL(file);
+}
+
+async function deleteMemberPhoto(memberId) {
+  if (!isParent()) { showToast('부모만 변경할 수 있어요'); return; }
+  const m = cachedMembers.find(x => x.id === memberId);
+  if (!m) return;
+  if (!confirm(`"${m.name}" 사진을 삭제할까요?`)) return;
+  try {
+    await sb.from('members').update({ photo: null }).eq('id', memberId);
+    if (m) m.photo = null;
+    try { localStorage.removeItem('member_photo_' + memberId); } catch(e) {}
+    renderMemberSettings();
+    refreshLoginCardsIfVisible();
+    showToast('🗑️ 사진이 삭제됐어요');
+  } catch(e) {
+    showToast('삭제 실패: ' + (e.message || '오류'));
+  }
 }
 
 async function addLoginProfile() {
@@ -5001,7 +5027,7 @@ async function saveProfileSettings() {
 
 async function saveAddSubjectBtnText() {
   const val = document.getElementById('settingsAddSubjectBtn').value.trim() || '+ 과목 추가';
-  await sb.from('app_settings').upsert({ key: 'add_subject_btn', value: val });
+  await sb.from('app_settings').upsert({ key: 'add_subject_btn', value: val, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   const btn = document.querySelector('.add-sub-bar-btn');
   if (btn) btn.textContent = val;
   showToast('✅ 과목추가 버튼 저장!');
@@ -5009,7 +5035,7 @@ async function saveAddSubjectBtnText() {
 
 async function saveDeleteSubjectBtnText() {
   const val = document.getElementById('settingsDeleteSubjectBtn').value.trim() || '선택 과목 삭제';
-  await sb.from('app_settings').upsert({ key: 'delete_subject_btn', value: val });
+  await sb.from('app_settings').upsert({ key: 'delete_subject_btn', value: val, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   const btn = document.getElementById('bulkDeleteSubjectsBtn');
   if (btn) btn.textContent = val;
   showToast('✅ 저장!');
@@ -5017,7 +5043,7 @@ async function saveDeleteSubjectBtnText() {
 
 async function saveNewSubjectPlaceholder() {
   const val = document.getElementById('settingsNewSubjectPlaceholder').value.trim() || '새 과목 입력';
-  await sb.from('app_settings').upsert({ key: 'new_subject_placeholder', value: val });
+  await sb.from('app_settings').upsert({ key: 'new_subject_placeholder', value: val, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   const inp = document.getElementById('newSubjectInput');
   if (inp) inp.placeholder = val;
   showToast('✅ 저장!');
@@ -5025,7 +5051,7 @@ async function saveNewSubjectPlaceholder() {
 
 async function saveSubjectModalTitle() {
   const val = document.getElementById('settingsSubjectModalTitle').value.trim() || '과목 선택';
-  await sb.from('app_settings').upsert({ key: 'subject_modal_title', value: val });
+  await sb.from('app_settings').upsert({ key: 'subject_modal_title', value: val, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   const el = document.getElementById('subjectModalTitle');
   if (el) el.textContent = val;
   showToast('✅ 저장!');
@@ -5033,7 +5059,7 @@ async function saveSubjectModalTitle() {
 
 async function saveSubjectGuideText() {
   const val = document.getElementById('settingsSubjectGuide').value.trim() || '탭해서 오늘 과목을 선택하세요';
-  await sb.from('app_settings').upsert({ key: 'subject_guide', value: val });
+  await sb.from('app_settings').upsert({ key: 'subject_guide', value: val, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   const el = document.querySelector('.pwd-modal-sub');
   if (el) el.textContent = val;
   showToast('✅ 저장!');
@@ -5041,7 +5067,7 @@ async function saveSubjectGuideText() {
 
 async function saveAppTitleOnly() {
   const appTitle = document.getElementById('settingsAppTitle').value.trim();
-  await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle });
+  await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   const el = document.getElementById('appTitle');
   if (el) el.textContent = appTitle;
   if (appTitle) document.title = appTitle;
@@ -5050,7 +5076,7 @@ async function saveAppTitleOnly() {
 
 async function saveNoteTitleOnly() {
   const noteTitle = document.getElementById('settingsNoteTitle').value.trim() || '숙제노트';
-  await sb.from('app_settings').upsert({ key: 'note_title', value: noteTitle });
+  await sb.from('app_settings').upsert({ key: 'note_title', value: noteTitle, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   const el = document.getElementById('homeworkNoteTitle');
   if (el) el.textContent = noteTitle;
   const el2 = document.getElementById('noteModalTitle');
@@ -5061,7 +5087,7 @@ async function saveNoteTitleOnly() {
 async function saveTitleSettings() {
   const appTitle = document.getElementById('settingsAppTitle').value.trim() || '숙제 체크리스트';
   const noteTitle = document.getElementById('settingsNoteTitle').value.trim() || '숙제노트';
-  await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle });
+  await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   document.getElementById('appTitle').textContent = appTitle;
   document.getElementById('homeworkNoteTitle').textContent = noteTitle;
   document.getElementById('noteModalTitle').textContent = noteTitle;
