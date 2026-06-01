@@ -2412,7 +2412,7 @@
     </div>
     <div class="color-palette-btns">
       <button class="color-palette-cancel" onclick="closeColorPalette()">취소</button>
-      <button class="color-palette-confirm" onclick="confirmColorPalette()">설정</button>
+      <button class="color-palette-confirm" onclick="confirmColorPalette()">확인</button>
     </div>
   </div>
 </div>
@@ -4218,6 +4218,7 @@ async function toggleTask(task) {
 
   // ---- 화면 먼저 반영 (낙관적) ----
   task.done = newDone;
+  task.done_at = newDone ? new Date().toISOString() : null;
   cachedCoins.pending = { ...(cachedCoins.pending || {}) };
   if (newDone) {
     soundCheck();
@@ -4238,7 +4239,7 @@ async function toggleTask(task) {
   renderAll();
 
   // ---- 서버 저장 (백그라운드, 화면 안 막음) ----
-  sb.from('tasks').update({ done: newDone }).eq('id', task.id).then(() => {});
+  sb.from('tasks').update({ done: newDone, done_at: task.done_at }).eq('id', task.id).then(() => {});
   const _co = coinOwnerId();
   if (newDone) {
     sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', _co).then(() => {});
@@ -5448,6 +5449,17 @@ async function addShopItem() {
 }
 
 /* ====== 채팅 ====== */
+// 마지막으로 읽은 채팅 시점 (멤버별 localStorage 저장)
+function chatSeenKey() {
+  return `chat_last_seen_${getFamilyCode()}_${currentUser ? currentUser.id : ''}`;
+}
+function getChatLastSeen() {
+  return localStorage.getItem(chatSeenKey()) || '';
+}
+function setChatLastSeen(ts) {
+  if (ts) localStorage.setItem(chatSeenKey(), ts);
+}
+
 async function loadChat() {
   const fc = getFamilyCode();
   if (!fc) { chatMessages = []; renderChatMessages(); return; }
@@ -5458,10 +5470,12 @@ async function loadChat() {
     .limit(50);
 
   chatMessages = (data || []).reverse();
-  if (chatMessages.length > 0) {
-    lastSeenChatId = chatMessages[chatMessages.length - 1].id;
-  }
   renderChatMessages();
+  // 로드 시: 저장된 '읽은 시점' 기준으로 안 읽은 메시지 배지 표시 (최신으로 덮어쓰지 않음)
+  if (chatOpen && chatMessages.length > 0) {
+    setChatLastSeen(chatMessages[chatMessages.length - 1].created_at);
+  }
+  updateChatBadge();
 }
 
 function onNewChatMessage(msg) {
@@ -5476,13 +5490,17 @@ function onNewChatMessage(msg) {
   if (!chatOpen) {
     updateChatBadge();
   } else {
-    lastSeenChatId = msg.id;
+    setChatLastSeen(msg.created_at);
   }
   renderChatMessages();
 }
 
 function updateChatBadge() {
-  const unseen = chatMessages.filter(m => m.id > lastSeenChatId && m.sender_id !== currentUser.id).length;
+  const lastSeen = getChatLastSeen();
+  const unseen = chatMessages.filter(m =>
+    m.sender_id !== (currentUser ? currentUser.id : null) &&
+    (!lastSeen || m.created_at > lastSeen)
+  ).length;
   const badge = document.getElementById('chatBadge');
   if (unseen > 0) {
     badge.textContent = unseen > 9 ? '9+' : unseen;
@@ -5496,7 +5514,7 @@ function toggleChat() {
   chatOpen = !chatOpen;
   document.getElementById('chatPanel').classList.toggle('open', chatOpen);
   if (chatOpen) {
-    if (chatMessages.length > 0) lastSeenChatId = chatMessages[chatMessages.length - 1].id;
+    if (chatMessages.length > 0) setChatLastSeen(chatMessages[chatMessages.length - 1].created_at);
     document.getElementById('chatBadge').classList.remove('show');
     // 리셋 버튼 부모만
     const resetBtn = document.getElementById('chatResetBtn');
@@ -5731,10 +5749,27 @@ async function openDayDetail(dk) {
   const dt = new Date(y, m-1, d);
   const days = ['일','월','화','수','목','금','토'];
   document.getElementById('dayDetailTitle').textContent = `${m}월 ${d}일 (${days[dt.getDay()]})`;
-  
+
   await loadDayMemo(dk);
+  await loadDayDetailNote(dk);
   renderDayDetail(dk);
   document.getElementById('dayDetailPanel').classList.add('open');
+}
+
+// 상세팝업에 보여줄 숙제노트(읽기전용) — 해당 날짜+자녀+가족
+let _dayDetailNote = { title: '숙제노트', lines: [] };
+async function loadDayDetailNote(dk) {
+  _dayDetailNote = { title: '숙제노트', lines: [] };
+  const fc = getFamilyCode();
+  if (!fc) return;
+  try {
+    const uid = `${fc}_${getActiveMemberId()}_${dk}`;
+    const { data } = await sb.from('homework_notes').select('*').eq('user_id', uid).maybeSingle();
+    if (data) {
+      _dayDetailNote.title = data.note_title || '숙제노트';
+      _dayDetailNote.lines = (JSON.parse(data.note_lines || '[]') || []).filter(x => x && x.trim());
+    }
+  } catch(e) { /* 무시 */ }
 }
 
 function closeDayDetail() {
@@ -5799,7 +5834,7 @@ function renderDayDetail(dk) {
           html += `<div style="padding:5px 10px;display:flex;align-items:center;gap:6px;border-top:1px dashed #E0D8C8;">`;
           html += icon;
           html += `<span style="flex:1;font-family:'Gowun Dodum',sans-serif;font-size:14px;font-weight:700;min-width:0;${style}">${esc(t.text)}</span>`;
-          if (timeStr) html += `<span style="font-family:'Gaegu',cursive;font-size:10px;color:#7C5A3A;font-weight:700;text-align:right;line-height:1.3;min-width:fit-content;flex-shrink:0;">${timeStr}</span>`;
+          if (timeStr) html += `<span style="font-family:'Gaegu',cursive;font-size:14px;color:#5A3A1B;font-weight:700;text-align:right;line-height:1.3;min-width:fit-content;flex-shrink:0;">${timeStr}</span>`;
           html += `</div>`;
         });
       }
@@ -5819,10 +5854,26 @@ function renderDayDetail(dk) {
     html += `<div style="font-family:'Gaegu',cursive;font-size:15px;font-weight:700;color:#7C5A3A;">❌ 부모님 미확인</div>`;
   }
   if (stats.total > 0) {
-    html += `<div style="font-family:'Gaegu',cursive;font-size:13px;color:#5A8A5E;margin-top:2px;">💰 코인: ${confirmed ? '확정' : '예비 +' + pending}</div>`;
+    html += `<div style="font-family:'Gaegu',cursive;font-size:16px;font-weight:700;color:#2E7D32;margin-top:4px;">💰 코인: ${confirmed ? '확정' : '예비 +' + pending}</div>`;
   }
   html += `</div>`;
   
+  // 숙제노트 (읽기전용) — 메모와 별도 표시
+  if (_dayDetailNote && _dayDetailNote.lines && _dayDetailNote.lines.length > 0) {
+    html += `<div class="homework-note-card" style="margin-bottom:8px;">`;
+    html += `<div class="homework-note-header" style="padding:6px 10px;cursor:default;">`;
+    html += `<div class="homework-note-title-wrap"><span class="homework-note-title" style="cursor:default;">📒 ${escapeHTML(_dayDetailNote.title)}</span></div>`;
+    html += `</div>`;
+    html += `<div class="homework-note-content" style="padding:8px 10px;">`;
+    _dayDetailNote.lines.forEach((text, i) => {
+      html += `<div class="note-line" style="align-items:center;">`;
+      html += `<span style="font-family:Gaegu,cursive;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>`;
+      html += `<span style="flex:1;font-family:'Gowun Dodum',sans-serif;font-size:15px;color:#222;font-weight:700;">${escapeHTML(text)}</span>`;
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  }
+
   // 날짜 메모 (숙제노트 접이식 스타일)
   const memos = dayMemos[dk] || [''];
   html += `<div class="homework-note-card" style="margin-bottom:8px;">`;
