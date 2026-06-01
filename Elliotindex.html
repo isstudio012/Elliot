@@ -1643,6 +1643,8 @@
     box-sizing: border-box;
   }
   .add-sub-bar-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A8A; }
+  .save-toggle-btn { box-shadow: 2px 2px 0 rgba(0,0,0,0.28); transition: background 0.15s; }
+  .save-toggle-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 rgba(0,0,0,0.28); }
   .select-bar-wrap {
     display: flex;
     align-items: center;
@@ -2099,7 +2101,6 @@
       </div>
       <div class="profile-msg">
         <h1 id="appTitle"></h1>
-        <div class="selected-date" id="selectedDate" style="text-align:left;margin:2px 0 0 4px;font-size:16px;"></div>
       </div>
     </div>
     
@@ -4208,7 +4209,8 @@ function renderTasks() {
   const [y, m, d] = dk.split('-').map(Number);
   const dt = new Date(y, m-1, d);
   const days = ['일','월','화','수','목','금','토'];
-  document.getElementById('selectedDate').textContent = `${m}월 ${d}일 (${days[dt.getDay()]})`;
+  const _sd = document.getElementById('selectedDate');
+  if (_sd) _sd.textContent = `${m}월 ${d}일 (${days[dt.getDay()]})`;
   
   const container = document.getElementById('subjects');
   container.innerHTML = '';
@@ -5096,9 +5098,9 @@ function renderMemberSettings() {
           </div>
           ${(canEdit && photo) ? `<button onclick="event.stopPropagation();deleteMemberPhoto('${m.id}')" title="사진 삭제" style="position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:#E53935;color:white;border:2px solid white;font-size:15px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2;box-shadow:1px 1px 3px rgba(0,0,0,0.3);">−</button>` : ''}
         </div>
-        <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
+        <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" oninput="markUnsaved('saveBtn-${m.id}')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <button onclick="saveMemberRow('${m.id}')" title="저장" style="padding:6px 10px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
+          <button id="saveBtn-${m.id}" class="save-toggle-btn" onclick="saveMemberRow('${m.id}')" title="저장" style="padding:6px 10px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
           <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
             <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제" style="margin:0;">−</button>
             <span style="font-family:'Pretendard',sans-serif;font-size:9px;color:#555;font-weight:700;">삭제</span>
@@ -5132,10 +5134,10 @@ function renderPasswordSettings() {
             <span style="position:absolute;bottom:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:${color};border:2px solid white;display:flex;align-items:center;justify-content:center;font-family:'Pretendard',sans-serif;font-size:10px;font-weight:700;color:white;">${n}</span>
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;">
-            <input type="text" id="curPwdInput-${m.id}" maxlength="10" placeholder="현재 비번" autocomplete="off" style="width:100%;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:400;outline:none;background:white;color:#111;">
-            <input type="text" id="newPwdInput-${m.id}" maxlength="10" placeholder="새 비번" autocomplete="off" style="width:100%;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:400;outline:none;background:white;color:#111;">
+            <input type="text" id="curPwdInput-${m.id}" maxlength="10" placeholder="현재 비번" autocomplete="off" oninput="markUnsaved('pwdBtn-${m.id}')" style="width:100%;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:400;outline:none;background:white;color:#111;">
+            <input type="text" id="newPwdInput-${m.id}" maxlength="10" placeholder="새 비번" autocomplete="off" oninput="markUnsaved('pwdBtn-${m.id}')" style="width:100%;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:400;outline:none;background:white;color:#111;">
           </div>
-          <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;align-self:stretch;padding:8px 12px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:600;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">변경</button>
+          <button id="pwdBtn-${m.id}" class="save-toggle-btn" onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;align-self:stretch;padding:8px 12px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:600;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">변경</button>
           <button onclick="resetMemberPwd('${m.id}')" title="비밀번호 초기화" style="flex-shrink:0;width:34px;height:34px;background:#E87722;color:white;border:none;border-radius:50%;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;" title="비밀번호 초기화">↺</button>
         <div class="pwd-error" id="settingsError-${m.id}" style="min-height:0;display:none;width:100%;"></div>
       </div>
@@ -5279,6 +5281,10 @@ async function deleteLoginProfile(memberId) {
 }
 
 // 개별 프로필 저장 (각 행의 저장 버튼) — 이름을 DB에 반영, 다른 프로필 영향 없음
+// 저장버튼 색: 미저장=파랑, 저장완료=녹색
+function markUnsaved(btnId) { const b = document.getElementById(btnId); if (b) b.style.background = '#4A90D9'; }
+function markSaved(btnId) { const b = document.getElementById(btnId); if (b) b.style.background = '#5A8A5E'; }
+
 async function saveMemberRow(memberId) {
   const input = document.getElementById('memberName-' + memberId);
   if (!input) return;
@@ -5295,6 +5301,7 @@ async function saveMemberRow(memberId) {
   }
   await sb.from('members').update({ name }).eq('id', memberId);
   refreshLoginCardsIfVisible();
+  markSaved('saveBtn-' + memberId);
   showToast('💾 저장됨');
 }
 
@@ -5499,6 +5506,7 @@ async function changeMemberPwd(memberId) {
   document.getElementById('curPwdInput-' + memberId).value = '';
   document.getElementById('newPwdInput-' + memberId).value = '';
   err.textContent = '';
+  markSaved('pwdBtn-' + memberId);
   soundFanfare();
   showToast(`${memberOrderId(memberId) || ''}번 비밀번호가 변경됐어요!`);
 }
