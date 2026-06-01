@@ -1027,6 +1027,36 @@
   .cal-day-name.sun { color: #B86B6B; }
   .cal-day-name.sat { color: #6B89B8; }
   
+  .date-scrub {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 6px;
+    background: #CDE8CF;
+    outline: none;
+    margin: 0;
+  }
+  .date-scrub::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #5A8A5E;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .date-scrub::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #5A8A5E;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
   .cal-cell {
     aspect-ratio: auto;
     height: 48px;
@@ -2102,9 +2132,12 @@
         <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
-    
-    <!-- 숙제노트 (접이식) -->
-    <div class="homework-note-card">
+
+    <!-- 다가오는 일정 (자녀별 · 달력 더블클릭 상세에서 입력) -->
+    <div id="upcomingBox"></div>
+
+    <!-- 숙제노트 (접이식) — 화면에서 숨김, id 참조 유지용. 실제 편집은 + 숙제노트 버튼 → 팝업 -->
+    <div class="homework-note-card" style="display:none;">
       <div class="homework-note-header" onclick="toggleHomeworkNote(event)">
         <span class="homework-note-toggle" id="noteToggleIcon" style="color:white;">▼</span>
         <div class="homework-note-title-wrap">
@@ -2124,8 +2157,9 @@
     <div class="selected-date" id="selectedDate"></div>
     <!-- 과목 컨트롤 바: 과목추가(좌) + 선택삭제(우) -->
     <div class="subject-ctrl-bar" id="subjectCtrlBar">
-      <div class="subject-ctrl-side">
+      <div class="subject-ctrl-side" style="display:flex;gap:8px;">
         <button class="add-sub-bar-btn" onclick="openAddSubject()">+ 과목 추가</button>
+        <button class="add-sub-bar-btn" onclick="openNoteModal()">📒 숙제노트</button>
       </div>
       <div class="subject-ctrl-side subject-ctrl-side-right" style="margin-left:auto;">
         <div class="select-bar-wrap" id="selectBarWrap"></div>
@@ -2478,6 +2512,7 @@ let cachedShopItems = [];
 let cachedTickets = {};            // 활성 자녀의 티켓 { item_id: count }
 let cachedTicketsMap = {};         // { memberId: { item_id: count } }
 let cachedMembers = [];
+let cachedSchedules = [];          // 다가오는 일정 [{id, date_key, title, member_id}]
 let noteLines = [];
 let noteTitle = '숙제노트';
 
@@ -2664,7 +2699,8 @@ function loadProfilePhoto() {
 
 /* ====== 숙제노트 팝업 모달 ====== */
 function openNoteModal() {
-  const title = document.getElementById('homeworkNoteTitle').value || '숙제노트';
+  const titleEl = document.getElementById('homeworkNoteTitle');
+  const title = (titleEl.textContent || titleEl.value || '숙제노트').trim() || '숙제노트';
   document.getElementById('noteModalTitle').textContent = title;
   renderNoteModal();
   document.getElementById('noteModal').classList.add('show');
@@ -3653,7 +3689,7 @@ async function showMainApp() {
 /* ====== 데이터 로드 ====== */
 async function loadAllData() {
   const familyCode = getFamilyCode();
-  const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes, memRes] = await Promise.all([
+  const [subRes, taskRes, coinRes, confRes, shopRes, tickRes, settRes, memRes, schedRes] = await Promise.all([
     sb.from('subjects').select('*').eq('family_id', familyCode).order('sort_order'),
     sb.from('tasks').select('*').eq('family_id', familyCode).order('sort_order'),
     sb.from('coins').select('*').eq('family_id', familyCode),
@@ -3661,12 +3697,14 @@ async function loadAllData() {
     sb.from('shop_items').select('*').eq('family_id', familyCode),
     sb.from('tickets').select('*').eq('family_id', familyCode),
     sb.from('app_settings').select('*').eq('family_id', familyCode),
-    sb.from('members').select('*').eq('family_id', familyCode)
+    sb.from('members').select('*').eq('family_id', familyCode),
+    sb.from('schedules').select('*').eq('family_id', familyCode)
   ]);
-  
+
   cachedSubjects = subRes.data || [];
   cachedTasks = taskRes.data || [];
   cachedMembers = memRes.data || [];
+  cachedSchedules = schedRes.data || [];
 
   // 코인: 자녀(member_id)별 맵 구성 (중복 행은 첫 행만)
   cachedCoinsMap = {};
@@ -3754,6 +3792,60 @@ function getConfKey(dk) {
   return mid ? `${dk}__${mid}` : dk;
 }
 
+/* ====== 다가오는 일정 헬퍼 (자녀별) ====== */
+function schedulesForDate(dk) {
+  const mid = getActiveMemberId();
+  return cachedSchedules
+    .filter(s => s.member_id === mid && s.date_key === dk)
+    .sort((a, b) => (a.id || 0) - (b.id || 0));
+}
+function ddayNum(dk) {
+  const [y, m, d] = dk.split('-').map(Number);
+  const target = new Date(y, m - 1, d); target.setHours(0, 0, 0, 0);
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  return Math.round((target - now) / 86400000);
+}
+function ddayLabel(dk) {
+  const n = ddayNum(dk);
+  if (n === 0) return 'D-DAY';
+  return n > 0 ? `D-${n}` : `D+${-n}`;
+}
+// 메인 표시용: 오늘 이후(D-DAY 포함) 일정, D-day 오름차순
+function upcomingSchedules() {
+  const mid = getActiveMemberId();
+  return cachedSchedules
+    .filter(s => s.member_id === mid && ddayNum(s.date_key) >= 0)
+    .sort((a, b) => ddayNum(a.date_key) - ddayNum(b.date_key) || (a.id || 0) - (b.id || 0));
+}
+async function addScheduleFromDetail(dk) {
+  const inp = document.getElementById('schedInput');
+  if (!inp) return;
+  const title = (inp.value || '').trim();
+  if (!title) return;
+  const mid = getActiveMemberId();
+  const fc = getFamilyCode();
+  inp.value = '';
+  const tmp = { id: 'tmp_' + Date.now(), date_key: dk, title, member_id: mid, family_id: fc };
+  cachedSchedules.push(tmp);
+  renderDayDetail(dk); renderUpcoming(); renderCalendar();
+  setTimeout(() => { const e = document.getElementById('schedInput'); if (e) e.focus(); }, 50);
+  const { data, error } = await sb.from('schedules')
+    .insert({ date_key: dk, title, member_id: mid, family_id: fc }).select().maybeSingle();
+  if (error) {
+    showToast('❌ 일정 저장 실패: ' + error.message);
+    cachedSchedules = cachedSchedules.filter(s => s.id !== tmp.id);
+    renderDayDetail(dk); renderUpcoming(); renderCalendar();
+    return;
+  }
+  if (data) tmp.id = data.id;
+}
+async function deleteSchedule(id, dk) {
+  cachedSchedules = cachedSchedules.filter(s => String(s.id) !== String(id));
+  renderDayDetail(dk); renderUpcoming(); renderCalendar();
+  if (typeof id === 'string' && id.startsWith('tmp_')) return;
+  await sb.from('schedules').delete().eq('id', id);
+}
+
 function getSubjectsForDate(dk) {
   const memberId = getActiveMemberId();
   return cachedSubjects.filter(s => s.date_key === dk && (!memberId || !s.member_id || s.member_id === memberId));
@@ -3835,10 +3927,47 @@ async function refreshMembersNow() {
 function renderAll() {
   syncActiveCoins(); // 활성 자녀의 코인/티켓으로 동기화
   renderCalendar();
+  renderUpcoming();
   renderControlBar();
   renderTasks();
   renderMomSection();
   renderCoins();
+}
+
+/* ====== 다가오는 일정 박스 (메인) — 선택한 날짜 기준 ====== */
+function renderUpcoming() {
+  const box = document.getElementById('upcomingBox');
+  if (!box) return;
+  const dk = selectedDate;
+  const [y, m, d] = dk.split('-').map(Number);
+  const lastDate = new Date(y, m, 0).getDate();
+  const days = ['일','월','화','수','목','금','토'];
+  const dow = days[new Date(y, m - 1, d).getDay()];
+  const dateLabel = `${y}.${String(m).padStart(2,'0')}.${String(d).padStart(2,'0')} (${dow})`;
+
+  const list = schedulesForDate(dk);
+  let items;
+  if (list.length === 0) {
+    items = `<span style="color:#999;font-weight:700;">이 날 예정된 일정이 없어요</span>`;
+  } else {
+    items = list.map(s =>
+      `<span style="white-space:nowrap;"><span style="color:#222;font-weight:700;">${escapeHTML(s.title)}</span> <span style="color:#2E7D32;font-weight:800;">${ddayLabel(s.date_key)}</span></span>`
+    ).join('<span style="color:#bbb;"> · </span>');
+  }
+  box.innerHTML =
+    `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:2px 2px 0 #5A8A5E;">
+       <div style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#2E7D32;margin-bottom:4px;">📌 다가오는 일정</div>
+       <div style="font-family:Pretendard,sans-serif;font-size:15px;line-height:1.7;margin-bottom:8px;">${items}</div>
+       <div style="text-align:right;font-family:Pretendard,sans-serif;font-size:12px;color:#888;font-weight:700;margin-bottom:3px;">${dateLabel}</div>
+       <input type="range" min="1" max="${lastDate}" value="${d}" oninput="scrubDate(this.value)" class="date-scrub" style="background:linear-gradient(to right,#C4C4C4 0%,#C4C4C4 ${lastDate > 1 ? (d-1)/(lastDate-1)*100 : 0}%,#5A8A5E ${lastDate > 1 ? (d-1)/(lastDate-1)*100 : 0}%,#5A8A5E 100%);">
+     </div>`;
+}
+// 슬라이더로 같은 달 안에서 날짜 이동
+function scrubDate(day) {
+  const [y, m] = selectedDate.split('-').map(Number);
+  selectedDate = dateKey(y, m - 1, Number(day));
+  renderAll();
+  loadNotes();
 }
 
 let _childDropdownOpen = false;
@@ -4005,6 +4134,10 @@ function renderCalendar() {
       }
     }
     
+    if (schedulesForDate(key).length > 0) {
+      html += `<span style="position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:#2E7D32;z-index:3;"></span>`;
+    }
+
     cell.innerHTML = html;
     cell.onclick = () => { soundClick(); selectedDate = key; renderAll(); loadNotes(); };
     cell.ondblclick = () => { soundClick(); cell.style.transform='scale(0.88)'; setTimeout(()=>{ cell.style.transform=''; openDayDetail(key); }, 120); };
@@ -5867,95 +6000,104 @@ function renderDayDetail(dk) {
   const pending = cachedCoins.pending[dk] || 0;
   
   let html = '';
-  
+
+  // ===== 다가오는 일정 쓰기 (자녀별) =====
+  const scheds = schedulesForDate(dk);
+  html += `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:10px 12px;margin-bottom:10px;box-shadow:2px 2px 0 #5A8A5E;">`;
+  html += `<div style="font-family:Pretendard,sans-serif;font-size:14px;font-weight:800;color:#2E7D32;margin-bottom:4px;">📌 다가오는 일정 쓰기 <span style="font-weight:700;color:#999;font-size:12px;">(${ddayLabel(dk)})</span></div>`;
+  scheds.forEach(s => {
+    html += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px dashed #E0D8C8;">`;
+    html += `<span style="flex:1;font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#222;min-width:0;">• ${escapeHTML(s.title)}</span>`;
+    html += `<button onclick="deleteSchedule('${s.id}','${dk}')" style="border:none;background:none;color:#2E7D32;font-size:16px;cursor:pointer;line-height:1;flex-shrink:0;">✕</button>`;
+    html += `</div>`;
+  });
+  html += `<div style="display:flex;gap:6px;margin-top:6px;">`;
+  html += `<input id="schedInput" type="text" maxlength="20" placeholder="예: 단원평가" onkeydown="if(event.key==='Enter')addScheduleFromDetail('${dk}')" style="flex:1;min-width:0;padding:8px;border:1.5px solid #5A8A5E;border-radius:8px;font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;outline:none;color:#222;background:white;">`;
+  html += `<button onclick="addScheduleFromDetail('${dk}')" style="flex-shrink:0;padding:0 14px;background:#5A8A5E;color:white;border:none;border-radius:8px;font-family:Pretendard,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">추가</button>`;
+  html += `</div></div>`;
+
+  // ===== 알림장 (흰 배경 · 검정 글씨 · 점선 구분, 체크·시간 유지) =====
+  const fmtAmPm = (d) => {
+    const h = d.getHours();
+    const m = String(d.getMinutes()).padStart(2,'0');
+    return h < 12 ? `am${h === 0 ? 12 : h}:${m}` : `pm${h === 12 ? 12 : h-12}:${m}`;
+  };
+  html += `<div style="background:white;border:2px solid #4A2F1B;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:2px 2px 0 #4A2F1B;">`;
+
   // 과목 + 숙제
   if (subs.length === 0) {
-    html += `<div style="padding:8px 4px;font-family:'Pretendard',sans-serif;font-size:15px;color:#7C5A3A;">등록된 과목이 없어요</div>`;
+    html += `<div style="padding:10px 12px;font-family:Pretendard,sans-serif;font-size:15px;color:#888;">등록된 과목이 없어요</div>`;
   } else {
-    subs.forEach(s => {
+    subs.forEach((s, si) => {
       const tasks = getTasksForSubject(dk, s.id);
       const done = tasks.filter(t => t.done).length;
-      html += `<div style="background:white;border:2px solid #4A2F1B;border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:2px 2px 0 #4A2F1B;">`;
-      html += `<div style="padding:6px 10px;background:${s.color || '#EAE0C2'};display:flex;align-items:center;justify-content:space-between;">`;
-      html += `<span style="font-family:'Pretendard',sans-serif;font-size:18px;font-weight:700;color:#3A2010;-webkit-text-stroke:0.5px #3A2010;">${esc(s.name)}</span>`;
-      html += `<span style="font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;color:#7C2D12;">${done}/${tasks.length}</span>`;
+      html += `<div style="padding:8px 12px;${si === 0 ? '' : 'border-top:1px dashed #999;'}">`;
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">`;
+      html += `<span style="font-family:Pretendard,sans-serif;font-size:16px;font-weight:800;color:#000;">${esc(s.name)}</span>`;
+      html += `<span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#000;">${done}/${tasks.length}</span>`;
       html += `</div>`;
       if (tasks.length === 0) {
-        html += `<div style="padding:8px 10px;font-family:'Pretendard',sans-serif;font-size:13px;color:#AAA;">숙제 없음</div>`;
+        html += `<div style="font-family:Pretendard,sans-serif;font-size:13px;color:#888;">숙제 없음</div>`;
       } else {
         tasks.forEach(t => {
           const icon = t.done
             ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#2E7D32;color:white;font-size:11px;font-weight:bold;flex-shrink:0;">✓</span>`
-            : `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:2px solid #4A2F1B;background:white;flex-shrink:0;"></span>`;
-          const style = t.done ? 'text-decoration:none;color:#2E7D32;' : 'color:#222;';
+            : `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:2px solid #000;background:white;flex-shrink:0;"></span>`;
           let timeStr = '';
-          const fmtAmPm = (d) => {
-            const h = d.getHours();
-            const m = String(d.getMinutes()).padStart(2,'0');
-            return h < 12 ? `am${h === 0 ? 12 : h}:${m}` : `pm${h === 12 ? 12 : h-12}:${m}`;
-          };
-          const fmtDate = (d) => `${String(d.getFullYear()).slice(2)}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-          if (t.created_at) {
-            const ct = new Date(t.created_at);
-            timeStr += `${fmtAmPm(ct)} 시작`;
-          }
+          if (t.created_at) timeStr += `${fmtAmPm(new Date(t.created_at))} 시작`;
           if (t.done_at && t.created_at) {
-            const ct = new Date(t.created_at);
-            const dt = new Date(t.done_at);
+            const ct = new Date(t.created_at), dt = new Date(t.done_at);
             const diff = Math.floor((dt - ct) / 60000);
-            const dh = Math.floor(diff / 60);
-            const dm = diff % 60;
+            const dh = Math.floor(diff / 60), dm = diff % 60;
             let durStr = '';
             if (dh > 0) durStr += `${dh}시간`;
             if (dm > 0) durStr += `${dm}분`;
             if (!durStr) durStr = '0분';
             timeStr += ` ~ ${fmtAmPm(dt)} (${durStr})`;
           } else if (t.done_at) {
-            const dt = new Date(t.done_at);
-            timeStr += `${fmtAmPm(dt)} 완료`;
+            timeStr += `${fmtAmPm(new Date(t.done_at))} 완료`;
           }
-          html += `<div style="padding:5px 10px;display:flex;align-items:center;gap:6px;border-top:1px dashed #E0D8C8;">`;
+          html += `<div style="padding:3px 0;display:flex;align-items:center;gap:6px;">`;
           html += icon;
-          html += `<span style="flex:1;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;min-width:0;${style}">${esc(t.text)}</span>`;
-          if (timeStr) html += `<span style="font-family:'Pretendard',sans-serif;font-size:14px;color:#5A3A1B;font-weight:700;text-align:right;line-height:1.3;min-width:fit-content;flex-shrink:0;">${timeStr}</span>`;
+          html += `<span style="flex:1;font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;min-width:0;color:#000;">${esc(t.text)}</span>`;
+          if (timeStr) html += `<span style="font-family:Pretendard,sans-serif;font-size:13px;color:#000;font-weight:700;text-align:right;line-height:1.3;min-width:fit-content;flex-shrink:0;">${timeStr}</span>`;
           html += `</div>`;
         });
       }
       html += `</div>`;
     });
   }
-  
-  // 확인 여부 + 코인 (글씨만)
-  html += `<div style="padding:6px 4px;margin-bottom:4px;">`;
+
+  // 확인 여부 + 코인
+  html += `<div style="padding:8px 12px;border-top:1px dashed #999;">`;
   if (confirmed) {
     const confirmer = cachedMembers.find(m => m.id === confirmed.confirmed_by);
     const cName = confirmer ? confirmer.name : '부모';
-    html += `<div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#2E5A32;">✅ ${esc(cName)}가 확인 완료</div>`;
+    html += `<div style="font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#000;">✅ ${esc(cName)}가 확인 완료</div>`;
   } else if (stats.total > 0 && stats.done === stats.total) {
-    html += `<div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#D4A020;">⏳ 확인 대기 중</div>`;
+    html += `<div style="font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#000;">⏳ 확인 대기 중</div>`;
   } else {
-    html += `<div style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#7C5A3A;">❌ 부모님 미확인</div>`;
+    html += `<div style="font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#000;">❌ 부모님 미확인</div>`;
   }
   if (stats.total > 0) {
-    html += `<div style="font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#2E7D32;margin-top:4px;">💰 코인: ${confirmed ? '확정' : '예비 +' + pending}</div>`;
+    html += `<div style="font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#000;margin-top:2px;">💰 코인: ${confirmed ? '확정' : '예비 +' + pending}</div>`;
   }
   html += `</div>`;
-  
-  // 숙제노트 (읽기전용) — 메모와 별도 표시
+
+  // 숙제노트 (읽기전용)
   if (_dayDetailNote && _dayDetailNote.lines && _dayDetailNote.lines.length > 0) {
-    html += `<div class="homework-note-card" style="margin-bottom:8px;">`;
-    html += `<div class="homework-note-header" style="padding:6px 10px;cursor:default;">`;
-    html += `<div class="homework-note-title-wrap"><span class="homework-note-title" style="cursor:default;">📒 ${escapeHTML(_dayDetailNote.title)}</span></div>`;
-    html += `</div>`;
-    html += `<div class="homework-note-content" style="padding:8px 10px;">`;
+    html += `<div style="padding:8px 12px;border-top:1px dashed #999;">`;
+    html += `<div style="font-family:Pretendard,sans-serif;font-size:14px;font-weight:800;color:#000;margin-bottom:4px;">📒 ${escapeHTML(_dayDetailNote.title)}</div>`;
     _dayDetailNote.lines.forEach((text, i) => {
-      html += `<div class="note-line" style="align-items:center;">`;
-      html += `<span style="font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;color:#999;min-width:20px;">${i+1}.</span>`;
-      html += `<span style="flex:1;font-family:'Pretendard',sans-serif;font-size:15px;color:#222;font-weight:700;">${escapeHTML(text)}</span>`;
+      html += `<div style="display:flex;gap:6px;padding:2px 0;">`;
+      html += `<span style="font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;color:#888;min-width:20px;">${i+1}.</span>`;
+      html += `<span style="flex:1;font-family:Pretendard,sans-serif;font-size:15px;color:#000;font-weight:700;">${escapeHTML(text)}</span>`;
       html += `</div>`;
     });
-    html += `</div></div>`;
+    html += `</div>`;
   }
+
+  html += `</div>`; // 알림장 카드 닫기
 
   // 날짜 메모 (숙제노트 접이식 스타일)
   const memos = dayMemos[dk] || [''];
