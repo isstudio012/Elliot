@@ -5465,7 +5465,7 @@ async function changePwd() {
   const err = document.getElementById('settingsError');
   
   if (cur !== currentUser.pin) { err.textContent = '현재 비밀번호가 틀려요 ❌'; soundError(); return; }
-  if (!/^\d{4}$/.test(newP)) { err.textContent = '새 비밀번호는 4자리 숫자여야 해요'; soundError(); return; }
+  if (!newP || newP.length < 4) { err.textContent = '새 비밀번호는 영문+숫자 4~10자리예요'; soundError(); return; }
   
   await sb.from('members').update({ pin: newP }).eq('id', currentUser.id);
   currentUser.pin = newP;
@@ -5496,7 +5496,7 @@ async function changeMemberPwd(memberId) {
   const newP = document.getElementById('newPwdInput-' + memberId).value;
   const err = document.getElementById('settingsError-' + memberId);
   if (cur !== member.pin) { err.textContent = '현재 비밀번호가 틀려요'; soundError(); return; }
-  if (!/^\d{4}$/.test(newP)) { err.textContent = '새 비밀번호는 4자리 숫자여야 해요'; soundError(); return; }
+  if (!newP || newP.length < 4) { err.textContent = '새 비밀번호는 영문+숫자 4~10자리예요'; soundError(); return; }
   await sb.from('members').update({ pin: newP }).eq('id', memberId);
   member.pin = newP;
   if (currentUser && currentUser.id === memberId) {
