@@ -1895,7 +1895,7 @@
 
     <div class="setup-card">
       <input class="setup-input" id="setupProfileName" placeholder="프로필이름" maxlength="10">
-      <input class="setup-input" id="setupPin" placeholder="비밀번호 4자리" type="tel" maxlength="4" inputmode="numeric">
+      <input class="setup-input" id="setupPin" placeholder="비밀번호 (영문+숫자 4~10자리)" type="text" maxlength="10" autocomplete="off">
 
       <button class="setup-done-btn" id="setupProfileDoneBtn" onclick="completeProfileOnly()">확인</button>
 
@@ -1915,7 +1915,7 @@
       <button class="setup-done-btn" id="setupFamilyDoneBtn" onclick="completeSetup()">확인</button>
     </div>
 
-    <button class="setup-main-btn" id="setupMainBtn" onclick="goToMainFromSetup()">메인 화면으로 가기</button>
+    <button class="setup-main-btn" id="setupMainBtn" onclick="goToProfileSettings()">가족 프로필 만들러 가기</button>
 
 
     <div class="setup-error" id="setupError"></div>
@@ -2027,7 +2027,7 @@
     <div class="login-members" id="loginMembers"></div>
     <div class="login-pin-section" id="loginPinSection">
       <div class="login-pin-row">
-        <input type="tel" class="login-pin-input" id="loginPinInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="비밀번호 4자리" onkeypress="if(event.key==='Enter')doLogin()">
+        <input type="text" class="login-pin-input" id="loginPinInput" maxlength="10" placeholder="비밀번호" autocomplete="off" onkeypress="if(event.key==='Enter')doLogin()">
         <button class="login-confirm-btn" onclick="doLogin()" title="확인">✓</button>
         <button class="login-pin-close" onclick="closeLoginPin()" title="닫기" style="width:28px;height:28px;font-size:16px;margin-left:4px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;">×</button>
       </div>
@@ -3025,7 +3025,7 @@ function completeProfileOnly() {
   const pin = document.getElementById('setupPin').value.trim();
   const errEl = document.getElementById('setupError');
   if (!profileName) { errEl.textContent = '프로필 이름을 입력해주세요.'; return; }
-  if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) { errEl.textContent = '숫자 4자리 비밀번호를 입력해주세요.'; return; }
+  if (!pin || pin.length < 4) { errEl.textContent = '비밀번호는 4자리 이상 입력해주세요.'; return; }
   _setupProfileSaved = true;
   document.getElementById('setupProfileDoneBtn').classList.add('done');
   errEl.textContent = '';
@@ -3055,7 +3055,7 @@ async function completeSetup() {
   const familyName = document.getElementById('setupFamilyName').value.trim();
   const errEl = document.getElementById('setupError');
   if (!profileName) { errEl.textContent = '프로필 이름을 입력해주세요.'; return; }
-  if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) { errEl.textContent = '숫자 4자리 비밀번호를 입력해주세요.'; return; }
+  if (!pin || pin.length < 4) { errEl.textContent = '비밀번호는 4자리 이상 입력해주세요.'; return; }
   if (!familyName) { errEl.textContent = '가족 이름을 입력해주세요.'; return; }
   if (!_setupGeneratedCode) { errEl.textContent = '코드를 먼저 생성해주세요.'; return; }
   errEl.textContent = '저장 중...';
@@ -3081,6 +3081,16 @@ function goToMainFromSetup() {
   if (!currentUser) { document.getElementById('setupError').textContent = '먼저 완료 버튼을 눌러주세요.'; return; }
   document.getElementById('familySetupScreen').classList.remove('show');
   showMainApp();
+}
+
+function goToProfileSettings() {
+  if (!currentUser) { document.getElementById('setupError').textContent = '먼저 완료 버튼을 눌러주세요.'; return; }
+  document.getElementById('familySetupScreen').classList.remove('show');
+  showMainApp();
+  setTimeout(() => {
+    openSettings();
+    setTimeout(() => showSettingsSection('login'), 150);
+  }, 100);
 }
 
 async function joinWithFamilyCode() {
@@ -4878,17 +4888,17 @@ function renderMemberSettings() {
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
     const photoHtml = photo
-      ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:44px;height:44px;border-radius:4px;border:none;object-fit:cover;">`
-      : `<div id="memberPhotoPreview-${m.id}" style="width:44px;height:44px;border-radius:4px;background:#EAE0C2;display:flex;align-items:center;justify-content:center;font-size:22px;">${emojis[m.id] || '👤'}</div>`;
+      ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:44px;height:44px;border-radius:50%;border:none;object-fit:cover;">`
+      : `<div id="memberPhotoPreview-${m.id}" style="width:44px;height:44px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:22px;border:3px solid rgba(0,0,0,0.15);">${emojis[m.id] || '👤'}</div>`;
     const canEdit = isParent();
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
         <button class="member-color-trigger" style="background:${color};flex-shrink:0;${canEdit ? '' : 'pointer-events:none;opacity:0.7;'}" ${canEdit ? `onclick="openColorPalette('${m.id}')"` : ''} title="색 변경">${n}</button>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
         <div style="width:44px;height:44px;flex-shrink:0;position:relative;">
-          <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:100%;height:100%;border-radius:4px;overflow:hidden;position:relative;" title="${canEdit ? '사진 변경' : ''}">
+          <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;" title="${canEdit ? '사진 변경' : ''}">
             ${photoHtml}
-            ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
+            ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);border-radius:50%;"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
           </div>
         </div>
         <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
@@ -4913,17 +4923,25 @@ function renderMemberSettings() {
 function renderPasswordSettings() {
   const list = document.getElementById('passwordSettingsList');
   if (!list) return;
+  const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
   list.innerHTML = orderedMembers().map((m, idx) => {
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
+    const photo = getMemberPhoto(m.id);
+    const avatarHtml = photo
+      ? `<img src="${photo}" style="width:44px;height:44px;border-radius:50%;border:none;object-fit:cover;">`
+      : `<div style="width:44px;height:44px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:22px;border:3px solid rgba(0,0,0,0.15);">${emojis[m.id] || '👤'}</div>`;
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;flex-wrap:wrap;">
-          <span class="member-index-dot" style="background:${color};flex-shrink:0;">${n}</span>
+          <div style="position:relative;flex-shrink:0;">
+            ${avatarHtml}
+            <span style="position:absolute;bottom:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:${color};border:2px solid white;display:flex;align-items:center;justify-content:center;font-family:'Gaegu',cursive;font-size:11px;font-weight:700;color:white;">${n}</span>
+          </div>
           <span style="font-family:'Gaegu',cursive;font-size:14px;font-weight:700;color:#111;min-width:60px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name)}</span>
-          <input type="tel" id="curPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="현재 비번" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <input type="tel" id="newPwdInput-${m.id}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="새 비번" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <input type="text" id="curPwdInput-${m.id}" maxlength="10" placeholder="현재 비번" autocomplete="off" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <input type="text" id="newPwdInput-${m.id}" maxlength="10" placeholder="새 비번" autocomplete="off" style="flex:1;min-width:80px;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <button onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">변경</button>
-          <button onclick="resetMemberPwd('${m.id}')" title="비밀번호를 0000으로 초기화" style="flex-shrink:0;padding:10px 12px;background:#E87722;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:13px;font-weight:700;cursor:pointer;">리셋<br><span style="font-size:11px;">0000</span></button>
+          <button onclick="resetMemberPwd('${m.id}')" title="비밀번호 초기화" style="flex-shrink:0;padding:10px 12px;background:#E87722;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:13px;font-weight:700;cursor:pointer;">리셋</button>
         <div class="pwd-error" id="settingsError-${m.id}" style="min-height:0;display:none;width:100%;"></div>
       </div>
     `;
