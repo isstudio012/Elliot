@@ -3605,6 +3605,9 @@ async function showMainApp() {
   // 상단 로그아웃 버튼에 이름 표시
   const navBtn = document.getElementById('navLogoutBtn');
   if (navBtn) navBtn.innerHTML = `${currentUser.name}`;
+
+  // 휴대폰 알림 권한 요청 (로그인 직후 1회)
+  ensureNotifyPermission();
   
   // 코인 리셋 버튼 (부모만)
   showCoinResetBtn();
@@ -5484,9 +5487,12 @@ function onNewChatMessage(msg) {
   chatMessages.push(msg);
   if (chatMessages.length > 100) chatMessages = chatMessages.slice(-50);
   
-  // 상대방 메시지면 알림음
-  if (msg.sender_id !== currentUser.id) soundMsg();
-  
+  // 상대방 메시지면 알림음 + 휴대폰 알림
+  if (msg.sender_id !== currentUser.id) {
+    soundMsg();
+    showPhoneNotification(`💬 ${msg.sender_name || '가족'}`, msg.message || '새 메시지', 'chat-' + fc);
+  }
+
   if (!chatOpen) {
     updateChatBadge();
   } else {
@@ -5715,6 +5721,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('touchstart', initAudio, { once: true });
 document.addEventListener('click', initAudio, { once: true });
+
+/* ====== 휴대폰 알림 (PWA 로컬 알림) ====== */
+let swRegistration = null;
+async function initServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    swRegistration = await navigator.serviceWorker.register('sw.js');
+  } catch(e) { console.log('SW 등록 실패', e); }
+}
+// 알림 권한 요청 (사용자 동작 후 호출 — 로그인 시)
+async function ensureNotifyPermission() {
+  if (!('Notification' in window)) return false;
+  if (Notification.permission === 'granted') return true;
+  if (Notification.permission === 'denied') return false;
+  try {
+    const p = await Notification.requestPermission();
+    return p === 'granted';
+  } catch(e) { return false; }
+}
+// 알림 표시 — 앱이 백그라운드이거나 채팅이 닫혀있을 때
+function showPhoneNotification(title, body, tag) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // 앱이 화면에 떠 있고 채팅도 열려 있으면 굳이 알림 안 띄움
+  if (document.visibilityState === 'visible' && chatOpen) return;
+  try {
+    if (swRegistration && swRegistration.active) {
+      swRegistration.active.postMessage({ type: 'notify', title, body, tag: tag || 'chat' });
+    } else if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'notify', title, body, tag: tag || 'chat' });
+    } else {
+      new Notification(title, { body, icon: 'icon-192.png', tag: tag || 'chat' });
+    }
+  } catch(e) { console.log('알림 표시 실패', e); }
+}
+initServiceWorker();
 
 /* ====== 키보드 대응 (채팅) ====== */
 if (window.visualViewport) {
