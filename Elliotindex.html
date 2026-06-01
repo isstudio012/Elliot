@@ -2371,6 +2371,17 @@
   </div>
 </div>
 
+<!-- 앱 나가기 확인 모달 -->
+<div class="modal-bg" id="exitConfirmModal" onclick="if(event.target===this)cancelExit()">
+  <div class="modal pwd-modal" style="padding:18px;max-width:260px;">
+    <div class="confirm-msg" style="font-size:17px;font-weight:700;margin-bottom:16px;color:#3A2010;">앱을 나가시겠습니까?</div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="cancelExit()">아니오</button>
+      <button class="modal-btn primary" onclick="confirmExit()">나가기</button>
+    </div>
+  </div>
+</div>
+
 <!-- 코인 리셋 모달 -->
 <div class="modal-bg" id="coinResetModal" onclick="if(event.target===this)closeCoinReset()">
   <div class="modal pwd-modal" style="padding:14px;">
@@ -2993,11 +3004,33 @@ window._allowBack = false;
 function pushHistoryBlock() {
   history.pushState({ blocked: true }, '');
 }
-window.addEventListener('popstate', function() {
-  if (!window._allowBack) {
-    history.pushState({ blocked: true }, '');
+// 열려있는 팝업/패널을 위에서부터 하나 닫기. 닫았으면 true
+function closeTopOverlay() {
+  const shown = document.querySelector('.modal-bg.show, .note-modal-bg.show');
+  if (shown) { shown.classList.remove('show'); return true; }
+  const panels = ['dayDetailPanel', 'settingsPanel', 'chatPanel'];
+  for (const id of panels) {
+    const el = document.getElementById(id);
+    if (el && el.classList.contains('open')) { el.classList.remove('open'); return true; }
   }
+  return false;
+}
+window.addEventListener('popstate', function() {
+  if (window._allowBack) return;           // 실제 나가기 허용
+  history.pushState({ blocked: true }, ''); // 일단 현재 화면 유지
+  if (closeTopOverlay()) return;            // 열린 팝업/패널 있으면 그것부터 닫기
+  document.getElementById('exitConfirmModal').classList.add('show'); // 없으면 나가기 확인
 });
+function cancelExit() {
+  document.getElementById('exitConfirmModal').classList.remove('show');
+}
+function confirmExit() {
+  document.getElementById('exitConfirmModal').classList.remove('show');
+  window._allowBack = true;
+  history.back();
+  // 일부 환경에서 back으로 안 닫히면 시도
+  setTimeout(() => { try { window.close(); } catch(e) {} }, 100);
+}
 
 /* ====== 로그인 ====== */
 async function initApp() {
@@ -3954,13 +3987,24 @@ function renderUpcoming() {
       `<span style="white-space:nowrap;"><span style="color:#222;font-weight:700;">${escapeHTML(s.title)}</span> <span style="color:#2E7D32;font-weight:800;">${ddayLabel(s.date_key)}</span></span>`
     ).join('<span style="color:#bbb;"> · </span>');
   }
+  const fillPct = lastDate > 1 ? (d-1)/(lastDate-1)*100 : 0;
   box.innerHTML =
     `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:2px 2px 0 #5A8A5E;">
-       <div style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#2E7D32;margin-bottom:4px;">📌 다가오는 일정</div>
-       <div style="font-family:Pretendard,sans-serif;font-size:15px;line-height:1.7;margin-bottom:8px;">${items}</div>
-       <div style="text-align:right;font-family:Pretendard,sans-serif;font-size:12px;color:#888;font-weight:700;margin-bottom:3px;">${dateLabel}</div>
-       <input type="range" min="1" max="${lastDate}" value="${d}" oninput="scrubDate(this.value)" class="date-scrub" style="background:linear-gradient(to right,#C4C4C4 0%,#C4C4C4 ${lastDate > 1 ? (d-1)/(lastDate-1)*100 : 0}%,#5A8A5E ${lastDate > 1 ? (d-1)/(lastDate-1)*100 : 0}%,#5A8A5E 100%);">
+       <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;${upcomingCollapsed ? 'margin-bottom:0;' : 'margin-bottom:4px;'}" onclick="toggleUpcoming()">
+         <span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#2E7D32;">📌 다가오는 일정</span>
+         <span style="font-size:16px;color:#5A8A5E;line-height:1;transition:transform 0.25s;display:inline-block;transform:rotate(${upcomingCollapsed ? '-90deg' : '0deg'});">▼</span>
+       </div>
+       <div style="${upcomingCollapsed ? 'display:none;' : ''}">
+         <div style="font-family:Pretendard,sans-serif;font-size:15px;line-height:1.7;margin-bottom:8px;">${items}</div>
+         <div style="text-align:right;font-family:Pretendard,sans-serif;font-size:12px;color:#888;font-weight:700;margin-bottom:3px;">${dateLabel}</div>
+         <input type="range" min="1" max="${lastDate}" value="${d}" oninput="scrubDate(this.value)" class="date-scrub" style="background:linear-gradient(to right,#C4C4C4 0%,#C4C4C4 ${fillPct}%,#5A8A5E ${fillPct}%,#5A8A5E 100%);">
+       </div>
      </div>`;
+}
+let upcomingCollapsed = false;
+function toggleUpcoming() {
+  upcomingCollapsed = !upcomingCollapsed;
+  renderUpcoming();
 }
 // 슬라이더로 같은 달 안에서 날짜 이동
 function scrubDate(day) {
