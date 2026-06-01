@@ -2253,7 +2253,6 @@
         <button class="member-add-btn" onclick="addLoginProfile()">+</button>
         <div class="member-add-label">프로필추가</div>
       </div>
-      <button class="member-save-btn" onclick="saveMemberSettings()">저장</button>
     </div>
     <div class="settings-view" id="settingsPasswordView">
       <div id="passwordSettingsList" style="display:flex;flex-direction:column;gap:0;"></div>
@@ -3570,6 +3569,7 @@ function goToLogin() {
 function logout() {
   if (!confirm('로그아웃 할까요?')) return;
   currentUser = null;
+  selectedChildId = null;
   localStorage.removeItem('currentUser');
   chatOpen = false;
   document.getElementById('chatPanel').classList.remove('open');
@@ -3654,7 +3654,7 @@ async function loadAllData() {
   for (const cid of _ensureIds) {
     if (cid && !cachedCoinsMap[cid]) {
       cachedCoinsMap[cid] = { amount: 0, pending: {} };
-      await sb.from('coins').insert({ member_id: cid, family_id: familyCode, amount: 0, pending: {} });
+      await sb.from('coins').upsert({ member_id: cid, family_id: familyCode, amount: 0, pending: {} }, { onConflict: 'member_id,family_id', ignoreDuplicates: true });
     }
   }
 
@@ -3668,7 +3668,11 @@ async function loadAllData() {
   syncActiveCoins(); // cachedCoins / cachedTickets 를 활성 자녀로 설정
 
   cachedConfirmations = {};
-  (confRes.data || []).forEach(c => { cachedConfirmations[c.date_key] = c; });
+  (confRes.data || []).forEach(c => {
+    // member_id 있으면 자녀별 키, 없으면 date_key만 (구형 데이터 호환)
+    const k = c.member_id ? `${c.date_key}__${c.member_id}` : c.date_key;
+    cachedConfirmations[k] = c;
+  });
   cachedShopItems = shopRes.data || [];
   
   const settings = {};
@@ -3717,6 +3721,12 @@ function syncActiveCoins() {
   if (!cachedCoinsMap[mid]) cachedCoinsMap[mid] = { amount: 0, pending: {} };
   cachedCoins = cachedCoinsMap[mid];
   cachedTickets = cachedTicketsMap[mid] || (cachedTicketsMap[mid] = {});
+}
+
+// confirmations 캐시 키: 자녀별 분리 (date_key__member_id)
+function getConfKey(dk) {
+  const mid = getActiveMemberId();
+  return mid ? `${dk}__${mid}` : dk;
 }
 
 function getSubjectsForDate(dk) {
@@ -3887,7 +3897,7 @@ function renderCoins() {
   
   let pendingTotal = 0;
   Object.keys(cachedCoins.pending || {}).forEach(k => {
-    if (!cachedConfirmations[k]) pendingTotal += cachedCoins.pending[k] || 0;
+    if (!cachedConfirmations[getConfKey(k)]) pendingTotal += cachedCoins.pending[k] || 0;
   });
   document.getElementById('pendingLabel').textContent = 
     pendingTotal > 0 ? `예비 +${pendingTotal}` : '';
@@ -3948,8 +3958,8 @@ function renderCalendar() {
     
     if (hasReal && stats.total > 0) {
       const allDone = stats.done === stats.total;
-      const confirmed = cachedConfirmations[key];
-      
+      const confirmed = cachedConfirmations[getConfKey(key)];
+
       if (allDone && confirmed) {
         cell.classList.add('all-confirmed');
       } else {
@@ -4059,8 +4069,8 @@ function renderMomSection() {
   const stats = getDayStats(selectedDate);
   const hasReal = hasRealTask(selectedDate);
   const allDone = hasReal && stats.total > 0 && stats.done === stats.total;
-  const confirmed = cachedConfirmations[selectedDate];
-  
+  const confirmed = cachedConfirmations[getConfKey(selectedDate)];
+
   if (confirmed) {
     const confirmer = cachedMembers.find(m => m.id === confirmed.confirmed_by);
     const cName = confirmer ? confirmer.name : '부모';
@@ -4197,14 +4207,14 @@ async function addTask(subjectId, dk) {
     showToast('❌ ' + (error.message || '추가 실패'));
     return;
   }
-  await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', familyCode);
+  await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', familyCode).eq('member_id', coinOwnerId());
   refreshData(); // 백그라운드 동기화 (임시 id → 실제 id 교체)
 }
 
 async function toggleTask(task) {
   const newDone = !task.done;
   const dk = task.date_key;
-  const wasConfirmed = !!cachedConfirmations[dk];
+  const wasConfirmed = !!cachedConfirmations[getConfKey(dk)];
 
   // ---- 화면 먼저 반영 (낙관적) ----
   task.done = newDone;
@@ -4218,7 +4228,7 @@ async function toggleTask(task) {
     soundClick();
     if (wasConfirmed) {
       cachedCoins.amount = Math.max(0, cachedCoins.amount - 1);
-      delete cachedConfirmations[dk];
+      delete cachedConfirmations[getConfKey(dk)];
       showDogMsg('확인 취소', 1500);
     } else {
       cachedCoins.pending[dk] = Math.max(0, (cachedCoins.pending[dk] || 0) - 1);
@@ -4234,7 +4244,7 @@ async function toggleTask(task) {
     sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', _co).then(() => {});
   } else if (wasConfirmed) {
     sb.from('coins').update({ amount: cachedCoins.amount }).eq('family_id', getFamilyCode()).eq('member_id', _co).then(() => {});
-    sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).then(() => {});
+    sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId()).then(() => {});
   } else {
     sb.from('coins').update({ pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', _co).then(() => {});
   }
@@ -4254,7 +4264,7 @@ async function deleteTask(taskId, dk) {
   const task = cachedTasks.find(t => t.id === taskId);
   if (task && task.done) {
     cachedCoins.pending = { ...(cachedCoins.pending || {}) };
-    if (cachedConfirmations[dk]) {
+    if (cachedConfirmations[getConfKey(dk)]) {
       cachedCoins.amount = Math.max(0, cachedCoins.amount - 1);
     } else {
       cachedCoins.pending[dk] = Math.max(0, (cachedCoins.pending[dk] || 0) - 1);
@@ -4262,7 +4272,7 @@ async function deleteTask(taskId, dk) {
     await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
   }
   await sb.from('tasks').delete().eq('id', taskId);
-  await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode());
+  await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
   showToast('🗑️ 숙제가 삭제됐어요');
   await refreshData();
 }
@@ -4321,7 +4331,7 @@ async function confirmDeleteSelected() {
   for (const t of toDelete.values()) {
     affectedDates.add(t.date_key);
     if (t.done) {
-      if (cachedConfirmations[t.date_key]) cachedCoins.amount = Math.max(0, cachedCoins.amount - 1);
+      if (cachedConfirmations[getConfKey(t.date_key)]) cachedCoins.amount = Math.max(0, cachedCoins.amount - 1);
       else cachedCoins.pending[t.date_key] = Math.max(0, (cachedCoins.pending[t.date_key] || 0) - 1);
     }
   }
@@ -4335,7 +4345,7 @@ async function confirmDeleteSelected() {
   // 개별 선택 숙제 삭제
   if (taskIds.length) await sb.from('tasks').delete().in('id', taskIds);
   // 영향받은 날짜 확정 취소
-  for (const dk of affectedDates) await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode());
+  for (const dk of affectedDates) await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
 
   selectMode = false; selectedSubjects.clear(); selectedTasks.clear();
   showToast('선택 항목 삭제됨 🗑️');
@@ -4350,15 +4360,27 @@ async function doConfirm() {
   const newPending = { ...(cachedCoins.pending || {}) };
   delete newPending[selectedDate];
   
-  await Promise.all([
-    sb.from('confirmations').upsert({ date_key: selectedDate, confirmed_by: currentUser.id, family_id: getFamilyCode() }, { onConflict: 'date_key,family_id' }),
-    sb.from('coins').update({ amount: newAmount, pending: newPending }).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId())
-  ]);
-  
+  const ownerId = coinOwnerId();
+  // 낙관적 반영: 화면 먼저 녹색 처리
+  cachedConfirmations[getConfKey(selectedDate)] = { date_key: selectedDate, confirmed_by: currentUser.id, family_id: getFamilyCode(), member_id: ownerId };
+  cachedCoins.amount = newAmount;
+  cachedCoins.pending = newPending;
+  renderAll();
+
   soundFanfare();
   if (pending > 0) showDogMsg(`💕 +${pending} 💰`, 1800);
   else showDogMsg('💕 참 잘했어요', 1500);
-  
+
+  // 서버 저장: onConflict 의존 제거 — 기존 행 삭제 후 삽입
+  await sb.from('confirmations').delete()
+    .eq('date_key', selectedDate).eq('family_id', getFamilyCode()).eq('member_id', ownerId);
+  const { error } = await sb.from('confirmations').insert({
+    date_key: selectedDate, confirmed_by: currentUser.id, family_id: getFamilyCode(), member_id: ownerId
+  });
+  if (error) { showToast('❌ 승인 저장 실패: ' + error.message); console.log('confirm error', error); }
+  await sb.from('coins').update({ amount: newAmount, pending: newPending })
+    .eq('family_id', getFamilyCode()).eq('member_id', ownerId);
+
   await refreshData();
 }
 
@@ -4542,19 +4564,24 @@ function renderPresetList() {
   container.innerHTML = presets.map((name) => {
     const isActive = todaySubjects.includes(name.trim().toLowerCase());
     const fav = isFavorite(name);
-    const green = fav || isActive; // 즐겨찾기 or 오늘 추가됨 → 녹색
+    // 색상: 즐겨찾기=주황(우선), 오늘 추가됨=녹색, 기본=흰색
+    let bg, fg, bd;
+    if (fav) { bg = '#E87722'; fg = 'white'; bd = '#C25E15'; }
+    else if (isActive) { bg = '#5A8A5E'; fg = 'white'; bd = '#2E5A32'; }
+    else { bg = 'white'; fg = '#4A2F1B'; bd = '#4A2F1B'; }
+    const colored = fav || isActive;
     const origIdx = allPresets.findIndex(p => p === name);
     const safe = escapeHTML(name).replace(/'/g, "\\'");
     return `
-      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${green?'#5A8A5E':'white'};color:${green?'white':'#4A2F1B'};border:2px solid ${green?'#2E5A32':'#4A2F1B'};border-radius:22px;box-shadow:2px 2px 0 ${green?'#2E5A32':'#4A2F1B'};font-family:'Gaegu',cursive;font-weight:700;overflow:hidden;margin:4px;">
+      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${bg};color:${fg};border:2px solid ${bd};border-radius:22px;box-shadow:2px 2px 0 ${bd};font-family:'Gaegu',cursive;font-weight:700;overflow:hidden;margin:4px;">
         <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
-          style="background:transparent;color:${green?'white':'#E87722'};border:none;border-right:1.5px dashed ${green?'rgba(255,255,255,0.6)':'#C8A47C'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
+          style="background:transparent;color:${colored?'white':'#E87722'};border:none;border-right:1.5px dashed ${colored?'rgba(255,255,255,0.6)':'#C8A47C'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
         <button onclick="togglePresetSubject('${safe}')"
           style="background:transparent;color:inherit;border:none;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;cursor:pointer;padding:7px 14px;flex:1;white-space:nowrap;">
           ${escapeHTML(name)}
         </button>
         <button onclick="event.stopPropagation();deletePreset(${origIdx})" title="삭제"
-          style="background:transparent;color:${green?'white':'#E53935'};border:none;border-left:1.5px dashed ${green?'rgba(255,255,255,0.4)':'#C8A47C'};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 10px;flex-shrink:0;">✕</button>
+          style="background:transparent;color:${colored?'white':'#E53935'};border:none;border-left:1.5px dashed ${colored?'rgba(255,255,255,0.4)':'#C8A47C'};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 10px;flex-shrink:0;">✕</button>
       </div>
     `;
   }).join('');
@@ -4847,12 +4874,19 @@ function renderMemberSettings() {
             ${photoHtml}
             ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
           </div>
-          ${canEdit && photo ? `<button onclick="event.stopPropagation();deleteMemberPhoto('${m.id}')" title="사진 삭제" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#E53935;color:white;border:1.5px solid white;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;box-shadow:1px 1px 3px rgba(0,0,0,0.3);z-index:5;">✕</button>` : ''}
         </div>
         <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Gaegu',cursive;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0;">
-          <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제">−</button>
-          <span style="font-family:'Gaegu',cursive;font-size:9px;color:#555;font-weight:700;">삭제</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <button onclick="saveMemberRow('${m.id}')" title="저장" style="padding:8px 12px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <button onclick="deleteMemberPhoto('${m.id}')" title="사진 삭제" ${photo ? '' : 'disabled'} style="padding:8px 10px;background:${photo ? '#E87722' : '#CCC'};color:white;border:none;border-radius:6px;font-family:'Gaegu',cursive;font-size:12px;font-weight:700;cursor:${photo ? 'pointer' : 'not-allowed'};line-height:1.1;">사진<br>삭제</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+            <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제" style="margin:0;">−</button>
+            <span style="font-family:'Gaegu',cursive;font-size:9px;color:#555;font-weight:700;">삭제</span>
+          </div>
         </div>
         <input type="file" id="memberPhotoFile-${m.id}" accept="image/*" style="display:none;" onchange="handleMemberPhotoUpload(event,'${m.id}')">
       </div>
@@ -4917,6 +4951,7 @@ function closeColorPalette() {
 
 function confirmColorPalette() {
   if (!_colorPaletteMemberId || !_colorPaletteSelected) return;
+  syncVisibleMemberNames(); // 입력 중이던 이름 보존 후 재렌더
   saveMemberColor(_colorPaletteMemberId, _colorPaletteSelected);
   closeColorPalette();
   renderMemberSettings();
@@ -4977,6 +5012,8 @@ async function confirmAddProfile(role) {
   document.getElementById('roleSelectModal').classList.remove('show');
   const familyCode = getFamilyCode();
   if (!familyCode) return;
+  // 입력 중이던(아직 저장 안 한) 이름 보존 후 재렌더
+  syncVisibleMemberNames();
   const id = 'member_' + Date.now();
   const count = cachedMembers.length + 1;
   const member = { id, name: '프로필 ' + count, role, pin: '0000', family_id: familyCode };
@@ -4996,6 +5033,7 @@ async function deleteLoginProfile(memberId) {
   const member = cachedMembers.find(m => m.id === memberId);
   if (!member) return;
   if (!confirm(`${member.name} 프로필을 삭제할까요?`)) return;
+  syncVisibleMemberNames(); // 다른 프로필 입력 중 이름 보존
   await sb.from('members').delete().eq('id', memberId);
   cachedMembers = cachedMembers.filter(m => m.id !== memberId);
   try {
@@ -5009,6 +5047,37 @@ async function deleteLoginProfile(memberId) {
   renderPasswordSettings();
   refreshLoginCardsIfVisible();
   showToast('프로필이 삭제됐어요.');
+}
+
+// 개별 프로필 저장 (각 행의 저장 버튼) — 이름을 DB에 반영, 다른 프로필 영향 없음
+async function saveMemberRow(memberId) {
+  const input = document.getElementById('memberName-' + memberId);
+  if (!input) return;
+  const m = cachedMembers.find(x => x.id === memberId);
+  if (!m) return;
+  let name = input.value.trim();
+  if (!name) { name = m.name; input.value = name; }
+  m.name = name;
+  if (currentUser && currentUser.id === m.id) {
+    currentUser.name = name;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    const navBtn = document.getElementById('navLogoutBtn');
+    if (navBtn) navBtn.innerHTML = `${currentUser.name}`;
+  }
+  await sb.from('members').update({ name }).eq('id', memberId);
+  refreshLoginCardsIfVisible();
+  showToast('💾 저장됨');
+}
+
+// 화면에 입력 중인(아직 저장 안 된) 이름들을 cachedMembers에 동기화 — 재렌더 전 호출
+function syncVisibleMemberNames() {
+  cachedMembers.forEach(m => {
+    const input = document.getElementById('memberName-' + m.id);
+    if (input) {
+      const name = input.value.trim();
+      if (name) m.name = name;
+    }
+  });
 }
 
 async function saveMemberSettings() {
@@ -5676,7 +5745,7 @@ function renderDayDetail(dk) {
   const body = document.getElementById('dayDetailBody');
   const subs = getSubjectsForDate(dk);
   const stats = getDayStats(dk);
-  const confirmed = cachedConfirmations[dk];
+  const confirmed = cachedConfirmations[getConfKey(dk)];
   const pending = cachedCoins.pending[dk] || 0;
   
   let html = '';
