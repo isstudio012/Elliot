@@ -1031,17 +1031,18 @@
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 10px;
-    border-radius: 6px;
+    height: 7px;
+    border-radius: 5px;
     background: #CDE8CF;
     outline: none;
     margin: 0;
+    display: block;
   }
   .date-scrub::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 13px;
+    height: 13px;
     border-radius: 50%;
     background: white;
     border: 3px solid #5A8A5E;
@@ -1049,8 +1050,8 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.25);
   }
   .date-scrub::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
+    width: 13px;
+    height: 13px;
     border-radius: 50%;
     background: white;
     border: 3px solid #5A8A5E;
@@ -3975,36 +3976,65 @@ function renderAll() {
 }
 
 /* ====== 다가오는 일정 박스 (메인) — 선택한 날짜 기준 ====== */
+let _barEvent = null;   // 바가 가리키는 일정(이벤트) 날짜 date_key
+const _DAY_MS = 86400000;
+function _dayMs(dk) { const [a,b,c] = dk.split('-').map(Number); return new Date(a, b-1, c).setHours(0,0,0,0); }
+
 function renderUpcoming() {
   const box = document.getElementById('upcomingBox');
   if (!box) return;
-  const dk = selectedDate;
-  const [y, m, d] = dk.split('-').map(Number);
-  const lastDate = new Date(y, m, 0).getDate();
-  const days = ['일','월','화','수','목','금','토'];
-  const dow = days[new Date(y, m - 1, d).getDay()];
-  const dateLabel = `${y}.${String(m).padStart(2,'0')}.${String(d).padStart(2,'0')} (${dow})`;
 
-  const list = schedulesForDate(dk);
-  let items;
-  if (list.length === 0) {
-    items = `<span style="color:#999;font-weight:700;">이 날 예정된 일정이 없어요</span>`;
-  } else {
-    items = list.map(s =>
-      `<span style="white-space:nowrap;"><span style="color:#222;font-weight:700;">${escapeHTML(s.title)}</span> <span style="color:#2E7D32;font-weight:800;">${ddayLabel(s.date_key)}</span></span>`
-    ).join('<span style="color:#bbb;"> · </span>');
+  // 1) 앵커(이벤트) 결정: 선택일에 일정 있으면 그걸로, 아니면 기존 유지, 그것도 없으면 가장 가까운 일정
+  if (schedulesForDate(selectedDate).length > 0) _barEvent = selectedDate;
+  if (!_barEvent || schedulesForDate(_barEvent).length === 0) {
+    const up = upcomingSchedules();
+    _barEvent = up.length ? up[0].date_key : null;
   }
-  const fillPct = lastDate > 1 ? (d-1)/(lastDate-1)*100 : 0;
-  box.innerHTML =
-    `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:2px 2px 0 #5A8A5E;">
-       <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;${upcomingCollapsed ? 'margin-bottom:0;' : 'margin-bottom:4px;'}" onclick="toggleUpcoming()">
+  if (!_barEvent) {
+    box.innerHTML = upcomingBoxShell('<span style="color:#999;font-weight:700;">예정된 일정이 없어요</span>', '', '');
+    return;
+  }
+
+  const ev = _barEvent;
+  const evList = schedulesForDate(ev);
+  const items = evList.map(s =>
+    `<span style="white-space:nowrap;"><span style="color:#222;font-weight:700;">${escapeHTML(s.title)}</span> <span style="color:#2E7D32;font-weight:800;">${ddayLabel(s.date_key)}</span></span>`
+  ).join('<span style="color:#bbb;"> · </span>');
+
+  // 2) 기간: 잡은 날(가장 이른 created_at) ~ 일정날
+  const eventMs = _dayMs(ev);
+  let startMs = Infinity;
+  evList.forEach(s => { if (s.created_at) startMs = Math.min(startMs, new Date(s.created_at).setHours(0,0,0,0)); });
+  if (!isFinite(startMs) || startMs > eventMs) startMs = eventMs;
+  const totalDays = Math.max(0, Math.round((eventMs - startMs) / _DAY_MS));
+
+  // 3) 핸들 위치 = 현재 선택일을 기간 안에서 (벗어나면 끝으로 고정)
+  let offset = totalDays > 0 ? Math.round((_dayMs(selectedDate) - startMs) / _DAY_MS) : 0;
+  offset = Math.max(0, Math.min(totalDays, offset));
+  const pct = totalDays > 0 ? offset / totalDays * 100 : 100;
+
+  // 4) 라벨 = 핸들이 가리키는 날짜
+  const hd = new Date(startMs + offset * _DAY_MS);
+  const days = ['일','월','화','수','목','금','토'];
+  const dateLabel = `${hd.getFullYear()}.${String(hd.getMonth()+1).padStart(2,'0')}.${String(hd.getDate()).padStart(2,'0')} (${days[hd.getDay()]})`;
+
+  const bar = totalDays > 0
+    ? `<input type="range" min="0" max="${totalDays}" value="${offset}" step="1" oninput="setBarDate(${startMs},this.value)" class="date-scrub" style="background:linear-gradient(to right,#C4C4C4 0%,#C4C4C4 ${pct}%,#5A8A5E ${pct}%,#5A8A5E 100%);">`
+    : `<div style="height:7px;border-radius:5px;background:#C4C4C4;"></div>`;
+
+  box.innerHTML = upcomingBoxShell(items, dateLabel, bar);
+}
+
+function upcomingBoxShell(items, dateLabel, bar) {
+  return `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:9px 14px 7px;margin-bottom:8px;box-shadow:2px 2px 0 #5A8A5E;">
+       <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;${upcomingCollapsed ? 'margin-bottom:0;' : 'margin-bottom:3px;'}" onclick="toggleUpcoming()">
          <span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#2E7D32;">📌 다가오는 일정</span>
          <span style="font-size:16px;color:#5A8A5E;line-height:1;transition:transform 0.25s;display:inline-block;transform:rotate(${upcomingCollapsed ? '-90deg' : '0deg'});">▼</span>
        </div>
        <div style="${upcomingCollapsed ? 'display:none;' : ''}">
-         <div style="font-family:Pretendard,sans-serif;font-size:15px;line-height:1.7;margin-bottom:8px;">${items}</div>
-         <div style="text-align:right;font-family:Pretendard,sans-serif;font-size:12px;color:#888;font-weight:700;margin-bottom:3px;">${dateLabel}</div>
-         <input type="range" min="1" max="${lastDate}" value="${d}" oninput="scrubDate(this.value)" class="date-scrub" style="background:linear-gradient(to right,#C4C4C4 0%,#C4C4C4 ${fillPct}%,#5A8A5E ${fillPct}%,#5A8A5E 100%);">
+         <div style="font-family:Pretendard,sans-serif;font-size:15px;line-height:1.6;margin-bottom:5px;">${items}</div>
+         ${dateLabel ? `<div style="text-align:right;font-family:Pretendard,sans-serif;font-size:12px;color:#888;font-weight:700;margin-bottom:1px;">${dateLabel}</div>` : ''}
+         <div style="display:flex;align-items:center;">${bar}</div>
        </div>
      </div>`;
 }
@@ -4013,10 +4043,10 @@ function toggleUpcoming() {
   upcomingCollapsed = !upcomingCollapsed;
   renderUpcoming();
 }
-// 슬라이더로 같은 달 안에서 날짜 이동
-function scrubDate(day) {
-  const [y, m] = selectedDate.split('-').map(Number);
-  selectedDate = dateKey(y, m - 1, Number(day));
+// 바 드래그: 기간(잡은날~일정날) 안에서 날짜 이동 → 달력도 그 날 선택
+function setBarDate(startMs, offset) {
+  const dt = new Date(Number(startMs) + Number(offset) * _DAY_MS);
+  selectedDate = dateKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
   renderAll();
   loadNotes();
 }
