@@ -138,23 +138,25 @@
     transition: background 0.2s;
   }
   .login-toggle-slider::before {
-    content: '';
+    content: '⚽';
     position: absolute;
-    top: 1px;
+    top: 50%;
     left: 1px;
-    width: 12px;
-    height: 12px;
-    background: #4A2F1B;
+    width: 14px;
+    height: 14px;
+    font-size: 12px;
+    line-height: 14px;
+    text-align: center;
+    transform: translateY(-50%);
     border-radius: 50%;
-    transition: transform 0.2s, background 0.2s;
+    transition: transform 0.2s;
   }
   .login-toggle input:checked + .login-toggle-slider {
     background: #5A8A5E;
     border-color: #2E5A32;
   }
   .login-toggle input:checked + .login-toggle-slider::before {
-    transform: translateX(18px);
-    background: white;
+    transform: translateY(-50%) translateX(17px);
   }
   .login-score-left {
     position: absolute;
@@ -244,6 +246,17 @@
     object-fit: cover;
     background: #EAE0C2;
     flex: 0 0 auto;
+  }
+  .login-member-btn .crown-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 5;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
   }
   .login-member-btn .name {
     font-family: 'Pretendard', sans-serif;
@@ -3367,11 +3380,18 @@ async function showLoginScreen() {
   loginBalls = [];
 
   const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
+  // 방장: created_at 가장 이른 멤버
+  const hostMember = cachedMembers.reduce((a, b) => {
+    if (!a.created_at) return b;
+    if (!b.created_at) return a;
+    return a.created_at <= b.created_at ? a : b;
+  }, cachedMembers[0] || {});
   cachedMembers.forEach((m, i) => {
     const btn = document.createElement('button');
     btn.className = 'login-member-btn';
     const photo = getMemberPhoto(m.id);
-    btn.innerHTML = `${photo ? `<img class="login-member-photo" src="${photo}" alt="">` : `<span class="emoji">${emojis[m.id] || '👤'}</span>`}<span class="name">${esc(m.name)}</span>`;
+    const isHost = m.id === hostMember.id;
+    btn.innerHTML = `${isHost ? '<span class="crown-badge">👑</span>' : ''}${photo ? `<img class="login-member-photo" src="${photo}" alt="">` : `<span class="emoji">${emojis[m.id] || '👤'}</span>`}<span class="name">${esc(m.name)}</span>`;
     btn.dataset.memberId = m.id;
     btn.style.borderColor = '#4A2F1B';
     btn.style.boxShadow = '3px 3px 0 #4A2F1B';
