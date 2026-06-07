@@ -364,13 +364,13 @@
   .settings-header-menu-btn {
     flex: 1 1 0;
     min-width: 0;
-    padding: 9px 4px;
+    padding: 4px 4px;
     border: 1.5px solid #4A2F1B;
-    border-radius: 9px;
+    border-radius: 4px;
     box-shadow: 2px 2px 0 #4A2F1B;
     background: #fff;
     font-family: 'Pretendard', sans-serif;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: #4A2F1B;
     white-space: nowrap;
@@ -382,45 +382,52 @@
     box-shadow: none;
   }
   /* 사용 가이드 탭 */
-  .guide-wrap { display: flex; align-items: flex-start; }
+  #settingsGuideView { background: #fff; }
+  .guide-wrap { display: flex; align-items: stretch; min-height: 60vh; background: #fff; }
   .guide-tab-menu {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    gap: 7px;
-    width: 96px;
-    padding: 52px 6px 8px;
-    background: transparent;
+    width: 64px;
+    background: #f0efed;
+    border-right: 1px solid #ddd;
   }
   .guide-tab-btn {
     flex: none;
     width: 100%;
-    padding: 11px 4px;
+    padding: 12px 4px;
     font-family: 'Pretendard', sans-serif;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
-    color: #5A8A5E;
-    background: #fff;
-    border: 1.5px solid #5A8A5E;
-    border-radius: 8px;
+    color: #888;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #ddd;
     cursor: pointer;
+    text-align: center;
+    line-height: 1.3;
   }
+  .guide-tab-btn:last-child { border-bottom: none; }
   .guide-tab-btn.active {
-    background: #5A8A5E;
-    color: #fff;
+    background: #fff;
+    color: #3A7A3E;
+    border-right: 2px solid #5A8A5E;
+    margin-right: -1px;
   }
   .guide-tab-area {
     flex: 1;
     min-width: 0;
-    padding: 8px 16px 16px;
-    max-height: 52vh;
+    padding: 10px 12px 16px 10px;
     overflow-y: auto;
+    max-height: 60vh;
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
   .guide-tab-content {
     display: none;
     font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 13px;
+    line-height: 1.65;
     color: #333;
   }
   .guide-tab-content.active {
@@ -428,14 +435,14 @@
     animation: guideFade 0.25s;
   }
   .guide-tab-content h3 {
-    margin: 0 -16px 12px 0;
-    color: #5a3f33;
-    font-size: 16px;
-    border-bottom: 2px solid #2E5A32;
-    padding-bottom: 8px;
+    margin: 0 0 8px 0;
+    color: #2E5A32;
+    font-size: 14px;
+    border-bottom: 1.5px solid #2E5A32;
+    padding-bottom: 6px;
   }
-  .guide-tab-content ul { padding-left: 18px; margin: 0; }
-  .guide-tab-content li { margin-bottom: 10px; }
+  .guide-tab-content ul { padding-left: 16px; margin: 0; }
+  .guide-tab-content li { margin-bottom: 8px; }
   /* 가이드 시각 칩 */
   .g-chip {
     display: inline-flex;
@@ -605,8 +612,7 @@
     width: 34px;
     height: 34px;
     border: none;
-    border: none;
-    border-radius: 50%;
+    border-radius: 4px;
     color: white;
     display: flex;
     align-items: center;
@@ -615,6 +621,7 @@
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.25);
   }
   .member-icon-btn {
     border: none;
@@ -755,16 +762,20 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    border: 3px solid #4A2F1B;
-    background: #EAE0C2;
+    border: 2px dashed #A08060;
+    background: radial-gradient(circle at 40% 35%, #F5EDD7 60%, #E8D9B8 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     overflow: hidden;
-    box-shadow: 2px 2px 0 #4A2F1B;
     cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .profile-photo-placeholder:hover {
+    border-color: #6B5B47;
+    background: radial-gradient(circle at 40% 35%, #EDE0C4 60%, #DCCDA0 100%);
   }
   .profile-photo-edit {
     position: absolute;
@@ -2230,8 +2241,10 @@
       <div id="childDropdownWrap"></div>
       <div style="display:flex;align-items:center;gap:6px;">
         <span class="top-nav-btn" id="navLogoutBtn" style="cursor:default;"></span>
-        <span style="width:1px;height:14px;background:#7C5A3A;display:inline-block;"></span>
+        <span style="width:1px;height:14px;background:#5A8A5E;display:inline-block;"></span>
         <button class="top-nav-btn" onclick="closeApp()" id="navCloseBtn">로그아웃 ✕</button>
+        <span style="width:1px;height:14px;background:#5A8A5E;display:inline-block;"></span>
+        <button class="top-nav-btn" onclick="openCoinReset()" title="코인 리셋" style="font-size:16px;padding:0 2px;line-height:1;">↺</button>
       </div>
     </div>
     
@@ -2240,8 +2253,11 @@
       <div class="profile-photo-wrap">
         <img src="" class="profile-photo" id="profilePhoto" onerror="this.style.display='none'; document.getElementById('profilePhotoPlaceholder').style.display='flex';" onclick="document.getElementById('profileFileInput').click();">
         <div class="profile-photo-placeholder" id="profilePhotoPlaceholder" onclick="document.getElementById('profileFileInput').click();">
-          <span style="font-size:16px;line-height:1;color:#C0C0C0;opacity:0.55;">+</span>
-          <span id="photoHint" style="font-family:Pretendard,sans-serif;font-size:11px;font-weight:700;color:#6B5B47;line-height:1.15;text-align:center;padding:0 2px;pointer-events:none;">사진<br>넣어주세요</span>
+          <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.55;flex-shrink:0;">
+            <path d="M7.5 2L6 4H2C1.45 4 1 4.45 1 5V16C1 16.55 1.45 17 2 17H18C18.55 17 19 16.55 19 16V5C19 4.45 18.55 4 18 4H14L12.5 2H7.5Z" stroke="#6B5B47" stroke-width="1.4" stroke-linejoin="round" fill="none"/>
+            <circle cx="10" cy="10.5" r="3.2" stroke="#6B5B47" stroke-width="1.4" fill="none"/>
+          </svg>
+          <span id="photoHint" style="font-family:Pretendard,sans-serif;font-size:10px;font-weight:600;color:#8B7355;line-height:1.2;text-align:center;padding:0 2px;pointer-events:none;letter-spacing:-0.3px;">사진<br>넣어주세요</span>
         </div>
         <input type="file" id="profileFileInput" accept="image/*" style="display:none;" onchange="handleProfileUpload(event)">
       </div>
@@ -5463,10 +5479,12 @@ function renderMemberSettings() {
   const list = document.getElementById('memberSettingsList');
   if (!list) return;
   const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
+  const hostMember2 = cachedMembers.length ? cachedMembers.reduce((a,b)=>(!a.created_at||(b.created_at&&b.created_at<a.created_at))?b:a) : null;
   list.innerHTML = orderedMembers().map((m, idx) => {
     const photo = getMemberPhoto(m.id);
     const n = memberOrderId(m.id) || idx + 1;
     const color = memberColor(m.id);
+    const isHost = hostMember2 && m.id === hostMember2.id;
     const photoHtml = photo
       ? `<img id="memberPhotoPreview-${m.id}" src="${photo}" style="width:100%;height:100%;border-radius:50%;border:none;object-fit:cover;display:block;">`
       : `<div id="memberPhotoPreview-${m.id}" style="width:100%;height:100%;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:24px;">${emojis[m.id] || '👤'}</div>`;
@@ -5482,17 +5500,18 @@ function renderMemberSettings() {
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
         <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
           <div style="width:54px;height:54px;position:relative;border-radius:50%;${avatarBorder}box-sizing:border-box;">
+            ${isHost ? `<span style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:14px;line-height:1;z-index:3;pointer-events:none;">👑</span>` : ''}
             <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;" title="${canEdit ? '사진 변경' : ''}">
               ${photoHtml}
               ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);border-radius:50%;"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
             </div>
-            ${(canEdit && photo) ? `<button onclick="event.stopPropagation();deleteMemberPhoto('${m.id}')" title="사진 삭제" style="position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:white;color:#E53935;border:2px solid #E53935;font-size:15px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2;box-shadow:1px 1px 3px rgba(0,0,0,0.2);">−</button>` : ''}
+            ${(canEdit && photo) ? `<button onclick="event.stopPropagation();deleteMemberPhoto('${m.id}')" title="사진 삭제" style="position:absolute;top:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:none;color:#E53935;border:none;font-size:18px;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2;">−</button>` : ''}
           </div>
           ${canEdit ? `<span style="font-family:Pretendard,sans-serif;font-size:9px;color:#4A2F1B;font-weight:700;white-space:nowrap;">사진등록</span>` : ''}
         </div>
         <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" oninput="markUnsaved('saveBtn-${m.id}')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <button id="saveBtn-${m.id}" class="save-toggle-btn" onclick="saveMemberRow('${m.id}')" title="저장" style="height:54px;padding:0 9px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
+          <button id="saveBtn-${m.id}" class="save-toggle-btn" onclick="saveMemberRow('${m.id}')" title="저장" style="align-self:stretch;padding:0 9px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
           <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
             <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제" style="margin:0;">−</button>
             <span style="font-family:'Pretendard',sans-serif;font-size:9px;color:#555;font-weight:700;">삭제</span>
