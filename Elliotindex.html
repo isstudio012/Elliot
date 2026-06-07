@@ -358,7 +358,7 @@
   .settings-header-menu {
     display: flex;
     background: #fff;
-    border-bottom: 2px solid #4A2F1B;
+    border-bottom: 1.5px dashed #4A2F1B;
     padding: 0;
   }
   .settings-header-menu-btn {
@@ -366,7 +366,7 @@
     min-width: 0;
     padding: 10px 2px;
     border: none;
-    border-right: 1px solid #4A2F1B;
+    border-right: 1.5px dashed #4A2F1B;
     background: #fff;
     font-family: 'Pretendard', sans-serif;
     font-size: 12px;
@@ -382,31 +382,36 @@
     box-shadow: inset 1px 1px 2px rgba(0,0,0,0.18);
   }
   /* 사용 가이드 탭 */
+  .guide-wrap { display: flex; align-items: stretch; }
   .guide-tab-menu {
     display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 92px;
     background: #f1f1f1;
-    border-bottom: 2px solid #5A8A5E;
+    border-right: 2px solid #5A8A5E;
   }
   .guide-tab-btn {
-    flex: 1;
-    min-width: 0;
-    padding: 9px 0;
+    flex: none;
+    width: 100%;
+    padding: 13px 4px;
     font-family: 'Pretendard', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     color: #888;
     background: none;
     border: none;
-    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
     cursor: pointer;
   }
-  .guide-tab-btn:last-child { border-right: none; }
   .guide-tab-btn.active {
     background: #fff;
     color: #5A8A5E;
-    border-bottom: 3px solid #5A8A5E;
+    box-shadow: inset -3px 0 0 #5A8A5E;
   }
   .guide-tab-area {
+    flex: 1;
+    min-width: 0;
     padding: 16px;
     max-height: 52vh;
     overflow-y: auto;
@@ -426,11 +431,35 @@
     margin: 0 0 12px;
     color: #5a3f33;
     font-size: 16px;
-    border-bottom: 2px dashed #ddd;
+    border-bottom: 1.5px dashed #5A8A5E;
     padding-bottom: 8px;
   }
   .guide-tab-content ul { padding-left: 18px; margin: 0; }
   .guide-tab-content li { margin-bottom: 10px; }
+  /* 가이드 시각 칩 */
+  .g-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    vertical-align: middle;
+    margin: 0 1px;
+    border: 1.5px solid #4A2F1B;
+    color: #fff;
+  }
+  .g-rainbow {
+    background: linear-gradient(180deg,#e53935 0%,#fb8c00 25%,#fdd835 50%,#43a047 72%,#1e88e5 100%);
+  }
+  .g-green { background: #5A8A5E; }
+  .g-coin { background: #F2B705; color: #4A2F1B; }
+  .g-star { background: #fff; color: #E53935; border-color: #E53935; }
+  .g-cal { background: #fff; border-color: transparent; }
+  .g-check { background: #fff; color: #4A2F1B; }
   @keyframes guideFade {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
@@ -2212,7 +2241,7 @@
         <img src="" class="profile-photo" id="profilePhoto" onerror="this.style.display='none'; document.getElementById('profilePhotoPlaceholder').style.display='flex';" onclick="document.getElementById('profileFileInput').click();">
         <div class="profile-photo-placeholder" id="profilePhotoPlaceholder" onclick="document.getElementById('profileFileInput').click();">
           <span style="font-size:16px;line-height:1;color:#C0C0C0;opacity:0.55;">+</span>
-          <span id="photoHint" style="font-family:'Nanum Pen Script',cursive;font-size:14px;font-weight:700;color:#B5B5B5;line-height:1.05;text-align:center;padding:0 2px;pointer-events:none;">사진<br>넣어주세요</span>
+          <span id="photoHint" style="font-family:Pretendard,sans-serif;font-size:11px;font-weight:700;color:#6B5B47;line-height:1.15;text-align:center;padding:0 2px;pointer-events:none;">사진<br>넣어주세요</span>
         </div>
         <input type="file" id="profileFileInput" accept="image/*" style="display:none;" onchange="handleProfileUpload(event)">
       </div>
@@ -2415,7 +2444,7 @@
     <button class="settings-header-menu-btn" data-sec="password" onclick="showSettingsSection('password')">비번변경</button>
     <button class="settings-header-menu-btn" onclick="openCoinReset()">코인리셋</button>
     <button class="settings-header-menu-btn" onclick="openFamilyCodeCheck()">가족코드</button>
-    <button class="settings-header-menu-btn" onclick="openGuideModal()">가이드</button>
+    <button class="settings-header-menu-btn" data-sec="guide" onclick="showSettingsSection('guide')">가이드</button>
   </div>
   <div class="settings-body">
     <div class="settings-view show" id="settingsMenuView">
@@ -2424,7 +2453,7 @@
       <button class="settings-menu-btn" onclick="showSettingsSection('password')"><span class="settings-menu-dot"></span><span>비밀번호 변경</span></button>
       <button class="settings-menu-btn" onclick="openCoinReset()"><span class="settings-menu-dot"></span><span>코인 리셋</span></button>
       <button class="settings-menu-btn" onclick="openFamilyCodeCheck()"><span class="settings-menu-dot"></span><span>가족코드 확인하기</span></button>
-      <button class="settings-menu-btn" onclick="openGuideModal()"><span class="settings-menu-dot"></span><span>📋 사용 가이드</span></button>
+      <button class="settings-menu-btn" onclick="showSettingsSection('guide')"><span class="settings-menu-dot"></span><span>📋 사용 가이드</span></button>
     </div>
     <div class="settings-view" id="settingsTitleView">
     <div class="settings-card">
@@ -2459,6 +2488,9 @@
     </div>
     <div class="settings-view" id="settingsPasswordView">
       <div id="passwordSettingsList" style="display:flex;flex-direction:column;gap:0;"></div>
+    </div>
+    <div class="settings-view" id="settingsGuideView">
+      <div id="guidePageBody"></div>
     </div>
   </div>
 </div>
@@ -2708,37 +2740,46 @@ const DEFAULT_GUIDE = `[요약]
 ✨ 한눈에 보기
 - *방장(부모)이* 가족 프로필을 모두 만들고, [설정]에서 *가족코드를 복사*해 가족에게 공유해요.
 - *가족은* 가족코드로 입장하고, 각자 *두 번 클릭+비밀번호*로 내 공간에 들어가요.
-- *아이는* 숙제 노트에 할 일을 적고, 끝낸 과목에 *녹색 체크*를 해요.
-- *부모는* 승인을 눌러 칭찬 *코인*을 주고, 아이는 코인으로 *상점 선물*을 사요.
+- *아이는* 숙제 노트에 할 일을 적고, 끝낸 과목에 {녹색} *녹색 체크*를 해요.
+- *부모는* 승인을 눌러 칭찬 {코인} *코인*을 주고, 아이는 코인으로 *상점 선물*을 사요.
+- 달력엔 {무지개} 숙제 진행 / {녹색} 부모 확인 완료가 한눈에 보여요.
 - 모든 활동은 *가족에게 실시간 공유* — 따뜻한 응원 공간이에요!
 - 자세한 내용은 위 탭(시작·달력·숙제·상점·공유)을 눌러보세요 👆
 
 [시작]
 ⚽ 시작하기 & 운동장
-- *방장 가입:* 부모님 중 한 분이 먼저 가입해 가족 프로필을 모두 만듭니다. 그 후 [설정]에서 *가족 코드를 복사*해 가족에게 공유하세요.
-- *가족 입장:* 다른 가족들은 앱 설치 후, 첫 화면에서 *가족 코드를 입력*하면 바로 다 함께 입장!
-- *내 방 가기:* 첫 화면(운동장)에서 내 캐릭터를 굴리며 놀다가, *두 번 클릭*하고 비밀번호를 누르면 내 공간으로 쏙 들어갑니다.
+- *1. 방장 가입:* 부모님 중 한 분이 먼저 가입해 가족 프로필(아이·부모)을 모두 만들어요.
+- *2. 코드 공유:* [설정 ⚙] → *가족코드 확인*에서 코드를 복사해 가족에게 보내요.
+- *3. 가족 입장:* 다른 가족은 앱 첫 화면에서 *가족코드를 입력*하면 다 함께 입장!
+- *4. 방장 표시:* 첫 가입자(방장)는 프로필에 👑 왕관이 붙어요.
+- *5. 내 방 가기:* 첫 화면(운동장)에서 내 캐릭터를 *두 번 클릭* → 비밀번호 입력 → 내 공간으로 쏙!
 
 [달력]
 🌈 무지개 달력 & 일정
-- *무지개와 초록 도장:* 숙제를 할 때마다 달력에 무지개가 차오르고, 부모님 승인까지 끝나면 날짜가 초록색(🟢)으로 예쁘게 변해요.
-- *기록과 D-Day:* 날짜를 *두 번 클릭*해 지난 숙제 기록을 보거나, 다가오는 중요한 일정(소풍·시험 등)을 추가해 D-Day를 확인해 보세요.
+- {무지개} *무지개 칸:* 숙제를 하나씩 끝낼수록 그 날짜에 무지개가 점점 차올라요.
+- {녹색} *녹색 칸:* 부모님 승인까지 끝나면 그 날짜가 초록색으로 변해요(완료!).
+- {별} *빨간 별:* 다가오는 일정(소풍·시험 등)이 있는 날엔 빨간 별이 떠요.
+- *기록 보기:* 날짜를 *두 번 클릭*하면 그날 한 숙제·일정을 한눈에 볼 수 있어요.
+- *D-Day:* '다가오는 일정'에 날짜를 정하면 남은 날(D-1, D-2…)을 알려줘요.
 
 [숙제]
 📝 숙제 노트 & 과목
-- *숙제 미리 적기:* 본격적인 시작 전, 오늘 해야 할 전체 숙제를 '숙제 노트'에 적어요. (부모님도 미리 볼 수 있어요!)
-- *스스로 추가:* 학생이 직접 과목을 만들어요. 매일 하는 과목은 '★ 즐겨찾기'에 등록해두면 편해요.
-- *녹색 체크:* 숙제를 다 끝내고 동그라미를 누르면 녹색으로 체크되며, 부모님께 "확인해 주세요!" 알람이 갑니다.
+- *숙제 미리 적기:* 시작 전, 오늘 할 전체 숙제를 '📒 숙제 노트'에 적어요(부모도 미리 봐요).
+- *과목 추가:* '+ 과목 추가'로 직접 과목을 만들어요. 매일 하는 건 {별} 즐겨찾기에 등록!
+- {체크} *시작:* 과목 동그라미를 누르면 숙제 시작 — 시작 시간이 자동 기록돼요.
+- {녹색} *완료:* 다 끝내고 다시 누르면 녹색 체크 + 완료 시간 기록, 부모님께 "확인해 주세요!" 알림이 가요.
 
 [상점]
 💰 부모 승인 & 상점
-- *승인과 코인:* 아이가 숙제를 끝내면, 부모님이 메시지를 보고 '승인'을 눌러주세요. 칭찬과 함께 진짜 코인을 받아요!
-- *코인 상점:* 아이가 열심히 모은 코인으로, 부모님과 미리 상의해 등록해둔 선물을 살 수 있어요. (구매 시 부모님께 알림 발송)
+- *승인과 코인:* 아이가 숙제를 끝내면 부모님이 메시지를 보고 *승인*을 눌러요. 칭찬과 함께 {코인} 코인이 진짜로 쌓여요!
+- *예비 코인:* 승인 전엔 '예비 +N'으로 표시되고, 승인되면 진짜 코인으로 확정돼요.
+- *코인 상점:* 모은 코인으로 부모님과 미리 정한 선물(이용권)을 사요. (구매 시 부모님께 알림)
 
 [공유]
 👨‍👩‍👧 가족 공유
-- *실시간 칭찬:* 아이가 스스로 숙제를 계획하고 끝낸 모든 소식이, 멀리 있는 가족 모두에게 *실시간으로 공유*됩니다.
-- 숙제 검사가 아닌, 언제 어디서든 따뜻한 관심과 응원을 보내는 우리 가족만의 소통 공간을 만들어 보세요!`;
+- *실시간 칭찬:* 아이가 계획하고 끝낸 모든 소식이 멀리 있는 가족에게 *실시간 공유*돼요.
+- *채팅:* 우측 아래 💬 버튼으로 가족과 응원 메시지를 주고받아요.
+- 숙제 검사가 아닌, 언제 어디서든 따뜻한 관심을 보내는 우리 가족만의 소통 공간이에요!`;
 let guideText = DEFAULT_GUIDE;
 
 // 전역 사용 가이드 로드 (앱 제작자가 admin에서 설정 — ELLIOT 가족에 저장)
@@ -2775,32 +2816,43 @@ function parseGuide(text) {
   }
   return tabs;
 }
-// *강조* → 굵게
+// *강조* → 굵게, {토큰} → 시각 칩(무지개/녹색/코인/별/달력)
 function guideInline(s) {
-  return esc(s).replace(/\*([^*]+)\*/g, '<strong style="color:#5a3f33;">$1</strong>');
+  let h = esc(s).replace(/\*([^*]+)\*/g, '<strong style="color:#5a3f33;">$1</strong>');
+  h = h
+    .replace(/\{무지개\}/g, '<span class="g-chip g-rainbow"></span>')
+    .replace(/\{녹색\}/g, '<span class="g-chip g-green">✓</span>')
+    .replace(/\{코인\}/g, '<span class="g-chip g-coin">$</span>')
+    .replace(/\{별\}/g, '<span class="g-chip g-star">★</span>')
+    .replace(/\{달력\}/g, '<span class="g-chip g-cal">📅</span>')
+    .replace(/\{체크\}/g, '<span class="g-chip g-check">○</span>');
+  return h;
 }
-function openGuideModal() {
-  const txt = guideText || DEFAULT_GUIDE;
+// 가이드 탭 HTML 생성 (모달/페이지 공통)
+function buildGuideHTML(txt) {
   const tabs = parseGuide(txt);
-  const body = document.getElementById('guideModalBody');
-  if (!tabs.length) {
-    body.textContent = txt;
-  } else {
-    let btns = '<div class="guide-tab-menu">';
-    let conts = '<div class="guide-tab-area">';
-    tabs.forEach((t, i) => {
-      btns += `<button class="guide-tab-btn${i === 0 ? ' active' : ''}" onclick="switchGuideTab(${i})">${i + 1}.${esc(t.name)}</button>`;
-      conts += `<div class="guide-tab-content${i === 0 ? ' active' : ''}" data-gtab="${i}">${t.title ? `<h3>${guideInline(t.title)}</h3>` : ''}<ul>${t.items.map(it => `<li>${guideInline(it)}</li>`).join('')}</ul></div>`;
-    });
-    btns += '</div>';
-    conts += '</div>';
-    body.innerHTML = btns + conts;
-  }
+  if (!tabs.length) return `<div style="padding:16px;white-space:pre-wrap;">${esc(txt)}</div>`;
+  let btns = '<div class="guide-tab-menu">';
+  let conts = '<div class="guide-tab-area">';
+  tabs.forEach((t, i) => {
+    btns += `<button class="guide-tab-btn${i === 0 ? ' active' : ''}" onclick="switchGuideTab(this,${i})">${i + 1}.${esc(t.name)}</button>`;
+    conts += `<div class="guide-tab-content${i === 0 ? ' active' : ''}" data-gtab="${i}">${t.title ? `<h3>${guideInline(t.title)}</h3>` : ''}<ul>${t.items.map(it => `<li>${guideInline(it)}</li>`).join('')}</ul></div>`;
+  });
+  return `<div class="guide-wrap">${btns}</div>${conts}</div></div>`;
+}
+// 자동 팝업(방장 첫 가입)용 모달
+function openGuideModal() {
+  document.getElementById('guideModalBody').innerHTML = buildGuideHTML(guideText || DEFAULT_GUIDE);
   document.getElementById('guideModal').classList.add('show');
 }
-function switchGuideTab(i) {
-  document.querySelectorAll('#guideModalBody .guide-tab-btn').forEach((b, idx) => b.classList.toggle('active', idx === i));
-  document.querySelectorAll('#guideModalBody .guide-tab-content').forEach(c => c.classList.toggle('active', +c.dataset.gtab === i));
+// 메뉴 클릭 시 설정 페이지로 표시
+function renderGuidePage() {
+  document.getElementById('guidePageBody').innerHTML = buildGuideHTML(guideText || DEFAULT_GUIDE);
+}
+function switchGuideTab(btn, i) {
+  const root = btn.closest('.guide-wrap') || document;
+  root.querySelectorAll('.guide-tab-btn').forEach((b, idx) => b.classList.toggle('active', idx === i));
+  root.querySelectorAll('.guide-tab-content').forEach(c => c.classList.toggle('active', +c.dataset.gtab === i));
 }
 function closeGuideModal() {
   document.getElementById('guideModal').classList.remove('show');
@@ -5387,10 +5439,11 @@ function settingsBack() {
 
 function showSettingsSection(section) {
   document.querySelectorAll('#settingsPanel .settings-view').forEach(v => v.classList.remove('show'));
-  const titleMap = { login: '로그인 프로필', title: '제목 바꾸기', password: '비밀번호 변경' };
+  const titleMap = { login: '로그인 프로필', title: '제목 바꾸기', password: '비밀번호 변경', guide: '📋 사용 가이드' };
   document.getElementById(`settings${section[0].toUpperCase() + section.slice(1)}View`).classList.add('show');
   document.getElementById('settingsBackBtn').style.display = '';
   document.getElementById('settingsHeaderTitle').textContent = titleMap[section] || '설정';
+  if (section === 'guide') renderGuidePage();
   const hm = document.getElementById('settingsHeaderMenu');
   if (hm) {
     hm.style.display = 'flex'; // 하위 섹션에선 가로 메뉴 표시(바로 이동)
