@@ -357,16 +357,17 @@
   /* 헤더 아래 메뉴판 (투명 배경, 글씨, 하위 섹션에서만) */
   .settings-header-menu {
     display: flex;
-    background: #fff;
-    border-bottom: 1.5px dashed #4A2F1B;
-    padding: 0;
+    gap: 6px;
+    background: #F5EDD7;
+    padding: 8px 10px;
   }
   .settings-header-menu-btn {
     flex: 1 1 0;
     min-width: 0;
-    padding: 10px 2px;
-    border: none;
-    border-right: 1.5px dashed #4A2F1B;
+    padding: 9px 4px;
+    border: 1.5px solid #4A2F1B;
+    border-radius: 9px;
+    box-shadow: 2px 2px 0 #4A2F1B;
     background: #fff;
     font-family: 'Pretendard', sans-serif;
     font-size: 12px;
@@ -374,45 +375,44 @@
     color: #4A2F1B;
     white-space: nowrap;
     cursor: pointer;
-    transition: background 0.12s;
+    transition: transform 0.08s, box-shadow 0.08s;
   }
-  .settings-header-menu-btn:last-child { border-right: none; }
   .settings-header-menu-btn:active {
-    background: #EFE7D2;
-    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.18);
+    transform: translate(2px, 2px);
+    box-shadow: none;
   }
   /* 사용 가이드 탭 */
-  .guide-wrap { display: flex; align-items: stretch; }
+  .guide-wrap { display: flex; align-items: flex-start; }
   .guide-tab-menu {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    width: 92px;
-    background: #f1f1f1;
-    border-right: 2px solid #5A8A5E;
+    gap: 7px;
+    width: 96px;
+    padding: 52px 6px 8px;
+    background: transparent;
   }
   .guide-tab-btn {
     flex: none;
     width: 100%;
-    padding: 13px 4px;
+    padding: 11px 4px;
     font-family: 'Pretendard', sans-serif;
     font-size: 13px;
     font-weight: 700;
-    color: #888;
-    background: none;
-    border: none;
-    border-bottom: 1px solid #ddd;
+    color: #5A8A5E;
+    background: #fff;
+    border: 1.5px solid #5A8A5E;
+    border-radius: 8px;
     cursor: pointer;
   }
   .guide-tab-btn.active {
-    background: #fff;
-    color: #5A8A5E;
-    box-shadow: inset -3px 0 0 #5A8A5E;
+    background: #5A8A5E;
+    color: #fff;
   }
   .guide-tab-area {
     flex: 1;
     min-width: 0;
-    padding: 16px;
+    padding: 8px 16px 16px;
     max-height: 52vh;
     overflow-y: auto;
   }
@@ -428,10 +428,10 @@
     animation: guideFade 0.25s;
   }
   .guide-tab-content h3 {
-    margin: 0 0 12px;
+    margin: 0 -16px 12px 0;
     color: #5a3f33;
     font-size: 16px;
-    border-bottom: 1.5px dashed #5A8A5E;
+    border-bottom: 2px solid #2E5A32;
     padding-bottom: 8px;
   }
   .guide-tab-content ul { padding-left: 18px; margin: 0; }
