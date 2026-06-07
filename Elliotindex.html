@@ -2147,9 +2147,8 @@
         </div>
         <div class="cal-title" id="calTitle"></div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button onclick="event.stopPropagation();toggleCalendar()" style="height:26px;padding:0 10px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
-            <span id="calToggleIcon" style="font-size:20px;color:#5A8A5E;transition:transform 0.3s;display:inline-block;line-height:1;transform:rotate(180deg);">▲</span>
-            <span style="font-family:'Pretendard',sans-serif;font-weight:700;font-size:13px;color:#5A8A5E;line-height:1;white-space:nowrap;">접기/펴기</span>
+          <button onclick="event.stopPropagation();toggleCalendar()" style="height:26px;padding:0 10px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <span id="calToggleIcon" style="font-size:18px;color:#5A8A5E;transition:transform 0.25s;display:inline-block;line-height:1;transform:rotate(0deg);">▼</span>
           </button>
         </div>
       </div>
@@ -6481,7 +6480,7 @@ function toggleCalendar() {
   if (!body || !icon) return;
   const isOpen = body.style.maxHeight !== '0px';
   body.style.maxHeight = isOpen ? '0px' : '520px';
-  icon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+  icon.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
   // 접힘 시: 메모 스티커 표시, 월 제목·이동버튼 숨김
   const sticker = document.getElementById('calSticker');
   const headLeft = document.getElementById('calHeaderLeft');
