@@ -354,38 +354,86 @@
     background: #5A8A5E;
     flex: 0 0 auto;
   }
-  /* 녹색 헤더 가로 메뉴 바 (헤더 한 줄 안에 인라인) */
+  /* 헤더 아래 메뉴판 (투명 배경, 글씨, 하위 섹션에서만) */
   .settings-header-menu {
-    flex: 1;
-    min-width: 0;
     display: flex;
-    background: transparent;
+    background: #fff;
+    border-bottom: 2px solid #4A2F1B;
     padding: 0;
-    margin: 0 6px;
   }
   .settings-header-menu-btn {
     flex: 1 1 0;
     min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1px;
-    padding: 2px 1px;
+    padding: 10px 2px;
     border: none;
-    background: transparent;
+    border-right: 1px solid #4A2F1B;
+    background: #fff;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4A2F1B;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .settings-header-menu-btn:last-child { border-right: none; }
+  .settings-header-menu-btn:active {
+    background: #EFE7D2;
+    box-shadow: inset 1px 1px 2px rgba(0,0,0,0.18);
+  }
+  /* 사용 가이드 탭 */
+  .guide-tab-menu {
+    display: flex;
+    background: #f1f1f1;
+    border-bottom: 2px solid #5A8A5E;
+  }
+  .guide-tab-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 9px 0;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    background: none;
+    border: none;
+    border-right: 1px solid #ddd;
     cursor: pointer;
   }
-  .settings-header-menu-btn:active { opacity: 0.6; }
-  .settings-header-menu-btn svg { display: block; width: 18px; height: 18px; }
-  .settings-header-menu-label {
+  .guide-tab-btn:last-child { border-right: none; }
+  .guide-tab-btn.active {
+    background: #fff;
+    color: #5A8A5E;
+    border-bottom: 3px solid #5A8A5E;
+  }
+  .guide-tab-area {
+    padding: 16px;
+    max-height: 52vh;
+    overflow-y: auto;
+  }
+  .guide-tab-content {
+    display: none;
     font-family: 'Pretendard', sans-serif;
-    font-size: 9px;
-    font-weight: 700;
-    color: white;
-    text-align: center;
-    line-height: 1.1;
-    white-space: nowrap;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+  }
+  .guide-tab-content.active {
+    display: block;
+    animation: guideFade 0.25s;
+  }
+  .guide-tab-content h3 {
+    margin: 0 0 12px;
+    color: #5a3f33;
+    font-size: 16px;
+    border-bottom: 2px dashed #ddd;
+    padding-bottom: 8px;
+  }
+  .guide-tab-content ul { padding-left: 18px; margin: 0; }
+  .guide-tab-content li { margin-bottom: 10px; }
+  @keyframes guideFade {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   .settings-card {
     background: transparent;
@@ -2355,37 +2403,19 @@
 <div class="chat-panel" id="settingsPanel">
   <div class="chat-header settings-header">
     <span class="chat-header-title settings-title-wrap"><span class="settings-title-gear">⚙</span><span id="settingsHeaderTitle">설정</span></span>
-    <!-- 녹색 헤더 가로 메뉴 바 (하위 섹션에서만 표시, 헤더 한 줄 안) -->
-    <div class="settings-header-menu" id="settingsHeaderMenu" style="display:none;">
-    <button class="settings-header-menu-btn" data-sec="login" onclick="showSettingsSection('login')">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      <span class="settings-header-menu-label">프로필</span>
-    </button>
-    <button class="settings-header-menu-btn" data-sec="title" onclick="showSettingsSection('title')">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-      <span class="settings-header-menu-label">한마디</span>
-    </button>
-    <button class="settings-header-menu-btn" data-sec="password" onclick="showSettingsSection('password')">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm3.1-9H8.9V6a3.1 3.1 0 0 1 6.2 0v2z"/></svg>
-      <span class="settings-header-menu-label">비번변경</span>
-    </button>
-    <button class="settings-header-menu-btn" onclick="openCoinReset()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8L2 12c0-5.52 4.48-10 10-10 2.76 0 5.26 1.12 7.07 2.93L21 3v4h-4l.65-.65zM6.35 17.65L3 21v-4h4l-.65.65A7.958 7.958 0 0 0 12 20c4.42 0 7.99-3.58 7.99-8H22c0 5.52-4.48 10-10 10-2.76 0-5.26-1.12-7.07-2.93l.42-.42z"/></svg>
-      <span class="settings-header-menu-label">코인리셋</span>
-    </button>
-    <button class="settings-header-menu-btn" onclick="openFamilyCodeCheck()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-      <span class="settings-header-menu-label">가족코드</span>
-    </button>
-    <button class="settings-header-menu-btn" onclick="openGuideModal()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
-      <span class="settings-header-menu-label">가이드</span>
-    </button>
-    </div>
     <div class="settings-header-actions">
       <button class="chat-close-btn" id="settingsBackBtn" style="font-size:24px;" onclick="settingsBack()">&lt;</button>
       <button class="chat-close-btn" onclick="closeSettings()">✕</button>
     </div>
+  </div>
+  <!-- 메뉴판 (헤더 밖, 투명 배경, 글씨, 하위 섹션에서만 표시) -->
+  <div class="settings-header-menu" id="settingsHeaderMenu" style="display:none;">
+    <button class="settings-header-menu-btn" data-sec="login" onclick="showSettingsSection('login')">프로필</button>
+    <button class="settings-header-menu-btn" data-sec="title" onclick="showSettingsSection('title')">한마디</button>
+    <button class="settings-header-menu-btn" data-sec="password" onclick="showSettingsSection('password')">비번변경</button>
+    <button class="settings-header-menu-btn" onclick="openCoinReset()">코인리셋</button>
+    <button class="settings-header-menu-btn" onclick="openFamilyCodeCheck()">가족코드</button>
+    <button class="settings-header-menu-btn" onclick="openGuideModal()">가이드</button>
   </div>
   <div class="settings-body">
     <div class="settings-view show" id="settingsMenuView">
@@ -2505,7 +2535,7 @@
       <span class="note-modal-title" id="guideModalTitle">📋 사용 가이드</span>
       <button class="note-modal-close" onclick="closeGuideModal()">✕</button>
     </div>
-    <div class="note-modal-body" id="guideModalBody" style="white-space:pre-wrap;font-family:Pretendard,sans-serif;font-size:15px;font-weight:500;line-height:1.7;color:#333;padding:16px;"></div>
+    <div class="note-modal-body" id="guideModalBody" style="font-family:Pretendard,sans-serif;padding:0;"></div>
   </div>
 </div>
 
@@ -2674,27 +2704,41 @@ let noteLines = [];
 let noteTitle = '숙제노트';
 
 /* ====== 📋 사용 가이드 알림장 ====== */
-const DEFAULT_GUIDE = `🎉 환영합니다!
-"오늘도 잘했어~⭐"는 우리 아이의 숙제를 체크하고 칭찬해주는 앱이에요.
+const DEFAULT_GUIDE = `[요약]
+✨ 한눈에 보기
+- *방장(부모)이* 가족 프로필을 모두 만들고, [설정]에서 *가족코드를 복사*해 가족에게 공유해요.
+- *가족은* 가족코드로 입장하고, 각자 *두 번 클릭+비밀번호*로 내 공간에 들어가요.
+- *아이는* 숙제 노트에 할 일을 적고, 끝낸 과목에 *녹색 체크*를 해요.
+- *부모는* 승인을 눌러 칭찬 *코인*을 주고, 아이는 코인으로 *상점 선물*을 사요.
+- 모든 활동은 *가족에게 실시간 공유* — 따뜻한 응원 공간이에요!
+- 자세한 내용은 위 탭(시작·달력·숙제·상점·공유)을 눌러보세요 👆
 
-📌 시작하기
-1. 가족 코드를 가족과 공유하세요.
-2. 프로필을 추가해 아이·부모를 등록하세요.
-3. 과목과 숙제를 등록하면 끝!
+[시작]
+⚽ 시작하기 & 운동장
+- *방장 가입:* 부모님 중 한 분이 먼저 가입해 가족 프로필을 모두 만듭니다. 그 후 [설정]에서 *가족 코드를 복사*해 가족에게 공유하세요.
+- *가족 입장:* 다른 가족들은 앱 설치 후, 첫 화면에서 *가족 코드를 입력*하면 바로 다 함께 입장!
+- *내 방 가기:* 첫 화면(운동장)에서 내 캐릭터를 굴리며 놀다가, *두 번 클릭*하고 비밀번호를 누르면 내 공간으로 쏙 들어갑니다.
 
-✅ 숙제 체크
-· 아이가 숙제를 끝내면 동그라미를 눌러 체크해요.
-· 시작·완료 시간이 자동으로 기록돼요.
+[달력]
+🌈 무지개 달력 & 일정
+- *무지개와 초록 도장:* 숙제를 할 때마다 달력에 무지개가 차오르고, 부모님 승인까지 끝나면 날짜가 초록색(🟢)으로 예쁘게 변해요.
+- *기록과 D-Day:* 날짜를 *두 번 클릭*해 지난 숙제 기록을 보거나, 다가오는 중요한 일정(소풍·시험 등)을 추가해 D-Day를 확인해 보세요.
 
-💰 코인 칭찬
-· 모든 숙제를 끝내면 코인을 받아요.
-· 부모님이 확인하면 코인이 확정돼요!
+[숙제]
+📝 숙제 노트 & 과목
+- *숙제 미리 적기:* 본격적인 시작 전, 오늘 해야 할 전체 숙제를 '숙제 노트'에 적어요. (부모님도 미리 볼 수 있어요!)
+- *스스로 추가:* 학생이 직접 과목을 만들어요. 매일 하는 과목은 '★ 즐겨찾기'에 등록해두면 편해요.
+- *녹색 체크:* 숙제를 다 끝내고 동그라미를 누르면 녹색으로 체크되며, 부모님께 "확인해 주세요!" 알람이 갑니다.
 
-📅 달력 색상
-· 숙제를 한 만큼 그날 날짜에 🌈 무지개가 차올라요.
-· 모두 체크하면 무지개가 꽉 차요.
-· 부모님이 확인하면 그날은 🟢 녹색으로 바뀌어요.
-· 날짜를 누르면 그날 한 숙제를 한눈에 볼 수 있어요.`;
+[상점]
+💰 부모 승인 & 상점
+- *승인과 코인:* 아이가 숙제를 끝내면, 부모님이 메시지를 보고 '승인'을 눌러주세요. 칭찬과 함께 진짜 코인을 받아요!
+- *코인 상점:* 아이가 열심히 모은 코인으로, 부모님과 미리 상의해 등록해둔 선물을 살 수 있어요. (구매 시 부모님께 알림 발송)
+
+[공유]
+👨‍👩‍👧 가족 공유
+- *실시간 칭찬:* 아이가 스스로 숙제를 계획하고 끝낸 모든 소식이, 멀리 있는 가족 모두에게 *실시간으로 공유*됩니다.
+- 숙제 검사가 아닌, 언제 어디서든 따뜻한 관심과 응원을 보내는 우리 가족만의 소통 공간을 만들어 보세요!`;
 let guideText = DEFAULT_GUIDE;
 
 // 전역 사용 가이드 로드 (앱 제작자가 admin에서 설정 — ELLIOT 가족에 저장)
@@ -2713,9 +2757,50 @@ function closeInfoPopup() {
   document.getElementById('infoPopup').classList.remove('show');
 }
 
+// 가이드 텍스트 파싱: [탭이름] / 첫줄=제목 / -로 시작=항목
+function parseGuide(text) {
+  const tabs = [];
+  const re = /\[([^\]]+)\]\s*\n([\s\S]*?)(?=\n\[[^\]]+\]|$)/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const name = m[1].trim();
+    const lines = m[2].trim().split('\n').map(l => l.trim()).filter(Boolean);
+    let title = '';
+    const items = [];
+    lines.forEach((l, i) => {
+      if (i === 0 && !l.startsWith('-')) title = l;
+      else items.push(l.replace(/^-\s*/, ''));
+    });
+    tabs.push({ name, title, items });
+  }
+  return tabs;
+}
+// *강조* → 굵게
+function guideInline(s) {
+  return esc(s).replace(/\*([^*]+)\*/g, '<strong style="color:#5a3f33;">$1</strong>');
+}
 function openGuideModal() {
-  document.getElementById('guideModalBody').textContent = guideText || DEFAULT_GUIDE;
+  const txt = guideText || DEFAULT_GUIDE;
+  const tabs = parseGuide(txt);
+  const body = document.getElementById('guideModalBody');
+  if (!tabs.length) {
+    body.textContent = txt;
+  } else {
+    let btns = '<div class="guide-tab-menu">';
+    let conts = '<div class="guide-tab-area">';
+    tabs.forEach((t, i) => {
+      btns += `<button class="guide-tab-btn${i === 0 ? ' active' : ''}" onclick="switchGuideTab(${i})">${i + 1}.${esc(t.name)}</button>`;
+      conts += `<div class="guide-tab-content${i === 0 ? ' active' : ''}" data-gtab="${i}">${t.title ? `<h3>${guideInline(t.title)}</h3>` : ''}<ul>${t.items.map(it => `<li>${guideInline(it)}</li>`).join('')}</ul></div>`;
+    });
+    btns += '</div>';
+    conts += '</div>';
+    body.innerHTML = btns + conts;
+  }
   document.getElementById('guideModal').classList.add('show');
+}
+function switchGuideTab(i) {
+  document.querySelectorAll('#guideModalBody .guide-tab-btn').forEach((b, idx) => b.classList.toggle('active', idx === i));
+  document.querySelectorAll('#guideModalBody .guide-tab-content').forEach(c => c.classList.toggle('active', +c.dataset.gtab === i));
 }
 function closeGuideModal() {
   document.getElementById('guideModal').classList.remove('show');
@@ -5339,7 +5424,7 @@ function renderMemberSettings() {
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
           <button class="member-color-trigger" style="background:${color};${canEdit ? '' : 'pointer-events:none;opacity:0.7;'}" ${canEdit ? `onclick="openColorPalette('${m.id}')"` : ''} title="색 변경">${n}</button>
-          ${canEdit ? `<span style="font-family:Pretendard,sans-serif;font-size:9px;color:#5A8A5E;font-weight:700;white-space:nowrap;">색변경</span>` : ''}
+          ${canEdit ? `<span style="font-family:Pretendard,sans-serif;font-size:9px;color:#4A2F1B;font-weight:700;white-space:nowrap;">색변경</span>` : ''}
         </div>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
         <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
@@ -5350,7 +5435,7 @@ function renderMemberSettings() {
             </div>
             ${(canEdit && photo) ? `<button onclick="event.stopPropagation();deleteMemberPhoto('${m.id}')" title="사진 삭제" style="position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:white;color:#E53935;border:2px solid #E53935;font-size:15px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2;box-shadow:1px 1px 3px rgba(0,0,0,0.2);">−</button>` : ''}
           </div>
-          ${canEdit ? `<span style="font-family:Pretendard,sans-serif;font-size:9px;color:#4A90D9;font-weight:700;white-space:nowrap;">사진등록</span>` : ''}
+          ${canEdit ? `<span style="font-family:Pretendard,sans-serif;font-size:9px;color:#4A2F1B;font-weight:700;white-space:nowrap;">사진등록</span>` : ''}
         </div>
         <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" oninput="markUnsaved('saveBtn-${m.id}')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
