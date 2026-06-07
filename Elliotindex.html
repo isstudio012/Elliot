@@ -17,6 +17,9 @@
 <meta property="og:url" content="https://isstudio012.github.io">
 <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"></noscript>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -2096,6 +2099,14 @@
     <!-- 프로필 카드 -->
     <div class="profile-card">
       <div class="profile-photo-wrap">
+        <!-- 손글씨 안내: 사진 없을 때만 표시 -->
+        <div id="photoHint" style="position:absolute;left:60px;bottom:42px;white-space:nowrap;pointer-events:none;z-index:5;">
+          <span style="font-family:'Nanum Pen Script',cursive;font-size:21px;font-weight:700;color:#F2B705;line-height:1;">사진을 추가해보세요~</span>
+          <svg width="28" height="22" viewBox="0 0 28 22" style="position:absolute;left:-22px;top:8px;" fill="none">
+            <path d="M24 2 C16 4, 8 9, 3 19" stroke="#F2B705" stroke-width="2" stroke-linecap="round"/>
+            <path d="M3 19 L3 11 M3 19 L11 16" stroke="#F2B705" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
         <img src="" class="profile-photo" id="profilePhoto" onerror="this.style.display='none'; document.getElementById('profilePhotoPlaceholder').style.display='flex';" onclick="document.getElementById('profileFileInput').click();">
         <div class="profile-photo-placeholder" id="profilePhotoPlaceholder" onclick="document.getElementById('profileFileInput').click();">+</div>
         <input type="file" id="profileFileInput" accept="image/*" style="display:none;" onchange="handleProfileUpload(event)">
@@ -2126,38 +2137,40 @@
     <!-- 다가오는 일정 (자녀별 · 코인박스와 달력 사이) -->
     <div id="upcomingBox"></div>
 
-    <div class="calendar-card">
+    <div class="calendar-card" style="position:relative;">
+      <!-- 접힘 시 표시되는 메모 스티커 -->
+      <div id="calSticker" style="display:none;position:absolute;top:8px;left:10px;z-index:6;background:white;border:1px solid #E0D8C8;border-radius:3px;padding:4px 12px;font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#5A8A5E;box-shadow:1px 2px 4px rgba(0,0,0,0.18);transform:rotate(-4deg);">📅 달력</div>
       <div class="cal-header" style="cursor:pointer;" onclick="toggleCalendar()">
-        <div style="display:flex;align-items:center;gap:6px;">
+        <div id="calHeaderLeft" style="display:flex;align-items:center;gap:6px;">
           <button class="cal-nav" onclick="event.stopPropagation();changeMonth(-1)">‹</button>
           <button class="cal-nav" onclick="event.stopPropagation();changeMonth(1)">›</button>
         </div>
         <div class="cal-title" id="calTitle"></div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button onclick="event.stopPropagation();toggleCalendar()" style="height:26px;padding:0 10px;background:white;border:2px solid #4A2F1B;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+          <button onclick="event.stopPropagation();toggleCalendar()" style="height:26px;padding:0 10px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
             <span id="calToggleIcon" style="font-size:20px;color:#5A8A5E;transition:transform 0.3s;display:inline-block;line-height:1;transform:rotate(180deg);">▲</span>
             <span style="font-family:'Pretendard',sans-serif;font-weight:700;font-size:13px;color:#5A8A5E;line-height:1;white-space:nowrap;">접기/펴기</span>
           </button>
         </div>
       </div>
-      <div id="calBody" style="overflow:hidden;transition:max-height 0.35s ease;max-height:400px;">
+      <div id="calBody" style="overflow:hidden;transition:max-height 0.35s ease;max-height:520px;">
         <div class="cal-grid" id="calGrid"></div>
-      </div>
-      <!-- 달력 색상 범례 (달력 카드 안쪽) -->
-      <div style="display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-top:8px;border-top:1px dashed #D8CBB0;font-family:Pretendard,sans-serif;font-size:11.5px;font-weight:700;color:#6B5B47;">
-        <div style="display:flex;flex-direction:column;gap:5px;">
-          <span style="display:inline-flex;align-items:center;gap:5px;">
-            <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:linear-gradient(to top,#E53935 0%,#FB8C00 25%,#FDD835 50%,#43A047 75%,#1E88E5 100%);"></span>
-            숙제한 만큼 무지개가 차요
-          </span>
-          <span style="display:inline-flex;align-items:center;gap:5px;">
-            <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:#5A8A5E;"></span>
-            부모님 확인하면 녹색
-          </span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:5px;text-align:left;">
-          <span style="display:inline-flex;align-items:center;gap:5px;"><span style="font-size:10px;color:#8A7A60;">☆</span> 날짜 두 번 클릭 = 그날 내용</span>
-          <span style="display:inline-flex;align-items:center;gap:5px;"><span style="font-size:10px;color:#8A7A60;">☆</span> 다가오는 일정 등록·확인</span>
+        <!-- 달력 색상 범례 (접히면 같이 접힘) -->
+        <div style="display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-top:8px;border-top:1px dashed #D8CBB0;font-family:Pretendard,sans-serif;font-size:11.5px;font-weight:700;color:#6B5B47;">
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <span style="display:inline-flex;align-items:center;gap:5px;">
+              <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:linear-gradient(to top,#E53935 0%,#FB8C00 25%,#FDD835 50%,#43A047 75%,#1E88E5 100%);"></span>
+              숙제한 만큼 무지개가 차요
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:5px;">
+              <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:#5A8A5E;"></span>
+              부모님 확인하면 녹색
+            </span>
+          </div>
+          <div style="display:flex;gap:5px;text-align:left;">
+            <span style="font-size:10px;color:#8A7A60;line-height:1.5;flex-shrink:0;">☆</span>
+            <span style="line-height:1.5;">날짜를 두 번 누르면<br>그날 숙제와 일정을 볼 수 있어요</span>
+          </div>
         </div>
       </div>
     </div>
@@ -2183,8 +2196,11 @@
     <!-- 과목 컨트롤 바: 과목추가(좌) + 선택삭제(우) -->
     <div class="subject-ctrl-bar" id="subjectCtrlBar">
       <div class="subject-ctrl-side" style="display:flex;gap:8px;">
-        <button class="add-sub-bar-btn" onclick="openAddSubject()">+ 과목 추가</button>
-        <button class="add-sub-bar-btn" onclick="openNoteModal()">📒 숙제노트</button>
+        <button class="add-sub-bar-btn" onclick="openAddSubject()" style="background:#5A8A5E;border-color:#3C6B40;box-shadow:2px 2px 0 #3C6B40;">+ 과목 추가</button>
+        <button class="add-sub-bar-btn" onclick="openNoteModal()" style="gap:5px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 5a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2z"/><line x1="8" y1="3" x2="8" y2="21"/></svg>
+          숙제노트
+        </button>
       </div>
       <div class="subject-ctrl-side subject-ctrl-side-right" style="margin-left:auto;">
         <div class="select-bar-wrap" id="selectBarWrap"></div>
@@ -2321,9 +2337,12 @@
     </div>
     <div class="settings-view" id="settingsLoginView">
       <div id="memberSettingsList" style="display:flex;flex-direction:column;gap:0;"></div>
-      <div class="member-add-wrap">
-        <button class="member-add-btn" onclick="addLoginProfile()">+</button>
-        <div class="member-add-label">프로필추가</div>
+      <div style="display:flex;align-items:flex-start;gap:24px;padding:8px 12px;">
+        <div class="member-add-wrap">
+          <button class="member-add-btn" onclick="addLoginProfile()">+</button>
+          <div class="member-add-label">프로필추가</div>
+        </div>
+        <button onclick="showSettingsSection('password')" style="margin-top:6px;padding:10px 16px;background:white;border:1.5px solid #5A8A5E;border-radius:8px;font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#3C6B40;cursor:pointer;white-space:nowrap;">🔒 비밀번호 변경하러 가기 ›</button>
       </div>
     </div>
     <div class="settings-view" id="settingsPasswordView">
@@ -2405,6 +2424,14 @@
       <button class="note-modal-close" onclick="closeGuideModal()">✕</button>
     </div>
     <div class="note-modal-body" id="guideModalBody" style="white-space:pre-wrap;font-family:Pretendard,sans-serif;font-size:15px;font-weight:500;line-height:1.7;color:#333;padding:16px;"></div>
+  </div>
+</div>
+
+<!-- 공용 안내 팝업 (흰색) -->
+<div class="note-modal-bg" id="infoPopup" onclick="if(event.target===this)closeInfoPopup()">
+  <div style="background:white;border-radius:14px;max-width:320px;width:100%;padding:22px 20px 16px;box-shadow:0 8px 30px rgba(0,0,0,0.25);text-align:center;">
+    <div id="infoPopupMsg" style="font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;line-height:1.6;color:#333;"></div>
+    <button onclick="closeInfoPopup()" style="margin-top:16px;padding:10px 28px;background:#5A8A5E;color:white;border:none;border-radius:8px;font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">확인</button>
   </div>
 </div>
 
@@ -2596,6 +2623,14 @@ async function loadGlobalGuide() {
   } catch(e) { /* 기본값 사용 */ }
 }
 
+function showInfoPopup(msg) {
+  document.getElementById('infoPopupMsg').innerHTML = msg;
+  document.getElementById('infoPopup').classList.add('show');
+}
+function closeInfoPopup() {
+  document.getElementById('infoPopup').classList.remove('show');
+}
+
 function openGuideModal() {
   document.getElementById('guideModalBody').textContent = guideText || DEFAULT_GUIDE;
   document.getElementById('guideModal').classList.add('show');
@@ -2757,13 +2792,19 @@ async function handleProfileUpload(event) {
     photo.src = e.target.result;
     photo.style.display = 'block';
     document.getElementById('profilePhotoPlaceholder').style.display = 'none';
-    
+    setPhotoHint(false);
+
     // localStorage에 저장 (간단한 방법)
     try {
       localStorage.setItem('profile_photo_' + currentUser.id, e.target.result);
     } catch(err) { console.log('photo save error'); }
   };
   reader.readAsDataURL(file);
+}
+
+function setPhotoHint(show) {
+  const hint = document.getElementById('photoHint');
+  if (hint) hint.style.display = show ? 'block' : 'none';
 }
 
 function loadProfilePhoto() {
@@ -2775,13 +2816,16 @@ function loadProfilePhoto() {
       photo.src = saved;
       photo.style.display = 'block';
       document.getElementById('profilePhotoPlaceholder').style.display = 'none';
+      setPhotoHint(false);
     } else {
       document.getElementById('profilePhoto').style.display = 'none';
       document.getElementById('profilePhotoPlaceholder').style.display = 'flex';
+      setPhotoHint(true);
     }
   } catch(e) {
     document.getElementById('profilePhoto').style.display = 'none';
     document.getElementById('profilePhotoPlaceholder').style.display = 'flex';
+    setPhotoHint(true);
   }
 }
 
@@ -4098,7 +4142,7 @@ function renderUpcoming() {
 function upcomingBoxShell(items, dateLabel, bar) {
   return `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:9px 14px 7px;margin-bottom:8px;box-shadow:2px 2px 0 #5A8A5E;">
        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;${upcomingCollapsed ? 'margin-bottom:0;' : 'margin-bottom:3px;'}" onclick="toggleUpcoming()">
-         <span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#2E7D32;">📌 다가오는 일정</span>
+         <span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#2E7D32;"><span style="color:#E53935;">★</span> 다가오는 일정</span>
          <span style="font-size:16px;color:#5A8A5E;line-height:1;transition:transform 0.25s;display:inline-block;transform:rotate(${upcomingCollapsed ? '-90deg' : '0deg'});">▼</span>
        </div>
        <div style="${upcomingCollapsed ? 'display:none;' : ''}">
@@ -4286,7 +4330,7 @@ function renderCalendar() {
     }
     
     if (schedulesForDate(key).length > 0) {
-      html += `<span style="position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:#2E7D32;z-index:3;"></span>`;
+      html += `<span style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:11px;line-height:1;color:#E53935;z-index:3;">★</span>`;
     }
 
     cell.innerHTML = html;
@@ -5193,18 +5237,24 @@ function renderMemberSettings() {
     const avatarBorder = isChild ? 'border:3px solid #4A90D9;padding:2px;' : 'border:none;padding:0;';
     return `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
-        <button class="member-color-trigger" style="background:${color};flex-shrink:0;${canEdit ? '' : 'pointer-events:none;opacity:0.7;'}" ${canEdit ? `onclick="openColorPalette('${m.id}')"` : ''} title="색 변경">${n}</button>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
+          <button class="member-color-trigger" style="background:${color};${canEdit ? '' : 'pointer-events:none;opacity:0.7;'}" ${canEdit ? `onclick="openColorPalette('${m.id}')"` : ''} title="색 변경">${n}</button>
+          ${canEdit ? `<span style="font-family:Pretendard,sans-serif;font-size:9px;color:#5A8A5E;font-weight:700;white-space:nowrap;">색변경</span>` : ''}
+        </div>
         <input class="member-color-input" type="color" id="memberColor-${m.id}" value="${color}" title="색 변경" onchange="applyMemberColor('${m.id}')">
-        <div style="width:54px;height:54px;flex-shrink:0;position:relative;border-radius:50%;${avatarBorder}box-sizing:border-box;">
-          <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;" title="${canEdit ? '사진 변경' : ''}">
-            ${photoHtml}
-            ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);border-radius:50%;"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
+          <div style="width:54px;height:54px;position:relative;border-radius:50%;${avatarBorder}box-sizing:border-box;">
+            <div ${canEdit ? `onclick="document.getElementById('memberPhotoFile-${m.id}').click();"` : ''} style="${canEdit ? 'cursor:pointer;' : 'cursor:default;'}width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;" title="${canEdit ? '사진 변경' : ''}">
+              ${photoHtml}
+              ${canEdit ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);border-radius:50%;"><span style="font-size:20px;color:white;font-weight:700;line-height:1;">+</span></div>` : ''}
+            </div>
+            ${(canEdit && photo) ? `<button onclick="event.stopPropagation();deleteMemberPhoto('${m.id}')" title="사진 삭제" style="position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:white;color:#E53935;border:2px solid #E53935;font-size:15px;font-weight:800;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2;box-shadow:1px 1px 3px rgba(0,0,0,0.2);">−</button>` : ''}
           </div>
-          ${(canEdit && photo) ? `<button onclick="event.stopPropagation();deleteMemberPhoto('${m.id}')" title="사진 삭제" style="position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:#E53935;color:white;border:2px solid white;font-size:15px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2;box-shadow:1px 1px 3px rgba(0,0,0,0.3);">−</button>` : ''}
+          ${canEdit ? `<span style="font-family:Pretendard,sans-serif;font-size:9px;color:#4A90D9;font-weight:700;white-space:nowrap;">사진등록</span>` : ''}
         </div>
         <input type="text" id="memberName-${m.id}" maxlength="10" value="${esc(m.name)}" oninput="markUnsaved('saveBtn-${m.id}')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;outline:none;background:white;color:#111;">
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <button id="saveBtn-${m.id}" class="save-toggle-btn" onclick="saveMemberRow('${m.id}')" title="저장" style="padding:6px 10px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
+          <button id="saveBtn-${m.id}" class="save-toggle-btn" onclick="saveMemberRow('${m.id}')" title="저장" style="height:54px;padding:0 9px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
           <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
             <button class="member-delete-btn" onclick="deleteLoginProfile('${m.id}')" title="삭제" style="margin:0;">−</button>
             <span style="font-family:'Pretendard',sans-serif;font-size:9px;color:#555;font-weight:700;">삭제</span>
@@ -5360,7 +5410,7 @@ async function confirmAddProfile(role) {
   renderPasswordSettings();
   refreshLoginCardsIfVisible();
   renderControlBar(); // 자녀 추가 즉시 드롭다운 반영
-  showToast(`${role === 'parent' ? '부모' : '자녀'} 프로필 추가됨! 이름과 비밀번호(0000)를 변경해주세요.`);
+  showInfoPopup(`${role === 'parent' ? '부모' : '자녀'} 프로필이 추가됐어요!<br>이름과 비밀번호(<b>0000</b>)를<br>변경해주세요.`);
 }
 
 async function deleteLoginProfile(memberId) {
@@ -6165,8 +6215,8 @@ function renderDayDetail(dk) {
 
   // ===== 다가오는 일정 쓰기 (자녀별) =====
   const scheds = schedulesForDate(dk);
-  html += `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:10px 12px;margin-bottom:10px;box-shadow:2px 2px 0 #5A8A5E;">`;
-  html += `<div style="font-family:Pretendard,sans-serif;font-size:14px;font-weight:800;color:#2E7D32;margin-bottom:4px;">📌 다가오는 일정 쓰기 <span style="font-weight:700;color:#999;font-size:12px;">(${ddayLabel(dk)})</span></div>`;
+  html += `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:10px 12px;margin-bottom:10px;">`;
+  html += `<div style="font-family:Pretendard,sans-serif;font-size:14px;font-weight:800;color:#2E7D32;margin-bottom:4px;"><span style="color:#E53935;">★</span> 다가오는 일정 쓰기 <span style="font-weight:700;color:#999;font-size:12px;">(${ddayLabel(dk)})</span></div>`;
   scheds.forEach(s => {
     html += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px dashed #E0D8C8;">`;
     html += `<span style="flex:1;font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#222;min-width:0;">• ${escapeHTML(s.title)}</span>`;
@@ -6174,7 +6224,7 @@ function renderDayDetail(dk) {
     html += `</div>`;
   });
   html += `<div style="display:flex;gap:6px;margin-top:6px;">`;
-  html += `<input id="schedInput" type="text" maxlength="20" placeholder="예: 단원평가" onkeydown="if(event.key==='Enter')addScheduleFromDetail('${dk}')" style="flex:1;min-width:0;padding:8px;border:1.5px solid #5A8A5E;border-radius:8px;font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;outline:none;color:#222;background:white;">`;
+  html += `<input id="schedInput" type="text" maxlength="20" placeholder="일정 쓰기" onkeydown="if(event.key==='Enter')addScheduleFromDetail('${dk}')" style="flex:1;min-width:0;padding:8px;border:1.5px solid #5A8A5E;border-radius:8px;font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;outline:none;color:#222;background:white;">`;
   html += `<button onclick="addScheduleFromDetail('${dk}')" style="flex-shrink:0;padding:0 14px;background:#5A8A5E;color:white;border:none;border-radius:8px;font-family:Pretendard,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">추가</button>`;
   html += `</div></div>`;
 
@@ -6184,7 +6234,7 @@ function renderDayDetail(dk) {
     const m = String(d.getMinutes()).padStart(2,'0');
     return h < 12 ? `am${h === 0 ? 12 : h}:${m}` : `pm${h === 12 ? 12 : h-12}:${m}`;
   };
-  html += `<div style="background:white;border:2px solid #4A2F1B;border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:2px 2px 0 #4A2F1B;">`;
+  html += `<div style="background:white;border:2px solid #4A2F1B;border-radius:12px;margin-bottom:10px;overflow:hidden;">`;
 
   // ===== 숙제노트 (읽기전용) — 맨 위에 먼저 =====
   if (_dayDetailNote && _dayDetailNote.lines && _dayDetailNote.lines.length > 0) {
@@ -6269,7 +6319,7 @@ function renderDayDetail(dk) {
 
   // 날짜 메모 (숙제노트 접이식 스타일)
   const memos = dayMemos[dk] || [''];
-  html += `<div class="homework-note-card" style="margin-bottom:8px;">`;
+  html += `<div class="homework-note-card" style="margin-bottom:8px;box-shadow:none;">`;
   html += `<div class="homework-note-header" style="padding:6px 10px;background:#888;" onclick="toggleDayMemoNote(event)">`;
   html += `<span class="homework-note-toggle" id="dayMemoToggleIcon" style="color:white;">▼</span>`;
   html += `<div class="homework-note-title-wrap"><span class="homework-note-title">메모</span></div>`;
@@ -6430,8 +6480,15 @@ function toggleCalendar() {
   const icon = document.getElementById('calToggleIcon');
   if (!body || !icon) return;
   const isOpen = body.style.maxHeight !== '0px';
-  body.style.maxHeight = isOpen ? '0px' : '400px';
+  body.style.maxHeight = isOpen ? '0px' : '520px';
   icon.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+  // 접힘 시: 메모 스티커 표시, 월 제목·이동버튼 숨김
+  const sticker = document.getElementById('calSticker');
+  const headLeft = document.getElementById('calHeaderLeft');
+  const title = document.getElementById('calTitle');
+  if (sticker) sticker.style.display = isOpen ? 'block' : 'none';
+  if (headLeft) headLeft.style.visibility = isOpen ? 'hidden' : 'visible';
+  if (title) title.style.visibility = isOpen ? 'hidden' : 'visible';
 }
 
 pushHistoryBlock();
