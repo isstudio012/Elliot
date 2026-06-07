@@ -354,6 +354,20 @@
     background: #5A8A5E;
     flex: 0 0 auto;
   }
+  /* 알림 토글 스위치 */
+  .notify-switch { position: relative; display: inline-block; width: 50px; height: 28px; flex: 0 0 auto; }
+  .notify-switch input { opacity: 0; width: 0; height: 0; }
+  .notify-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: #c4c0b8; border-radius: 28px; transition: background 0.2s;
+  }
+  .notify-slider::before {
+    content: ''; position: absolute; height: 22px; width: 22px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: transform 0.2s;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.25);
+  }
+  .notify-switch input:checked + .notify-slider { background: #5A8A5E; }
+  .notify-switch input:checked + .notify-slider::before { transform: translateX(22px); }
   /* 헤더 아래 메뉴판 (투명 배경, 글씨, 하위 섹션에서만) */
   .settings-header-menu {
     display: flex;
@@ -715,9 +729,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
-    padding: 2px 4px 4px;
-    border-bottom: 1px solid #7C5A3A;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border: 1px solid #7C5A3A;
+    border-radius: 12px;
   }
   .top-nav-btn {
     font-family: 'Pretendard', sans-serif;
@@ -731,15 +746,26 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    outline: none;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s ease, background 0.15s ease;
   }
-  .top-nav-btn:active { color: #4A2F1B; }
+  .top-nav-btn:focus, .top-nav-btn:focus-visible { outline: none; }
+  .top-nav-btn:active { color: #4A2F1B; transform: scale(0.86); background: rgba(124,90,58,0.12); }
+
+  /* 설정 버튼 — 녹색, 톱니 3초에 한 바퀴 회전 */
+  #settingsBtn { color: #5A8A5E; }
+  #settingsBtn svg { animation: gearSpin 3s linear infinite; }
+  #settingsBtn:active { color: #2E5A32; background: rgba(90,138,94,0.16); transform: scale(0.86); }
+  @keyframes gearSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
   /* ====== 프로필 카드 ====== */
   .profile-card {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 6px;
     padding: 4px 0;
   }
   .profile-photo-wrap {
@@ -807,9 +833,13 @@
     word-break: break-all;
     line-height: 1.2;
     -webkit-text-stroke: 0.5px #3A2010;
+    cursor: default;
+  }
+  .profile-msg h1:empty {
+    cursor: pointer;
   }
   .profile-msg h1:empty::before {
-    content: '설정에서 한마디를 적어주세요 ✏️';
+    content: '설정에서 한마디를 적어주세요 ...';
     color: #A8967C;
     font-size: 18px;
     font-weight: 700;
@@ -1055,22 +1085,23 @@
   .top-buttons {
     display: flex;
     flex-direction: column;
-    gap: 0;
-    background: white;
-    border: 2px solid #4A2F1B;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 2px 2px 0 #4A2F1B;
+    gap: 4px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    box-shadow: none;
     flex-shrink: 0;
     align-self: stretch;
     margin-left: 8px;
+    justify-content: center;
   }
-  
+
   .top-buttons button {
-    background: white;
+    background: none;
     border: none;
-    width: 40px;
-    flex: 1;
+    width: 36px;
+    flex: 0 0 auto;
     font-size: 10px;
     cursor: pointer;
     padding: 0;
@@ -1081,63 +1112,67 @@
     font-family: 'Pretendard', sans-serif;
     font-weight: 700;
   }
-  
+  .top-buttons button svg { width: 24px; height: 24px; }
+
   .top-buttons button + button {
     border-left: none;
-    border-top: 1px solid #4A2F1B;
+    border-top: none;
   }
+
+  .top-buttons button:active { transform: scale(0.9); }
   
-  .top-buttons button:active { background: #EAE0C2; }
-  
-  .top-bar { display: flex; gap: 6px; margin-bottom: 12px; align-items: stretch; }
+  .top-bar { display: flex; gap: 6px; margin-top: 2px; margin-bottom: 6px; padding: 4px 12px; border: 2px solid #5A8A5E; border-radius: 12px; align-items: center; }
   
   .coin-display {
     flex: 1;
-    background: linear-gradient(to right, #3D6B40, #6A9A6E);
-    border: 2px solid #2E5A32;
-    border-radius: 10px;
-    padding: 0 8px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0 4px;
     display: flex;
     align-items: center;
-    gap: 4px;
-    box-shadow: 2px 2px 0 #2E5A32;
-    overflow: hidden;
+    gap: 6px;
+    box-shadow: none;
+    overflow: visible;
   }
   
-  .coin-icon { font-size: clamp(28px, 7vw, 45px); animation: spin 4s linear infinite; }
+  .coin-icon { font-size: clamp(28px, 7vw, 45px); animation: spin 4s linear infinite; display: inline-flex; }
+  .coin-icon svg { width: clamp(32px, 8vw, 46px); height: clamp(32px, 8vw, 46px); display: block; }
   
   @keyframes spin {
     0%, 90%, 100% { transform: rotateY(0deg); }
     95% { transform: rotateY(360deg); }
   }
   
-  .coin-amount { font-family: 'Pretendard', sans-serif; font-size: clamp(32px, 8vw, 55px); font-weight: 700; color: white; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.4); }
-  .coin-pending { font-family: 'Pretendard', sans-serif; font-size: clamp(14px, 4vw, 25px); color: #D4EDDA; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .coin-amount { font-family: 'Pretendard', sans-serif; font-size: clamp(28px, 7vw, 46px); font-weight: 700; color: #4A2F1B; line-height: 1; }
+  .coin-pending { font-family: 'Pretendard', sans-serif; font-size: clamp(11px, 3vw, 17px); color: #3D6B40; font-weight: 700; line-height: 1; white-space: nowrap; }
   .coin-stack { font-size: 18px; margin-left: auto; }
+  .coin-stack-visual { margin-left: auto; display: flex; align-items: flex-end; padding: 6px 6px 6px 0; flex-shrink: 0; }
   
   .shop-btn {
-    background: #6A9A6E;
-    border: 2px solid #4A2F1B;
+    background: none;
+    border: none;
     border-radius: 12px;
-    padding: 6px 10px;
+    padding: 2px 4px;
     font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    color: white;
+    color: #4A2F1B;
     cursor: pointer;
-    box-shadow: 2px 2px 0 #4A2F1B;
-    line-height: 1.2;
+    box-shadow: none;
+    line-height: 1.1;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
-    min-width: 66px;
+    gap: 1px;
+    min-width: 80px;
     min-height: 44px;
   }
-  
-  .shop-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #4A2F1B; }
+  .shop-btn img { width: clamp(44px, 12vw, 58px); height: auto; display: block; }
+
+  .shop-btn:active { transform: translate(1px, 1px); }
   
   .calendar-card {
     background: white;
@@ -1152,7 +1187,7 @@
   .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   
   .cal-nav {
-    background: #EAE0C2;
+    background: #FFFFFF;
     border: 2px solid #4A2F1B;
     border-radius: 6px;
     width: 26px;
@@ -1278,8 +1313,8 @@
   }
   
   .subject {
-    background: white; border: 2px solid #4A2F1B; border-radius: 12px;
-    margin-bottom: 8px; overflow: hidden; box-shadow: 2px 2px 0 #4A2F1B;
+    background: white; border: 1.5px solid #D8C9A8; border-radius: 12px;
+    margin-bottom: 8px; overflow: hidden; box-shadow: none;
   }
   .subject-header {
     padding: 5px 8px; display: flex; align-items: center; gap: 6px;
@@ -1358,9 +1393,9 @@
   .add-btn {
     width: 100%; padding: 8px; background: #FFFFFF; border: none;
     border-top: 1px dashed #C8A47C; font-family: 'Pretendard', sans-serif;
-    font-size: 28px; font-weight: 700; color: #5A3A1B; cursor: pointer; line-height: 1;
+    font-size: 28px; font-weight: 700; color: #5A8A5E; cursor: pointer; line-height: 1;
   }
-  .add-btn:active { background: #F5EDD7; color: #4A2F1B; }
+  .add-btn:active { background: #F5EDD7; color: #2E5A32; }
   
   .add-subject-btn {
     width: 100%; padding: 10px; background: #4A90D9; border: 2px solid #2E5A8A;
@@ -1457,6 +1492,17 @@
     max-width: 320px !important; width: 100% !important;
     box-shadow: 4px 4px 0 #4A2F1B !important;
   }
+  #subjectModalInner { box-shadow: none !important; border: 1.5px solid #D8C9A8 !important; }
+  /* 설정 저장 버튼 — 입력 중 파랑, 저장 후 녹색, 누르는 효과 */
+  .save-btn {
+    flex-shrink: 0; padding: 10px 14px; border: none; border-radius: 6px;
+    font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700; color: white; cursor: pointer;
+    background: #4A90D9; box-shadow: 2px 2px 0 #2E5A8A;
+    transition: transform 0.08s ease, background 0.2s ease, box-shadow 0.08s ease;
+    outline: none; -webkit-tap-highlight-color: transparent;
+  }
+  .save-btn.saved { background: #5A8A5E; box-shadow: 2px 2px 0 #2E5A32; }
+  .save-btn:active { transform: translate(2px, 2px); box-shadow: none; }
   .pwd-modal-title { font-family: 'Pretendard', sans-serif; font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 8px; color: #4A2F1B; }
   .pwd-modal-sub { text-align: center; margin-bottom: 10px; font-family: 'Pretendard', sans-serif; font-size: 15px; color: #7C5A3A; }
   
@@ -1519,11 +1565,12 @@
   .confirm-msg { text-align: center; font-family: 'Pretendard', sans-serif; font-size: 20px; margin-bottom: 16px; line-height: 1.4; color: #4A2F1B; }
   
   .toast {
-    position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-    background: #9B7EC8; color: white; padding: 14px 22px; border: 3px solid #6B4E98;
-    border-radius: 16px; font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 700;
-    box-shadow: 4px 4px 0 #6B4E98; opacity: 0; pointer-events: none;
+    position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
+    background: none; color: #4A2F1B; padding: 0; border: none;
+    border-radius: 0; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700;
+    box-shadow: none; opacity: 0; pointer-events: none;
     transition: opacity 0.3s; z-index: 400; max-width: 80%; text-align: center;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.9), 0 0 6px rgba(255,255,255,0.9);
   }
   .toast.show { opacity: 1; }
 
@@ -1830,6 +1877,13 @@
     gap: 20px;
   }
   #familyCodeScreen.show { display: flex; }
+  .fc-hero {
+    width: 290px;
+    max-width: 88%;
+    height: auto;
+    margin-bottom: -28px;
+    object-fit: contain;
+  }
   .fc-title {
     font-family: 'Pretendard', sans-serif;
     font-size: 28px;
@@ -2026,30 +2080,39 @@
     flex: 1;
     min-width: 0;
     padding: 12px 14px;
-    border: 2px solid #5A8A5E;
+    border: 2px solid #1E4FB5;
     border-radius: 12px;
     font-family: 'Pretendard', sans-serif;
     font-size: 16px;
     font-weight: 700;
-    color: #4A2F1B;
+    color: #143A8C;
     background: white;
     outline: none;
     text-align: center;
     text-transform: uppercase;
-    box-shadow: 2px 2px 0 #2E5A32;
+    box-shadow: 2px 2px 0 #143A8C;
   }
   .setup-join-btn {
-    background: #5A8A5E;
-    border: 2px solid #2E5A32;
+    background: #1E4FB5;
+    border: 2px solid #143A8C;
     border-radius: 12px;
     color: white;
     font-size: 20px;
     padding: 0 16px;
     cursor: pointer;
     flex-shrink: 0;
-    box-shadow: 2px 2px 0 #2E5A32;
+    box-shadow: 2px 2px 0 #143A8C;
   }
-  .setup-join-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #2E5A32; }
+  .setup-join-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #143A8C; }
+  .fc-divider {
+    margin: 30px 0 10px;
+    color: #B0A589;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-align: center;
+  }
   .setup-error {
     font-family: 'Pretendard', sans-serif;
     font-size: 13px;
@@ -2065,10 +2128,10 @@
 
 <!-- 화면1: 처음 오셨나요? -->
 <div id="familyCodeScreen">
-  <div class="fc-title">👋 처음 오셨나요?</div>
-  <div class="fc-sub">가족을 만들어보세요!</div>
-  <button class="fc-btn green" onclick="showFamilySetupScreen()">새 가족 만들기</button>
-  <div class="fc-sub" style="margin-top:20px;">가족 코드가 있으면 아래에서 입장하세요!</div>
+  <img src="intro.png" alt="" class="fc-hero" onerror="this.style.display='none'">
+  <button class="fc-btn green" onclick="showFamilySetupScreen()" style="line-height:1.3;padding-top:10px;padding-bottom:12px;"><span style="display:block;font-size:13px;font-weight:600;opacity:0.8;letter-spacing:0.5px;">처음 오셨나요?</span><span style="display:block;font-size:21px;font-weight:800;margin-top:2px;">가족 만들러가기 ▶</span></button>
+  <div class="fc-divider">• • •</div>
+  <div class="fc-sub" style="margin-top:6px;font-size:17px;font-weight:700;color:#4A2F1B;">가족 코드가 있으면<br>아래에서 입장하세요!</div>
   <div class="setup-join-row">
     <input class="setup-join-input" id="fcJoinCode" placeholder="가족코드로 입장" maxlength="10"
       onkeydown="if(event.key==='Enter')joinWithFamilyCode()">
@@ -2094,7 +2157,10 @@
 
     <div class="setup-card">
       <input class="setup-input" id="setupProfileName" placeholder="닉네임" maxlength="10">
-      <input class="setup-input" id="setupPin" placeholder="비밀번호 (영문+숫자 4~10자리)" type="text" maxlength="10" autocomplete="off">
+      <div style="position:relative;width:100%;">
+        <input class="setup-input" id="setupPin" placeholder="비밀번호 (영문+숫자 4~10자리)" type="password" maxlength="10" autocomplete="new-password" style="padding-right:46px;">
+        <button type="button" onclick="togglePinView('setupPin',this)" title="비밀번호 보기" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:20px;line-height:1;padding:0;display:flex;align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
 
       <button class="setup-done-btn" id="setupProfileDoneBtn" onclick="completeProfileOnly()">확인</button>
 
@@ -2226,7 +2292,10 @@
     <div class="login-members" id="loginMembers"></div>
     <div class="login-pin-section" id="loginPinSection">
       <div class="login-pin-row">
-        <input type="text" class="login-pin-input" id="loginPinInput" maxlength="10" placeholder="비밀번호" autocomplete="off" onkeypress="if(event.key==='Enter')doLogin()">
+        <div style="position:relative;flex:1;">
+          <input type="password" class="login-pin-input" id="loginPinInput" maxlength="10" placeholder="비밀번호" autocomplete="off" onkeypress="if(event.key==='Enter')doLogin()" style="width:100%;padding-right:42px;box-sizing:border-box;">
+          <button type="button" onclick="togglePinView('loginPinInput',this)" title="비밀번호 보기" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0;display:flex;align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
         <button class="login-confirm-btn" onclick="doLogin()" title="확인">✓</button>
         <button class="login-pin-close" onclick="closeLoginPin()" title="닫기" style="width:28px;height:28px;font-size:16px;margin-left:4px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;">×</button>
       </div>
@@ -2238,13 +2307,18 @@
   <div class="app-main" id="appMain">
     <!-- 상단 네비 -->
     <div class="top-nav">
-      <div id="childDropdownWrap"></div>
       <div style="display:flex;align-items:center;gap:6px;">
+        <div id="childDropdownWrap"></div>
         <span class="top-nav-btn" id="navLogoutBtn" style="cursor:default;"></span>
         <span style="width:1px;height:14px;background:#5A8A5E;display:inline-block;"></span>
-        <button class="top-nav-btn" onclick="closeApp()" id="navCloseBtn">로그아웃 ✕</button>
-        <span style="width:1px;height:14px;background:#5A8A5E;display:inline-block;"></span>
-        <button class="top-nav-btn" onclick="openCoinReset()" title="코인 리셋" style="font-size:16px;padding:0 2px;line-height:1;">↺</button>
+        <button class="top-nav-btn" onclick="closeApp()" id="navCloseBtn" title="로그아웃" style="display:flex;align-items:center;gap:4px;">로그아웃<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A2F1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="top-nav-btn" onclick="location.reload()" title="새로고침" style="padding:0 2px;line-height:1;display:flex;align-items:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5A8A5E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+        <span style="width:1px;height:16px;background:#5A8A5E;display:inline-block;"></span>
+        <button class="top-nav-btn" id="soundToggle" onclick="toggleSound()" title="소리" style="padding:2px;">소리</button>
+        <span style="width:1px;height:16px;background:#5A8A5E;display:inline-block;"></span>
+        <button class="top-nav-btn" id="settingsBtn" onclick="openSettings()" title="설정" style="padding:2px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
       </div>
     </div>
     
@@ -2262,7 +2336,7 @@
         <input type="file" id="profileFileInput" accept="image/*" style="display:none;" onchange="handleProfileUpload(event)">
       </div>
       <div class="profile-msg">
-        <h1 id="appTitle"></h1>
+        <h1 id="appTitle" onclick="onAppTitleClick()"></h1>
       </div>
     </div>
     
@@ -2273,15 +2347,13 @@
     
     <div class="top-bar">
       <div class="coin-display">
-        <span class="coin-icon">💰</span>
+        <span class="coin-icon"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="47" fill="#E0960A"/><circle cx="50" cy="50" r="39" fill="#FFD23F" stroke="#E0960A" stroke-width="3"/><text x="50" y="70" font-size="52" font-weight="900" text-anchor="middle" fill="#E0960A" font-family="Arial,sans-serif">$</text></svg></span>
         <div class="coin-amount" id="coinAmount">0</div>
         <div class="coin-pending" id="pendingLabel"></div>
+        <div class="coin-stack-visual" id="coinStackVisual"></div>
       </div>
-      <button class="shop-btn" onclick="openShop()"><span style="font-size:28px;line-height:1;">🎁</span><span style="font-size:14px;">상점</span></button>
-      <div class="top-buttons">
-        <button id="settingsBtn" onclick="openSettings()" title="설정"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
-        <button id="soundToggle" onclick="toggleSound()" title="소리">소리</button>
-      </div>
+      <span style="width:1px;height:32px;background:#7C5A3A;display:inline-block;flex-shrink:0;"></span>
+      <button class="shop-btn" onclick="openShop()"><img src="shop.png" alt="상점" onerror="this.outerHTML='<span style=&quot;font-size:28px;line-height:1;&quot;>🎁</span>';"></button>
     </div>
     
     <!-- 다가오는 일정 (자녀별 · 코인박스와 달력 사이) -->
@@ -2313,12 +2385,12 @@
             </span>
             <span style="display:inline-flex;align-items:center;gap:5px;">
               <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:#5A8A5E;"></span>
-              부모님 확인하면 녹색
+              부모님이 확인·완료하면 녹색
             </span>
           </div>
           <div style="display:flex;gap:5px;text-align:left;">
             <span style="font-size:10px;color:#8A7A60;line-height:1.5;flex-shrink:0;">☆</span>
-            <span style="line-height:1.5;">날짜를 두 번 누르면<br>그날 숙제와 일정을 볼 수 있어요</span>
+            <span style="line-height:1.5;">날짜를 톡톡 누르면<br>그날 숙제와 일정을 볼 수 있어요</span>
           </div>
         </div>
       </div>
@@ -2470,6 +2542,10 @@
       <button class="settings-menu-btn" onclick="openCoinReset()"><span class="settings-menu-dot"></span><span>코인 리셋</span></button>
       <button class="settings-menu-btn" onclick="openFamilyCodeCheck()"><span class="settings-menu-dot"></span><span>가족코드 확인하기</span></button>
       <button class="settings-menu-btn" onclick="showSettingsSection('guide')"><span class="settings-menu-dot"></span><span>📋 사용 가이드</span></button>
+      <div class="settings-menu-btn" style="justify-content:space-between;cursor:default;">
+        <span style="display:flex;align-items:center;gap:16px;"><span class="settings-menu-dot"></span><span>🔔 알림 받기</span></span>
+        <label class="notify-switch"><input type="checkbox" id="notifyToggle" onchange="toggleNotify(this)"><span class="notify-slider"></span></label>
+      </div>
     </div>
     <div class="settings-view" id="settingsTitleView">
     <div class="settings-card">
@@ -2477,18 +2553,18 @@
       <div style="display:flex;flex-direction:column;gap:12px;padding:10px 12px;">
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
           <div style="width:56px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#111;">한마디</div>
-          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="응원 한마디를 적어주세요" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveAppTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+          <input type="text" id="settingsAppTitle" maxlength="30" placeholder="응원 한마디를 적어주세요" oninput="this.parentElement.querySelector('.save-btn').classList.remove('saved')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button class="save-btn" onclick="saveAppTitleOnly(); this.classList.add('saved')">저장</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
           <div style="width:56px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#111;">과목추가</div>
-          <input type="text" id="settingsAddSubjectBtn" maxlength="20" placeholder="+ 과목 추가" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveAddSubjectBtnText()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+          <input type="text" id="settingsAddSubjectBtn" maxlength="20" placeholder="+ 과목 추가" oninput="this.parentElement.querySelector('.save-btn').classList.remove('saved')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button class="save-btn" onclick="saveAddSubjectBtnText(); this.classList.add('saved')">저장</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
           <div style="width:56px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#111;">숙제노트</div>
-          <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
-          <button onclick="saveNoteTitleOnly()" style="flex-shrink:0;padding:10px 14px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;">저장</button>
+          <input type="text" id="settingsNoteTitle" maxlength="20" placeholder="숙제노트 제목" oninput="this.parentElement.querySelector('.save-btn').classList.remove('saved')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <button class="save-btn" onclick="saveNoteTitleOnly(); this.classList.add('saved')">저장</button>
         </div>
       </div>
     </div>
@@ -2517,7 +2593,7 @@
   <div class="modal pwd-modal" id="subjectModalInner" style="max-width:340px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;padding:16px;">
     <!-- 드래그 핸들 바 -->
     <div id="subjectModalDragHandle" style="position:absolute;top:0;left:0;right:0;height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none;z-index:5;">
-      <div style="width:42px;height:5px;border-radius:3px;background:#C8A47C;"></div>
+      <div style="width:50px;height:6px;border-radius:3px;background:#222;"></div>
     </div>
     <!-- 닫기 (빨간 동그라미, 우상단) -->
     <button onclick="closeAddSubject()" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:#E53935;color:white;border:2px solid #B71C1C;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:2px 2px 0 #B71C1C;line-height:1;">✕</button>
@@ -2540,7 +2616,7 @@
     <div style="border-top:1px dashed #C8A47C;margin:8px 0 10px;"></div>
 
     <!-- 과목 목록 (즐겨찾기 모드면 즐겨찾기만, 아니면 전체) -->
-    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:14px 10px;justify-content:flex-start;margin-bottom:14px;min-height:60px;padding:8px 4px 4px;"></div>
+    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:14px 10px;justify-content:center;margin-bottom:14px;min-height:60px;padding:8px 4px 4px;"></div>
 
     <!-- 하단 점선 + 여백 -->
     <div style="border-top:1px dashed #C8A47C;margin-top:4px;padding-bottom:10px;"></div>
@@ -2611,7 +2687,10 @@
   <div class="modal pwd-modal" style="padding:14px;">
     <div class="confirm-msg" style="font-size:16px;margin-bottom:8px;">코인을 리셋할까요?<br>비밀번호를 입력하세요</div>
     <div style="display:flex;align-items:center;gap:6px;justify-content:center;">
-      <input type="tel" class="pwd-input" id="coinResetPwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="margin-bottom:0;flex:1;" onkeypress="if(event.key==='Enter')confirmCoinReset()">
+      <div style="position:relative;flex:1;">
+        <input type="password" class="pwd-input" id="coinResetPwd" maxlength="10" placeholder="비밀번호" autocomplete="off" style="margin-bottom:0;width:100%;box-sizing:border-box;padding-right:40px;" onkeypress="if(event.key==='Enter')confirmCoinReset()">
+        <button type="button" onclick="togglePinView('coinResetPwd',this)" title="비밀번호 보기" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0;display:flex;align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
       <button class="login-confirm-btn" onclick="confirmCoinReset()" title="확인">✓</button>
       <button onclick="closeCoinReset()" title="닫기" style="width:32px;height:32px;font-size:18px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;flex-shrink:0;line-height:1;">×</button>
     </div>
@@ -2624,7 +2703,10 @@
   <div class="modal pwd-modal" style="padding:14px;">
     <div class="confirm-msg" style="font-size:16px;margin-bottom:8px;">가족코드를 확인할까요?<br>비밀번호를 입력하세요</div>
     <div style="display:flex;align-items:center;gap:6px;justify-content:center;">
-      <input type="tel" class="pwd-input" id="familyCodePwd" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="● ● ● ●" style="margin-bottom:0;flex:1;" onkeypress="if(event.key==='Enter')confirmFamilyCodePwd()">
+      <div style="position:relative;flex:1;">
+        <input type="password" class="pwd-input" id="familyCodePwd" maxlength="10" placeholder="비밀번호" autocomplete="off" style="margin-bottom:0;width:100%;box-sizing:border-box;padding-right:40px;" onkeypress="if(event.key==='Enter')confirmFamilyCodePwd()">
+        <button type="button" onclick="togglePinView('familyCodePwd',this)" title="비밀번호 보기" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;line-height:1;padding:0;display:flex;align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
       <button class="login-confirm-btn" onclick="confirmFamilyCodePwd()" title="확인">✓</button>
       <button onclick="closeFamilyCodePwd()" title="닫기" style="width:32px;height:32px;font-size:18px;border-radius:8px;border:2px solid #4A2F1B;background:white;color:#4A2F1B;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #4A2F1B;flex-shrink:0;line-height:1;">×</button>
     </div>
@@ -2754,12 +2836,12 @@ let noteTitle = '숙제노트';
 /* ====== 📋 사용 가이드 알림장 ====== */
 const DEFAULT_GUIDE = `[요약]
 ✨ 한눈에 보기
-- *방장은* 닉네임+비번으로 가입해 *가족코드를 발급*받고, 모든 가족의 프로필과 비밀번호를 만든 뒤 코드를 공유해요.
+- 모든 활동은 *가족에게 실시간 공유* — 따뜻한 응원 공간이에요!
+- *방장은* 가입 후 모든 가족의 *프로필과 비밀번호*를 만들고, *가족코드*를 복사해 가족에게 공유해요.
 - *가족은* 가족코드로 *운동장에 입장* → 본인 프로필 *두 번 클릭* + 비밀번호 → 내 공간으로!
 - *아이는* 숙제 노트에 할 일을 적고, 끝낸 과목에 {녹색} *녹색 체크*를 해요.
 - *부모는* 승인을 눌러 칭찬 {코인} *코인*을 주고, 아이는 코인으로 *상점 선물*을 사요.
 - 달력엔 {무지개} 숙제 진행 / {녹색} 부모 확인 완료가 한눈에 보여요.
-- 모든 활동은 *가족에게 실시간 공유* — 따뜻한 응원 공간이에요!
 - 자세한 내용은 위 탭(시작·달력·숙제·상점·공유)을 눌러보세요 👆
 
 [시작]
@@ -2770,6 +2852,7 @@ const DEFAULT_GUIDE = `[요약]
 - *4. 가족 입장:* 가족은 앱 첫 화면에서 *가족코드를 입력*해 운동장에 들어와요.
 - *5. 내 방 가기:* 운동장에서 *내 프로필을 두 번 클릭* → 비밀번호 입력 → 내 공간으로 쏙!
 - *6. 운동장 게임:* 운동장에서 ⚽ *토글을 켜면* 모은 코인으로 *미니게임*을 즐길 수 있어요!
+- *7. 비밀번호 & 초기화:* 모든 프로필의 *첫 비밀번호는 0000*이에요. [설정 → 비밀번호 변경]에서 바꿀 수 있고, 잊어버리면 부모가 *0000으로 초기화*할 수 있어요. 코인도 부모가 [설정]에서 초기화할 수 있어요.
 
 [달력]
 🌈 무지개 달력 & 일정
@@ -2862,9 +2945,20 @@ function buildGuideHTML(txt) {
   });
   return `<div class="guide-wrap">${btns}</div>${conts}</div></div>`;
 }
-// 자동 팝업(방장 첫 가입)용 모달
+// 첫 가입 자동 팝업용: 요약 탭만 + "자세한 건 사용 가이드" 안내
+function buildGuideSummaryHTML(txt) {
+  const tabs = parseGuide(txt);
+  if (!tabs.length) return `<div style="padding:16px;white-space:pre-wrap;">${esc(txt)}</div>`;
+  const t = tabs[0];
+  return `<div style="padding:14px 16px 18px;background:#fff;">
+    ${t.title ? `<h3 style="margin:0 0 10px;color:#2E5A32;font-size:15px;border-bottom:1.5px solid #2E5A32;padding-bottom:6px;">${guideInline(t.title)}</h3>` : ''}
+    <ul style="padding-left:16px;margin:0;font-family:'Pretendard',sans-serif;font-size:13px;line-height:1.65;color:#333;word-break:keep-all;">${t.items.map(it => `<li style="margin-bottom:8px;">${guideInline(it)}</li>`).join('')}</ul>
+    <div style="margin-top:14px;padding:11px 12px;background:#F5EDD7;border-radius:8px;font-family:'Pretendard',sans-serif;font-size:12.5px;color:#5a3f33;text-align:center;line-height:1.5;">더 자세한 내용은 <strong>[설정 ⚙ → 📋 사용 가이드]</strong>에서<br>확인할 수 있어요!</div>
+  </div>`;
+}
+// 자동 팝업(방장 첫 가입)용 모달 — 요약본만
 function openGuideModal() {
-  document.getElementById('guideModalBody').innerHTML = buildGuideHTML(guideText || DEFAULT_GUIDE);
+  document.getElementById('guideModalBody').innerHTML = buildGuideSummaryHTML(guideText || DEFAULT_GUIDE);
   document.getElementById('guideModal').classList.add('show');
 }
 // 메뉴 클릭 시 설정 페이지로 표시
@@ -3025,6 +3119,7 @@ async function loadNotes() {
 async function handleProfileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
+  if (file.size > 15 * 1024 * 1024) { showToast('사진이 너무 커요(15MB 이하) 📷'); event.target.value = ''; return; }
 
   let dataUrl;
   try { dataUrl = await compressImage(file); }
@@ -3141,10 +3236,10 @@ function openFamilyCodeCheck() {
 function closeFamilyCodePwd() {
   document.getElementById('familyCodePwdModal').classList.remove('show');
 }
-function confirmFamilyCodePwd() {
+async function confirmFamilyCodePwd() {
   const pwd = document.getElementById('familyCodePwd').value;
   if (!pwd) { document.getElementById('familyCodePwdError').textContent = '비밀번호를 입력하세요'; return; }
-  if (pwd !== currentUser.pin) {
+  if (!(await verifyPin(pwd, currentUser.pin))) {
     document.getElementById('familyCodePwdError').textContent = '비밀번호가 틀려요 ❌';
     soundError();
     document.getElementById('familyCodePwd').value = '';
@@ -3199,7 +3294,7 @@ async function confirmCoinReset() {
     document.getElementById('coinResetError').textContent = '비밀번호를 입력하세요';
     return;
   }
-  if (pwd !== currentUser.pin) {
+  if (!(await verifyPin(pwd, currentUser.pin))) {
     document.getElementById('coinResetError').textContent = '비밀번호가 틀렸어요';
     return;
   }
@@ -3285,14 +3380,14 @@ function soundBonus() { [523, 659, 784, 880, 1047].forEach((f, i) => setTimeout(
 function soundClick() { playTone(600, 0.05, 'sine', 0.08); }
 function soundError() { playTone(300, 0.2, 'sawtooth', 0.1); }
 function soundMsg() { playTone(880, 0.08, 'sine', 0.12); setTimeout(() => playTone(1100, 0.12, 'sine', 0.1), 100); }
-const SVG_VOL_ON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
-const SVG_VOL_OFF = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`;
+const SVG_VOL_ON = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
+const SVG_VOL_OFF = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`;
 function toggleSound() {
   soundOn = !soundOn;
   const btn = document.getElementById('soundToggle');
   btn.innerHTML = soundOn ? SVG_VOL_ON : SVG_VOL_OFF;
   btn.style.color = soundOn ? '#4A2F1B' : '#888';
-  btn.style.background = soundOn ? 'white' : '#ddd';
+  btn.style.background = 'none';
   localStorage.setItem('soundOn', soundOn);
   if (soundOn) soundClick();
 }
@@ -3304,6 +3399,42 @@ function randomColor() { return SUBJECT_COLORS[Math.floor(Math.random() * SUBJEC
 function genId() { return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function isParent() { return currentUser && currentUser.role === 'parent'; }
+
+// 한마디가 비어있을 때만 클릭 → 설정 한마디 페이지로 이동 (적혀 있으면 클릭 무시)
+function onAppTitleClick() {
+  const el = document.getElementById('appTitle');
+  if (el && el.textContent.trim() !== '') return;  // 이미 적혀있으면 동작 안 함
+  openSettings();
+  setTimeout(() => {
+    showSettingsSection('title');
+    const inp = document.getElementById('settingsAppTitle');
+    if (inp) { inp.focus(); inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  }, 200);
+}
+
+/* 비밀번호 해시 (SHA-256). secure context(https)에서만 해시, 아니면 평문 fallback.
+   저장값이 'h:'로 시작하면 해시, 아니면 레거시 평문으로 간주 → 하위호환 유지 */
+async function hashPin(pin) {
+  try {
+    if (!crypto || !crypto.subtle) return pin;
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(pin)));
+    return 'h:' + Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch(e) { return pin; }
+}
+async function verifyPin(input, stored) {
+  if (stored == null) return false;
+  if (String(stored).startsWith('h:')) return (await hashPin(input)) === stored;
+  return String(input) === String(stored);  // 레거시 평문
+}
+// 비밀번호 보기/가리기 토글 (선 아이콘)
+const EYE_OPEN = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const EYE_OFF = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+function togglePinView(inputId, btn) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  if (el.type === 'password') { el.type = 'text'; btn.innerHTML = EYE_OFF; }
+  else { el.type = 'password'; btn.innerHTML = EYE_OPEN; }
+}
 
 /* 이미지 압축: 원본 → 정사각형 리사이즈 + JPEG 압축 (프로필용, 보통 20~60KB) */
 function compressImage(file, maxSize = 320, quality = 0.72) {
@@ -3323,6 +3454,29 @@ function compressImage(file, maxSize = 320, quality = 0.72) {
         ctx.drawImage(img, sx, sy, side, side, 0, 0, out, out);
         try { resolve(canvas.toDataURL('image/jpeg', quality)); }
         catch(err) { reject(err); }
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* 이미지 압축(Blob): 채팅 사진용 — 긴 변 maxSize로 리사이즈 + JPEG, Storage 업로드용 */
+function compressImageToBlob(file, maxSize = 900, quality = 0.75) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
+        else { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(b => b ? resolve(b) : reject(new Error('blob fail')), 'image/jpeg', quality);
       };
       img.onerror = reject;
       img.src = e.target.result;
@@ -3369,6 +3523,8 @@ function defaultLoginPosition(index, total, container, btn) {
 
 function showToast(msg) {
   const t = document.getElementById('toast');
+  // 이모티콘/기호 제거 → 글씨만 작게 통일
+  msg = String(msg).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{2190}-\u{21FF}]/gu, '').trim();
   t.textContent = msg; t.classList.add('show');
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 1800);
@@ -3525,7 +3681,7 @@ async function completeSetup() {
   try {
     await sb.from('families').insert({ code: _setupGeneratedCode, name: familyName });
     const memberId = 'member_' + Date.now();
-    const member = { id: memberId, name: profileName, role: 'parent', pin, family_id: _setupGeneratedCode };
+    const member = { id: memberId, name: profileName, role: 'parent', pin: await hashPin(pin), family_id: _setupGeneratedCode };
     await sb.from('members').insert(member);
     localStorage.setItem('family_code', _setupGeneratedCode);
     currentUser = member;
@@ -4025,13 +4181,13 @@ function closeLoginPin() {
   document.getElementById('loginPinSection').classList.remove('show');
 }
 
-function doLogin() {
+async function doLogin() {
   const pin = document.getElementById('loginPinInput').value;
   if (!selectedMember) {
     document.getElementById('loginError').textContent = '먼저 이름을 선택해 주세요';
     return;
   }
-  if (pin !== selectedMember.pin) {
+  if (!(await verifyPin(pin, selectedMember.pin))) {
     document.getElementById('loginError').textContent = '비밀번호가 틀려요 ❌';
     soundError();
     document.getElementById('loginPinInput').value = '';
@@ -4077,7 +4233,7 @@ async function showMainApp() {
   if (savedSound !== null) { soundOn = savedSound === 'true'; }
   document.getElementById('soundToggle').innerHTML = soundOn ? SVG_VOL_ON : SVG_VOL_OFF;
   document.getElementById('soundToggle').style.color = soundOn ? '#4A2F1B' : '#888';
-  document.getElementById('soundToggle').style.background = soundOn ? 'white' : '#ddd';
+  document.getElementById('soundToggle').style.background = 'none';
   
   const t = new Date();
   viewYear = t.getFullYear();
@@ -4256,7 +4412,10 @@ async function addScheduleFromDetail(dk) {
   const tmp = { id: 'tmp_' + Date.now(), date_key: dk, title, member_id: mid, family_id: fc };
   cachedSchedules.push(tmp);
   renderDayDetail(dk); renderUpcoming(); renderCalendar();
-  setTimeout(() => { const e = document.getElementById('schedInput'); if (e) e.focus(); }, 50);
+  setTimeout(() => {
+    const e = document.getElementById('schedInput'); if (e) e.focus();
+    const b = document.getElementById('schedAddBtn'); if (b) b.style.background = '#5A8A5E';
+  }, 50);
   const { data, error } = await sb.from('schedules')
     .insert({ date_key: dk, title, member_id: mid, family_id: fc }).select().maybeSingle();
   if (error) {
@@ -4524,15 +4683,35 @@ function renderCoins() {
   document.getElementById('pendingLabel').textContent = 
     pendingTotal > 0 ? `예비 +${pendingTotal}` : '';
   
-  // 금화 스택 - 코인 양에 따라 쌓임
-  const amt = cachedCoins.amount + pendingTotal;
-  let stack = '🔸';
-  if (amt >= 5) stack = '🔸🔸';
-  if (amt >= 15) stack = '🔶🔶🔶';
-  if (amt >= 30) stack = '💎🔶🔶';
-  if (amt >= 50) stack = '💎💎🔶';
-  if (amt >= 100) stack = '👑💎💎';
+  renderCoinStack(cachedCoins.amount + pendingTotal);
   document.querySelector('.coin-stack') && (document.querySelector('.coin-stack').textContent = '');
+}
+
+function renderCoinStack(amount) {
+  const el = document.getElementById('coinStackVisual');
+  if (!el) return;
+  let n;
+  if (amount <= 0) n = 0;
+  else if (amount < 3)  n = 1;
+  else if (amount < 8)  n = 2;
+  else if (amount < 20) n = 3;
+  else if (amount < 50) n = 4;
+  else if (amount < 100) n = 5;
+  else if (amount < 300) n = 6;
+  else n = 7;
+  if (n === 0) { el.innerHTML = ''; return; }
+  const W=44, RX=19, RY=6, COIN_H=8, GAP=8;
+  const totalH = RY + (n-1)*GAP + COIN_H + RY + 2;
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    const baseY = totalH - RY - 1 - i * GAP;
+    s += `<rect x="${(W-RX*2)/2}" y="${baseY-COIN_H}" width="${RX*2}" height="${COIN_H}" rx="1" fill="#B86A00"/>`;
+    if (i === 0) s += `<ellipse cx="${W/2}" cy="${baseY}" rx="${RX}" ry="${RY}" fill="#C87800"/>`;
+    s += `<ellipse cx="${W/2}" cy="${baseY-COIN_H}" rx="${RX}" ry="${RY}" fill="#FFD23F" stroke="#E0960A" stroke-width="1.5"/>`;
+  }
+  const topY = totalH - RY - 1 - (n-1)*GAP - COIN_H;
+  s += `<text x="${W/2}" y="${topY+RY*0.75}" font-size="9" font-weight="900" text-anchor="middle" fill="#B86A00" font-family="Arial,sans-serif">$</text>`;
+  el.innerHTML = `<svg width="${W}" height="${totalH}" viewBox="0 0 ${W} ${totalH}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
 }
 
 function renderCalendar() {
@@ -4650,8 +4829,7 @@ function renderTasks() {
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};" onclick="toggleSubject('${s.id}')">
         <span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}">▼</span>
         <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
-        <span class="subject-hint" style="font-family:'Pretendard',sans-serif;font-size:13px;color:#3A2010;font-weight:700;margin-right:6px;">완료시. ○ 체크.</span>
-        <span class="subject-status">${done}/${tasks.length}</span>
+        <span class="subject-status" style="margin-left:auto;">${done}/${tasks.length}</span>
         ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
       </div>
       <div class="subject-body ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-body-${s.id}">
@@ -4669,9 +4847,9 @@ function renderTasks() {
       tEl.className = 'task' + (task.done ? ' done' : '');
       
       tEl.innerHTML = `
-        <div class="checkbox"></div>
         <input type="text" class="task-input" placeholder="내용을 입력하세요" value="${esc(task.text)}" onfocus="this.select()">
         ${isParent() && selectMode ? `<span class="sel-box ${selectedTasks.has(task.id)?'on':''}" onclick="toggleSelectTask(event,'${task.id}')">${selectedTasks.has(task.id)?'✓':''}</span>` : ''}
+        <div class="checkbox"></div>
       `;
       tEl.querySelector('.checkbox').addEventListener('click', () => toggleTask(task));
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
@@ -4780,7 +4958,7 @@ async function addSubject() {
 
   soundFanfare();
   closeAddSubject();
-  showToast(`✨ "${name}" 과목 추가됨`);
+  showToast(`"${name}" 추가됨`);
   await refreshData();
 }
 
@@ -5191,7 +5369,7 @@ function renderPresetList() {
 
   if (presets.length === 0) {
     if (_presetViewMode === 'favorites') {
-      container.innerHTML = '<div style="color:#aaa;font-family:Pretendard,sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">즐겨찾기가 비어있어요<br>과목의 ☆를 눌러 등록하세요</div>';
+      container.innerHTML = '<div style="color:#aaa;font-family:Pretendard,sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">즐겨찾기가 비어있어요</div>';
     } else {
       container.innerHTML = '<div style="color:#aaa;font-family:Pretendard,sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
     }
@@ -5212,13 +5390,13 @@ function renderPresetList() {
     return `
       <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${bg};color:${fg};border:2px solid ${bd};border-radius:22px;box-shadow:2px 2px 0 ${bd};font-family:'Pretendard',sans-serif;font-weight:700;overflow:hidden;margin:4px;">
         <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
-          style="background:transparent;color:${colored?'white':'#E87722'};border:none;border-right:1.5px dashed ${colored?'rgba(255,255,255,0.6)':'#C8A47C'};font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
+          style="background:transparent;color:${colored?'white':'#E87722'};border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
         <button onclick="togglePresetSubject('${safe}')"
           style="background:transparent;color:inherit;border:none;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;cursor:pointer;padding:7px 14px;flex:1;white-space:nowrap;">
           ${escapeHTML(name)}
         </button>
         <button onclick="event.stopPropagation();deletePreset(${origIdx})" title="삭제"
-          style="background:transparent;color:${colored?'white':'#E53935'};border:none;border-left:1.5px dashed ${colored?'rgba(255,255,255,0.4)':'#C8A47C'};font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 10px;flex-shrink:0;">✕</button>
+          style="background:transparent;color:${colored?'white':'#E53935'};border:none;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 10px;flex-shrink:0;">✕</button>
       </div>
     `;
   }).join('');
@@ -5266,6 +5444,16 @@ function renderPresetList() {
   }
 })();
 
+// 과목 추가/제거 안내 — 입력칸 아래 작은 글씨(배경 없음)
+function showPresetMsg(text) {
+  const el = document.getElementById('addSubjectError');
+  if (!el) return;
+  el.style.color = '#4A2F1B';
+  el.textContent = text;
+  clearTimeout(el._msgTimer);
+  el._msgTimer = setTimeout(() => { el.textContent = ''; el.style.color = ''; }, 1500);
+}
+
 function addPresetSubject() {
   const input = document.getElementById('newSubjectInput');
   const name = input.value.trim();
@@ -5309,7 +5497,7 @@ async function togglePresetSubject(name) {
     cachedTasks = cachedTasks.filter(t => t.subject_id !== existing.id);
     renderAll();
     renderPresetList();
-    showToast(`"${name}" 제거됨`);
+    showPresetMsg(`"${name}" 제거됨`);
     // 백그라운드 DB 삭제
     sb.from('tasks').delete().eq('subject_id', existing.id).then(() => {});
     sb.from('subjects').delete().eq('id', existing.id).then(() => {});
@@ -5332,7 +5520,7 @@ async function togglePresetSubject(name) {
     renderAll();
     renderPresetList();
     soundClick();
-    showToast(`"${name}" 추가됨 ✨`);
+    showPresetMsg(`"${name}" 추가됨`);
     // 백그라운드 DB 추가 (실패 시 롤백)
     const { error } = await sb.from('subjects').insert(newSub);
     if (error) {
@@ -5451,6 +5639,7 @@ async function openSettings() {
   }
   renderMemberSettings();
   renderPasswordSettings();
+  syncNotifyToggle();
   showSettingsMenu();
   document.getElementById('settingsPanel').classList.add('open');
 }
@@ -5499,9 +5688,10 @@ function showSettingsSection(section) {
       b.style.display = (b.dataset.sec === section) ? 'none' : '';
     });
   }
-  // 📋 사용 가이드 팝업 자동 안내: 첫 1회만(이후엔 가이드 메뉴로 직접)
-  if (section === 'login' && !localStorage.getItem('guideAutoShown')) {
-    localStorage.setItem('guideAutoShown', '1');
+  // 📋 사용 가이드 요약 팝업: 가족(방장)별로 첫 1회만 자동 표시
+  const guideKey = 'guideAutoShown_' + getFamilyCode();
+  if (section === 'login' && !localStorage.getItem(guideKey)) {
+    localStorage.setItem(guideKey, '1');
     setTimeout(() => openGuideModal(), 250);
   }
 }
@@ -5576,8 +5766,14 @@ function renderPasswordSettings() {
             <span style="position:absolute;bottom:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:${color};border:2px solid white;display:flex;align-items:center;justify-content:center;font-family:'Pretendard',sans-serif;font-size:10px;font-weight:700;color:white;">${n}</span>
           </div>
           <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;">
-            <input type="text" id="curPwdInput-${m.id}" maxlength="10" placeholder="현재 비번" autocomplete="off" oninput="markUnsaved('pwdBtn-${m.id}')" style="width:100%;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:400;outline:none;background:white;color:#111;">
-            <input type="text" id="newPwdInput-${m.id}" maxlength="10" placeholder="새 비번" autocomplete="off" oninput="markUnsaved('pwdBtn-${m.id}')" style="width:100%;min-width:0;padding:7px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:400;outline:none;background:white;color:#111;">
+            <div style="position:relative;width:100%;">
+              <input type="password" id="curPwdInput-${m.id}" maxlength="10" placeholder="현재 비번" autocomplete="off" oninput="markUnsaved('pwdBtn-${m.id}')" style="width:100%;min-width:0;padding:7px 38px 7px 8px;box-sizing:border-box;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:400;outline:none;background:white;color:#111;">
+              <button type="button" onclick="togglePinView('curPwdInput-${m.id}',this)" title="비밀번호 보기" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;line-height:1;padding:0;display:flex;align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+            <div style="position:relative;width:100%;">
+              <input type="password" id="newPwdInput-${m.id}" maxlength="10" placeholder="새 비번" autocomplete="off" oninput="markUnsaved('pwdBtn-${m.id}')" style="width:100%;min-width:0;padding:7px 38px 7px 8px;box-sizing:border-box;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:400;outline:none;background:white;color:#111;">
+              <button type="button" onclick="togglePinView('newPwdInput-${m.id}',this)" title="비밀번호 보기" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;line-height:1;padding:0;display:flex;align-items:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
           </div>
           <button id="pwdBtn-${m.id}" class="save-toggle-btn" onclick="changeMemberPwd('${m.id}')" style="flex-shrink:0;align-self:stretch;padding:8px 12px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:600;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">변경</button>
           <button onclick="resetMemberPwd('${m.id}')" title="비밀번호 초기화" style="flex-shrink:0;width:34px;height:34px;background:#E87722;color:white;border:none;border-radius:50%;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;" title="비밀번호 초기화">↺</button>
@@ -5651,6 +5847,7 @@ async function handleMemberPhotoUpload(event, memberId) {
   if (!isParent()) { showToast('부모만 사진을 변경할 수 있어요'); return; }
   const file = event.target.files[0];
   if (!file) return;
+  if (file.size > 15 * 1024 * 1024) { showToast('사진이 너무 커요(15MB 이하) 📷'); event.target.value = ''; return; }
   let dataUrl;
   try { dataUrl = await compressImage(file); }
   catch(err) { showToast('사진을 불러오지 못했어요'); return; }
@@ -5688,7 +5885,7 @@ async function confirmAddProfile(role) {
   syncVisibleMemberNames();
   const id = 'member_' + Date.now();
   const count = cachedMembers.length + 1;
-  const member = { id, name: '프로필 ' + count, role, pin: '0000', family_id: familyCode };
+  const member = { id, name: '프로필 ' + count, role, pin: await hashPin('0000'), family_id: familyCode };
   const { error } = await sb.from('members').insert(member);
   if (error) { showToast('추가 실패: ' + error.message); return; }
   saveMemberColor(id, role === 'parent' ? '#5A8A5E' : '#4A90D9');
@@ -5799,17 +5996,17 @@ function loadSettingsPhotoPreview() {
   }
 }
 
-function handleSettingsPhotoUpload(event) {
+async function handleSettingsPhotoUpload(event) {
   const file = event.target.files[0];
   if (!file || !currentUser) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try { localStorage.setItem('profile_photo_' + currentUser.id, e.target.result); }
-    catch(err) { showToast('사진이 너무 커서 저장하지 못했어요'); return; }
-    loadSettingsPhotoPreview();
-    loadProfilePhoto();
-  };
-  reader.readAsDataURL(file);
+  if (file.size > 15 * 1024 * 1024) { showToast('사진이 너무 커요(15MB 이하) 📷'); event.target.value = ''; return; }
+  let dataUrl;
+  try { dataUrl = await compressImage(file); }
+  catch(err) { showToast('사진을 불러오지 못했어요'); return; }
+  try { localStorage.setItem('profile_photo_' + currentUser.id, dataUrl); }
+  catch(err) { showToast('사진이 너무 커서 저장하지 못했어요'); return; }
+  loadSettingsPhotoPreview();
+  loadProfilePhoto();
 }
 
 async function saveProfileSettings() {
@@ -5905,11 +6102,12 @@ async function changePwd() {
   const newP = document.getElementById('newPwdInput').value;
   const err = document.getElementById('settingsError');
   
-  if (cur !== currentUser.pin) { err.textContent = '현재 비밀번호가 틀려요 ❌'; soundError(); return; }
+  if (!(await verifyPin(cur, currentUser.pin))) { err.textContent = '현재 비밀번호가 틀려요 ❌'; soundError(); return; }
   if (!newP || newP.length < 4) { err.textContent = '새 비밀번호는 영문+숫자 4~10자리예요'; soundError(); return; }
-  
-  await sb.from('members').update({ pin: newP }).eq('id', currentUser.id);
-  currentUser.pin = newP;
+
+  const hashed = await hashPin(newP);
+  await sb.from('members').update({ pin: hashed }).eq('id', currentUser.id);
+  currentUser.pin = hashed;
   localStorage.setItem('currentUser', JSON.stringify(currentUser));
   soundFanfare();
   closeSettings();
@@ -5920,10 +6118,11 @@ async function resetMemberPwd(memberId) {
   const member = cachedMembers.find(m => m.id === memberId);
   if (!member) return;
   if (!confirm(`"${member.name}" 비밀번호를 0000으로 초기화할까요?`)) return;
-  await sb.from('members').update({ pin: '0000' }).eq('id', memberId);
-  member.pin = '0000';
+  const hashed = await hashPin('0000');
+  await sb.from('members').update({ pin: hashed }).eq('id', memberId);
+  member.pin = hashed;
   if (currentUser && currentUser.id === memberId) {
-    currentUser.pin = '0000';
+    currentUser.pin = hashed;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
   }
   soundFanfare();
@@ -5936,12 +6135,13 @@ async function changeMemberPwd(memberId) {
   const cur = document.getElementById('curPwdInput-' + memberId).value;
   const newP = document.getElementById('newPwdInput-' + memberId).value;
   const err = document.getElementById('settingsError-' + memberId);
-  if (cur !== member.pin) { err.textContent = '현재 비밀번호가 틀려요'; soundError(); return; }
+  if (!(await verifyPin(cur, member.pin))) { err.textContent = '현재 비밀번호가 틀려요'; soundError(); return; }
   if (!newP || newP.length < 4) { err.textContent = '새 비밀번호는 영문+숫자 4~10자리예요'; soundError(); return; }
-  await sb.from('members').update({ pin: newP }).eq('id', memberId);
-  member.pin = newP;
+  const hashed = await hashPin(newP);
+  await sb.from('members').update({ pin: hashed }).eq('id', memberId);
+  member.pin = hashed;
   if (currentUser && currentUser.id === memberId) {
-    currentUser.pin = newP;
+    currentUser.pin = hashed;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
   }
   document.getElementById('curPwdInput-' + memberId).value = '';
@@ -6122,7 +6322,7 @@ async function addShopItem() {
   closeAddShopItem();
   renderShopItems();
   renderOwned();
-  showToast(`✨ "${name}" 추가됨`);
+  showToast(`"${name}" 추가됨`);
 }
 
 /* ====== 채팅 ====== */
@@ -6153,6 +6353,34 @@ async function loadChat() {
     setChatLastSeen(chatMessages[chatMessages.length - 1].created_at);
   }
   updateChatBadge();
+  // 3일 지난 채팅 사진 자동 정리(백그라운드)
+  cleanupOldChatPhotos();
+}
+
+/* 3일 지난 채팅 사진(Storage 파일 + [img] 메시지) 자동 삭제 */
+async function cleanupOldChatPhotos() {
+  try {
+    const fc = getFamilyCode();
+    if (!fc) return;
+    const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await sb.from('chat_messages')
+      .select('id, message')
+      .eq('family_id', fc)
+      .like('message', '[img]%')
+      .lt('created_at', cutoff);
+    if (!data || !data.length) return;
+    const paths = [], ids = [];
+    data.forEach(r => {
+      ids.push(r.id);
+      const m = r.message.match(/\[img\](.+?)\[\/img\]/);
+      if (m) {
+        const idx = m[1].indexOf('/chat-photos/');
+        if (idx >= 0) paths.push(decodeURIComponent(m[1].slice(idx + '/chat-photos/'.length)));
+      }
+    });
+    if (paths.length) await sb.storage.from('chat-photos').remove(paths);
+    if (ids.length) await sb.from('chat_messages').delete().in('id', ids);
+  } catch(e) { /* 정리 실패는 무시 */ }
 }
 
 function onNewChatMessage(msg) {
@@ -6317,26 +6545,23 @@ async function sendChat() {
 async function sendChatPhoto(event) {
   const file = event.target.files[0];
   if (!file) return;
-  
-  // 파일 크기 제한 (3MB)
-  if (file.size > 3 * 1024 * 1024) {
-    showToast('사진은 3MB 이하만 가능해요 📷');
-    event.target.value = '';
-    return;
-  }
-  
+
   showToast('사진 보내는 중... 📷');
-  
+
   try {
-    // 고유 파일명 생성
-    const ext = file.name.split('.').pop() || 'jpg';
-    const fileName = `chat/${currentUser.id}_${Date.now()}.${ext}`;
-    
+    // 원본을 압축(긴 변 900px, JPEG) → 보통 수십~수백 KB로 줄여서 업로드
+    let uploadBlob;
+    try { uploadBlob = await compressImageToBlob(file); }
+    catch(err) { uploadBlob = file; }  // 압축 실패 시 원본 사용
+
+    // 고유 파일명 생성 (타임스탬프 포함 → 3일 후 자동 정리 기준)
+    const fileName = `chat/${currentUser.id}_${Date.now()}.jpg`;
+
     // Supabase Storage에 업로드
     const { data, error } = await sb.storage
       .from('chat-photos')
-      .upload(fileName, file, { cacheControl: '3600', upsert: false });
-    
+      .upload(fileName, uploadBlob, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
+
     if (error) throw error;
     
     // 공개 URL 가져오기
@@ -6416,6 +6641,7 @@ async function ensureNotifyPermission() {
 }
 // 알림 표시 — 앱이 백그라운드이거나 채팅이 닫혀있을 때
 function showPhoneNotification(title, body, tag) {
+  if (localStorage.getItem('notifyEnabled') === 'off') return;  // 사용자가 알림 끔
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   // 앱이 화면에 떠 있고 채팅도 열려 있으면 굳이 알림 안 띄움
   if (document.visibilityState === 'visible' && chatOpen) return;
@@ -6430,6 +6656,41 @@ function showPhoneNotification(title, body, tag) {
   } catch(e) { console.log('알림 표시 실패', e); }
 }
 initServiceWorker();
+
+/* 기존 프로필 사진 일회성 정리 (압축 적용 전 원본들 제거) — 기기별 1회 */
+if (!localStorage.getItem('photosCleared_v1')) {
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('member_photo_') || k.startsWith('profile_photo_')) localStorage.removeItem(k);
+    });
+  } catch(e) {}
+  localStorage.setItem('photosCleared_v1', '1');
+}
+
+/* 알림 켜기/끄기 토글 */
+async function toggleNotify(checkbox) {
+  if (checkbox.checked) {
+    const ok = await ensureNotifyPermission();
+    if (!ok) {
+      // 권한이 막혀 있으면 켤 수 없음
+      checkbox.checked = false;
+      localStorage.setItem('notifyEnabled', 'off');
+      showToast('휴대폰 설정에서 이 앱의 알림을 먼저 허용해 주세요 🔔');
+      return;
+    }
+    localStorage.setItem('notifyEnabled', 'on');
+    showToast('알림을 켰어요 🔔');
+  } else {
+    localStorage.setItem('notifyEnabled', 'off');
+    showToast('알림을 껐어요 🔕');
+  }
+}
+// 토글 초기 상태 반영 (기본 켜짐)
+function syncNotifyToggle() {
+  const t = document.getElementById('notifyToggle');
+  if (!t) return;
+  t.checked = localStorage.getItem('notifyEnabled') !== 'off';
+}
 
 /* ====== 키보드 대응 (채팅) ====== */
 if (window.visualViewport) {
@@ -6511,8 +6772,8 @@ function renderDayDetail(dk) {
     html += `</div>`;
   });
   html += `<div style="display:flex;gap:6px;margin-top:6px;">`;
-  html += `<input id="schedInput" type="text" maxlength="20" placeholder="일정 쓰기" onkeydown="if(event.key==='Enter')addScheduleFromDetail('${dk}')" style="flex:1;min-width:0;padding:8px;border:1.5px solid #5A8A5E;border-radius:8px;font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;outline:none;color:#222;background:white;">`;
-  html += `<button onclick="addScheduleFromDetail('${dk}')" style="flex-shrink:0;padding:0 14px;background:#5A8A5E;color:white;border:none;border-radius:8px;font-family:Pretendard,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">추가</button>`;
+  html += `<input id="schedInput" type="text" maxlength="20" placeholder="일정 쓰기" oninput="var b=document.getElementById('schedAddBtn'); if(b) b.style.background='#4A90D9'" onkeydown="if(event.key==='Enter')addScheduleFromDetail('${dk}')" style="flex:1;min-width:0;padding:8px;border:1.5px solid #5A8A5E;border-radius:8px;font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;outline:none;color:#222;background:white;">`;
+  html += `<button id="schedAddBtn" onclick="addScheduleFromDetail('${dk}')" style="flex-shrink:0;padding:0 14px;background:#4A90D9;color:white;border:none;border-radius:8px;font-family:Pretendard,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">추가</button>`;
   html += `</div></div>`;
 
   // ===== 알림장 (흰 배경 · 검정 글씨 · 점선 구분, 체크·시간 유지) =====
