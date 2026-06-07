@@ -2754,8 +2754,8 @@ let noteTitle = '숙제노트';
 /* ====== 📋 사용 가이드 알림장 ====== */
 const DEFAULT_GUIDE = `[요약]
 ✨ 한눈에 보기
-- *방장(부모)이* 가족 프로필을 모두 만들고, [설정]에서 *가족코드를 복사*해 가족에게 공유해요.
-- *가족은* 가족코드로 입장하고, 각자 *두 번 클릭+비밀번호*로 내 공간에 들어가요.
+- *방장은* 닉네임+비번으로 가입해 *가족코드를 발급*받고, 모든 가족의 프로필과 비밀번호를 만든 뒤 코드를 공유해요.
+- *가족은* 가족코드로 *운동장에 입장* → 본인 프로필 *두 번 클릭* + 비밀번호 → 내 공간으로!
 - *아이는* 숙제 노트에 할 일을 적고, 끝낸 과목에 {녹색} *녹색 체크*를 해요.
 - *부모는* 승인을 눌러 칭찬 {코인} *코인*을 주고, 아이는 코인으로 *상점 선물*을 사요.
 - 달력엔 {무지개} 숙제 진행 / {녹색} 부모 확인 완료가 한눈에 보여요.
@@ -2764,38 +2764,44 @@ const DEFAULT_GUIDE = `[요약]
 
 [시작]
 ⚽ 시작하기 & 운동장
-- *1. 방장 가입:* 부모님 중 한 분이 먼저 가입해 가족 프로필(아이·부모)을 모두 만들어요.
-- *2. 코드 공유:* [설정 ⚙] → *가족코드 확인*에서 코드를 복사해 가족에게 보내요.
-- *3. 가족 입장:* 다른 가족은 앱 첫 화면에서 *가족코드를 입력*하면 다 함께 입장!
-- *4. 방장 표시:* 첫 가입자(방장)는 프로필에 👑 왕관이 붙어요.
-- *5. 내 방 가기:* 첫 화면(운동장)에서 내 캐릭터를 *두 번 클릭* → 비밀번호 입력 → 내 공간으로 쏙!
+- *1. 방장 가입:* 부모님 한 분이 먼저 *닉네임+비밀번호*로 가입하면 *가족코드*가 발급돼요. (방장은 👑)
+- *2. 가족 만들기:* 방장이 [설정]에서 *모든 가족의 프로필과 비밀번호*를 만들어요.
+- *3. 코드 공유:* [설정 ⚙] → *가족코드 확인*에서 코드를 복사해 가족에게 보내요.
+- *4. 가족 입장:* 가족은 앱 첫 화면에서 *가족코드를 입력*해 운동장에 들어와요.
+- *5. 내 방 가기:* 운동장에서 *내 프로필을 두 번 클릭* → 비밀번호 입력 → 내 공간으로 쏙!
+- *6. 운동장 게임:* 운동장에서 ⚽ *토글을 켜면* 모은 코인으로 *미니게임*을 즐길 수 있어요!
 
 [달력]
 🌈 무지개 달력 & 일정
-- {무지개} *무지개 칸:* 숙제를 하나씩 끝낼수록 그 날짜에 무지개가 점점 차올라요.
-- {녹색} *녹색 칸:* 부모님 승인까지 끝나면 그 날짜가 초록색으로 변해요(완료!).
-- {별} *빨간 별:* 다가오는 일정(소풍·시험 등)이 있는 날엔 빨간 별이 떠요.
-- *기록 보기:* 날짜를 *두 번 클릭*하면 그날 한 숙제·일정을 한눈에 볼 수 있어요.
-- *D-Day:* '다가오는 일정'에 날짜를 정하면 남은 날(D-1, D-2…)을 알려줘요.
+- {무지개} *무지개 칸이 뭐예요?* 그날 과목 숙제를 *한 개 끝낼 때마다* 그 날짜 칸에 무지개 색이 한 칸씩 차올라요. 숙제가 5개면 5개를 다 해야 무지개가 꽉 차요.
+- *무지개가 안 찬 날:* 숙제를 다 못 한 날은 무지개가 *덜 찬 상태 그대로* 달력에 남아요. (얼마나 했는지 한눈에 보여요!)
+- {녹색} *녹색 칸이 되려면?* ①숙제를 다 끝내고 → ②아이가 *"확인해 주세요"* 를 누르고 → ③부모님이 *최종 승인*을 해야 그 날짜가 *초록색*으로 변해요. 초록색 = *그날 숙제 완료!*
+- {별} *빨간 별은 뭐예요?* 시험·소풍 같은 *다가오는 일정*이 있는 날에 떠요. 달력에서 날짜를 *두 번 누르면* 나오는 상세 화면 맨 위 *★ 일정 쓰기* 칸에 적으면 그 날짜에 빨간 별이 생겨요.
+- *기록 보기 📅:* 달력에서 *날짜를 두 번 누르면* 그날 한 숙제(시작·완료 시간)와 일정을 자세히 볼 수 있어요.
+- *D-Day 알림:* 일정을 정하면 메인 화면에 *D-1, D-2…* 처럼 남은 날을 세어줘요.
 
 [숙제]
-📝 숙제 노트 & 과목
-- *숙제 미리 적기:* 시작 전, 오늘 할 전체 숙제를 '📒 숙제 노트'에 적어요(부모도 미리 봐요).
-- *과목 추가:* '+ 과목 추가'로 직접 과목을 만들어요. 매일 하는 건 {별} 즐겨찾기에 등록!
-- {체크} *시작:* 과목 동그라미를 누르면 숙제 시작 — 시작 시간이 자동 기록돼요.
-- {녹색} *완료:* 다 끝내고 다시 누르면 녹색 체크 + 완료 시간 기록, 부모님께 "확인해 주세요!" 알림이 가요.
+📝 숙제 하는 방법
+- *1. 과목 만들기:* *+ 과목 추가*를 눌러 '수학', '영어'처럼 과목을 만들어요. 매일 하는 과목은 {별} 즐겨찾기에 등록하면 편해요.
+- *2. 숙제 적기:* 과목에 맞춰 *📒 숙제 노트*에 오늘 할 숙제를 적어요. (부모님도 미리 볼 수 있어요)
+- *3. 숙제 시작:* 숙제를 시작하면 *시작 시간이 자동으로 기록*돼요.
+- {녹색} *4. 숙제 끝:* 숙제를 *다 끝내고 나서* 과목 옆 *동그라미를 누르면* 초록색 체크 ✓ 로 변하고 끝낸 시간이 기록돼요. (동그라미는 다 했을 때 누르는 거예요!)
+- *5. 확인 요청:* 그날 숙제를 다 하면 *"확인해 주세요"* 를 눌러요. 부모님께 알림이 가요!
 
 [상점]
-💰 부모 승인 & 상점
-- *승인과 코인:* 아이가 숙제를 끝내면 부모님이 메시지를 보고 *승인*을 눌러요. 칭찬과 함께 {코인} 코인이 진짜로 쌓여요!
-- *예비 코인:* 승인 전엔 '예비 +N'으로 표시되고, 승인되면 진짜 코인으로 확정돼요.
-- *코인 상점:* 모은 코인으로 부모님과 미리 정한 선물(이용권)을 사요. (구매 시 부모님께 알림)
+💰 코인과 상점
+- {코인} *1. 예비 코인:* 숙제를 끝내면 먼저 *예비 코인(예비 +N)*으로 쌓여요. 아직 진짜 내 코인은 아니에요!
+- *2. 진짜 코인:* 아이가 "확인해 주세요"를 누르고 *부모님이 승인*하면, 예비 코인이 *진짜 코인*으로 바뀌어 내 것이 돼요.
+- *3. 상품 정하기:* 상점 선물과 *가격(코인 몇 개)*은 *자녀와 부모가 함께 합의*해서 정해요. (상품 추가·가격 설정은 *부모만* 할 수 있어요)
+- *4. 선물 사기:* 메인 화면 위 *🎁 상점*에서 모은 코인으로 합의한 선물(예: 게임 30분권, 치킨 등)을 사요. 살 때 부모님께 알림이 가요.
+- *5. 코인 초기화:* 코인을 처음부터 다시 시작하고 싶으면 *부모만* [설정]에서 초기화할 수 있어요.
+- *코인이 부족하면?* 숙제를 더 해서 코인을 모아야 살 수 있어요!
 
 [공유]
-👨‍👩‍👧 가족 공유
-- *실시간 칭찬:* 아이가 계획하고 끝낸 모든 소식이 멀리 있는 가족에게 *실시간 공유*돼요.
-- *채팅:* 우측 아래 💬 버튼으로 가족과 응원 메시지를 주고받아요.
-- 숙제 검사가 아닌, 언제 어디서든 따뜻한 관심을 보내는 우리 가족만의 소통 공간이에요!`;
+👨‍👩‍👧 가족과 함께
+- *실시간 공유:* 아이가 숙제를 계획하고 끝낸 모든 소식이 *멀리 있는 가족에게도 바로* 보여요.
+- *💬 채팅:* 화면 오른쪽 아래 *말풍선 버튼*을 누르면 가족과 응원 메시지를 주고받을 수 있어요.
+- *함께 응원해요:* 숙제 검사가 아니라, 언제 어디서든 따뜻한 관심을 보내는 *우리 가족만의 공간*이에요!`;
 let guideText = DEFAULT_GUIDE;
 
 // 전역 사용 가이드 로드 (앱 제작자가 admin에서 설정 — ELLIOT 가족에 저장)
@@ -3019,22 +3025,20 @@ async function loadNotes() {
 async function handleProfileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-  
-  // 로컬 미리보기
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const photo = document.getElementById('profilePhoto');
-    photo.src = e.target.result;
-    photo.style.display = 'block';
-    document.getElementById('profilePhotoPlaceholder').style.display = 'none';
-    setPhotoHint(false);
 
-    // localStorage에 저장 (간단한 방법)
-    try {
-      localStorage.setItem('profile_photo_' + currentUser.id, e.target.result);
-    } catch(err) { console.log('photo save error'); }
-  };
-  reader.readAsDataURL(file);
+  let dataUrl;
+  try { dataUrl = await compressImage(file); }
+  catch(err) { showToast('사진을 불러오지 못했어요'); return; }
+
+  const photo = document.getElementById('profilePhoto');
+  photo.src = dataUrl;
+  photo.style.display = 'block';
+  document.getElementById('profilePhotoPlaceholder').style.display = 'none';
+  setPhotoHint(false);
+
+  try {
+    localStorage.setItem('profile_photo_' + currentUser.id, dataUrl);
+  } catch(err) { console.log('photo save error'); }
 }
 
 function setPhotoHint(show) {
@@ -3300,6 +3304,33 @@ function randomColor() { return SUBJECT_COLORS[Math.floor(Math.random() * SUBJEC
 function genId() { return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function isParent() { return currentUser && currentUser.role === 'parent'; }
+
+/* 이미지 압축: 원본 → 정사각형 리사이즈 + JPEG 압축 (프로필용, 보통 20~60KB) */
+function compressImage(file, maxSize = 320, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        // 정사각형 중앙 크롭(원형 프로필에 최적)
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side) / 2;
+        const sy = (img.height - side) / 2;
+        const out = Math.min(side, maxSize);
+        const canvas = document.createElement('canvas');
+        canvas.width = out; canvas.height = out;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, out, out);
+        try { resolve(canvas.toDataURL('image/jpeg', quality)); }
+        catch(err) { reject(err); }
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 function getMemberPhoto(memberId) {
   // Supabase cachedMembers에서 먼저 찾고, 없으면 localStorage fallback
@@ -5616,17 +5647,16 @@ function refreshLoginCardsIfVisible() {
   if (login && login.style.display !== 'none') showLoginScreen();
 }
 
-function handleMemberPhotoUpload(event, memberId) {
+async function handleMemberPhotoUpload(event, memberId) {
   if (!isParent()) { showToast('부모만 사진을 변경할 수 있어요'); return; }
   const file = event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async e => {
-    await setMemberPhoto(memberId, e.target.result);
-    renderMemberSettings();
-    refreshLoginCardsIfVisible();
-  };
-  reader.readAsDataURL(file);
+  let dataUrl;
+  try { dataUrl = await compressImage(file); }
+  catch(err) { showToast('사진을 불러오지 못했어요'); return; }
+  await setMemberPhoto(memberId, dataUrl);
+  renderMemberSettings();
+  refreshLoginCardsIfVisible();
 }
 
 async function deleteMemberPhoto(memberId) {
