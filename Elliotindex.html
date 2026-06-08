@@ -1631,7 +1631,48 @@
   .mom-btn:disabled { background: linear-gradient(180deg, #D0C8B0 0%, #B8B0A0 100%); color: #8A8070; border-color: #A09888; cursor: not-allowed; box-shadow: none; text-shadow: none; }
   .mom-confirmed-text { font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700; color: #4A2F1B; line-height: 1.3; }
   .mom-confirmed-text .heart { color: #B86B6B; font-size: 19px; }
-  
+
+  /* ====== 숙제 완료 승인 팝업 (다 체크하면 등장 / 풀면 사라짐) ====== */
+  .confirm-pop-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(74,47,27,0.40);
+    z-index: 280;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    pointer-events: none;   /* 딤은 클릭 통과 → 뒤 체크박스 누를 수 있음 */
+  }
+  .confirm-pop-overlay.show { display: flex; }
+  .confirm-pop-box {
+    pointer-events: auto;
+    background: #fff;
+    border: 2px solid #3C6B40;
+    border-radius: 20px;
+    padding: 26px 28px 24px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    max-width: 300px; width: 100%;
+    animation: confirmPopIn 0.25s cubic-bezier(0.22,1,0.36,1);
+  }
+  @keyframes confirmPopIn { from { opacity:0; transform: translateY(12px) scale(0.96);} to { opacity:1; transform:none; } }
+  .confirm-pop-title {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 18px; font-weight: 800; color: #2E7D32;
+    margin-bottom: 18px; line-height: 1.3;
+  }
+  .confirm-pop-btn {
+    background: #fff;
+    border: 2px solid #3C6B40;
+    border-radius: 26px;
+    padding: 13px 32px;
+    font-family: 'Pretendard', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: #2E7D32;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .confirm-pop-btn:active { transform: scale(0.96); background: #F3F8F3; }
+
   .dog-reward {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
     background: white; border: 2px solid #4A2F1B; border-radius: 14px;
@@ -2644,6 +2685,14 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 18-5z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
       메신저
     </button>
+  </div>
+</div>
+
+<!-- 숙제 완료 승인 팝업 (숙제 다 체크하면 자동 등장, 하나라도 풀면 사라짐) -->
+<div class="confirm-pop-overlay" id="confirmPopup">
+  <div class="confirm-pop-box">
+    <div class="confirm-pop-title">🎉 숙제 다 했어요!</div>
+    <button class="confirm-pop-btn" id="confirmBtn" onclick="onConfirmPopupBtn()">확인 승인하기</button>
   </div>
 </div>
 
@@ -5125,7 +5174,7 @@ function renderMomSection() {
   const container = document.getElementById('momSection');
   const subs = getSubjectsForDate(selectedDate);
   
-  if (subs.length === 0) { container.innerHTML = ''; return; }
+  if (subs.length === 0) { container.innerHTML = ''; updateConfirmPopup(false, false); return; }
   
   const stats = getDayStats(selectedDate);
   const hasReal = hasRealTask(selectedDate);
@@ -5143,31 +5192,33 @@ function renderMomSection() {
         <span style="font-size:14px;">${esc(cName)}가 확인했어요 👩</span>
       </div>
     `;
-  } else if (isParent()) {
-    container.innerHTML = `
-      <div style="text-align:center;margin:10px 0;">
-        <button id="confirmBtn" class="mom-btn ${allDone ? 'blink' : ''}" onclick="doConfirm()" ${allDone ? '' : 'disabled'}>
-          ${allDone ? '확인 승인하기' : '숙제 먼저 완료하기'}
-        </button>
-      </div>
-    `;
+    updateConfirmPopup(false, true);
   } else {
-    if (allDone) {
-      container.innerHTML = `
-        <div style="text-align:center;margin:10px 0;">
-          <button class="mom-btn" onclick="requestConfirm()">
-            ✋ 승인 요청하기
-          </button>
-        </div>
-      `;
-    } else {
-      container.innerHTML = `
-        <div style="text-align:center;margin:10px 0;">
-          <button class="mom-btn" disabled>숙제 먼저 완료하기</button>
-        </div>
-      `;
-    }
+    // 인라인 버튼 제거 — 다 체크하면 팝업으로 띄움
+    container.innerHTML = '';
+    updateConfirmPopup(allDone, false);
   }
+}
+
+// 숙제 다 체크하면 승인 팝업 표시, 하나라도 풀면 숨김 (부모/자녀 동일)
+function updateConfirmPopup(allDone, confirmed) {
+  const overlay = document.getElementById('confirmPopup');
+  if (!overlay) return;
+  if (allDone && !confirmed) {
+    const btn = document.getElementById('confirmBtn');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = isParent() ? '확인 승인하기' : '승인 요청하기';
+    }
+    overlay.classList.add('show');
+  } else {
+    overlay.classList.remove('show');
+  }
+}
+
+function onConfirmPopupBtn() {
+  if (isParent()) doConfirm();
+  else requestConfirm();
 }
 
 /* ====== DB 조작 ====== */
