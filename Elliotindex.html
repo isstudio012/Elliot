@@ -833,9 +833,10 @@
   }
   /* 1번(제목)과 2번(코인) 사이 여유 + 코인박스는 화면폭에 맞춰 비례, 상점은 오른쪽 끝 */
   .head-strip .top-bar { flex: 0 0 auto; width: min(88vw, 360px); margin: 0 0 0 16px; border: none; padding: 4px 4px; }
-  .head-strip .coin-display { flex: 0 0 auto; }
+  .head-strip .coin-display { flex: 0 0 auto; padding-left: 0; }
   .head-strip .top-bar > span { margin-left: auto; }  /* 구분선+상점을 오른쪽 끝으로 */
   .head-strip .shop-btn { margin-left: 8px; }
+  .head-strip .coin-stack-visual { margin-left: 14px; }  /* 예비+15 와 동전더미 사이 여유 */
   .head-strip .profile-photo-wrap { touch-action: none; }
   .profile-photo-wrap.swiping .profile-photo,
   .profile-photo-wrap.swiping .profile-photo-placeholder { opacity: 0.45; transition: opacity 0.12s; }
@@ -2433,8 +2434,12 @@
       <img src="profile.jpg" class="profile-img" id="profileImg" onerror="this.style.display='none';">
     </div>
     
-    <!-- 다가오는 일정 (자녀별 · 코인박스와 달력 사이) -->
+    <!-- 광고 자리 (코인박스와 달력 사이) — 다가오는 일정은 달력 ★ 버튼 팝업으로 이동 -->
     <div id="upcomingBox"></div>
+    <div id="adSlot" style="margin-bottom:8px;background:#F5EDD7;border:1.5px dashed #C9BFA6;border-radius:12px;min-height:64px;display:flex;align-items:center;justify-content:center;font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#A99B7C;">
+      <!-- 여기에 광고 코드(예: AdSense)를 넣으세요 -->
+      광고 영역
+    </div>
 
     <div class="calendar-card" style="position:relative;">
       <!-- 접힘 시 표시되는 메모 스티커 -->
@@ -2445,11 +2450,22 @@
           <button class="cal-nav" onclick="event.stopPropagation();changeMonth(1)">›</button>
         </div>
         <div class="cal-title" id="calTitle"></div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <button onclick="event.stopPropagation();toggleCalendar()" style="height:26px;padding:0 10px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <div style="display:flex;align-items:center;gap:2px;">
+          <button onclick="event.stopPropagation();openSchedulePopup()" title="다가오는 일정 보기" style="height:26px;padding:0 6px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:19px;color:#E53935;line-height:1;">★</span>
+          </button>
+          <button onclick="event.stopPropagation();toggleCalendar()" style="height:26px;padding:0 8px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
             <span id="calToggleIcon" style="font-size:18px;color:#5A8A5E;transition:transform 0.25s;display:inline-block;line-height:1;transform:rotate(0deg);">▼</span>
           </button>
         </div>
+      </div>
+      <!-- 다가오는 일정 팝업 (달력 위) -->
+      <div id="schedulePopup" style="display:none;position:absolute;top:44px;left:8px;right:8px;z-index:20;background:white;border:2px solid #5A8A5E;border-radius:12px;padding:12px 14px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-bottom:1.5px solid #5A8A5E;padding-bottom:6px;">
+          <span style="font-family:Pretendard,sans-serif;font-size:15px;font-weight:800;color:#2E7D32;"><span style="color:#5A8A5E;">★</span> 다가오는 일정</span>
+          <button onclick="closeSchedulePopup()" title="닫기" style="width:26px;height:26px;border:none;background:#F5EDD7;border-radius:50%;cursor:pointer;font-size:15px;font-weight:800;color:#4A2F1B;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>
+        </div>
+        <div id="schedulePopupList" style="font-family:Pretendard,sans-serif;font-size:14px;color:#333;max-height:260px;overflow-y:auto;"></div>
       </div>
       <div id="calBody" style="overflow:hidden;transition:max-height 0.35s ease;max-height:520px;">
         <div class="cal-grid" id="calGrid"></div>
@@ -4604,7 +4620,14 @@ const _DAY_MS = 86400000;
 function _dayMs(dk) { const [a,b,c] = dk.split('-').map(Number); return new Date(a, b-1, c).setHours(0,0,0,0); }
 
 function renderUpcoming() {
+  // 다가오는 일정은 이제 달력 ★ 버튼 팝업(openSchedulePopup)으로만 표시.
+  // 이 자리(#upcomingBox 아래 #adSlot)는 광고 영역이므로 박스를 그리지 않음.
   const box = document.getElementById('upcomingBox');
+  if (box) box.innerHTML = '';
+  return;
+
+  // ── 이하 레거시 (상단 다가오는 일정 박스) — 미사용 ──
+  // eslint-disable-next-line no-unreachable
   if (!box) return;
 
   // 1) 앵커(이벤트) 결정: 선택일에 일정 있으면 그걸로, 아니면 기존 유지, 그것도 없으면 가장 가까운 일정
@@ -4649,9 +4672,9 @@ function renderUpcoming() {
 }
 
 function upcomingBoxShell(items, dateLabel, bar) {
-  return `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:9px 14px 7px;margin-bottom:8px;box-shadow:2px 2px 0 #5A8A5E;">
+  return `<div style="background:white;border:2px solid #5A8A5E;border-radius:12px;padding:9px 14px 7px;margin-bottom:8px;">
        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;${upcomingCollapsed ? 'margin-bottom:0;' : 'margin-bottom:3px;'}" onclick="toggleUpcoming()">
-         <span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#2E7D32;"><span style="color:#E53935;">★</span> 다가오는 일정</span>
+         <span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:800;color:#2E7D32;"><span style="color:#5A8A5E;">★</span> 다가오는 일정</span>
          <span style="font-size:16px;color:#5A8A5E;line-height:1;transition:transform 0.25s;display:inline-block;transform:rotate(${upcomingCollapsed ? '-90deg' : '0deg'});">▼</span>
        </div>
        <div style="${upcomingCollapsed ? 'display:none;' : ''}">
@@ -4661,6 +4684,43 @@ function upcomingBoxShell(items, dateLabel, bar) {
        </div>
      </div>`;
 }
+// 달력 ★ 버튼 → 다가오는 일정 팝업
+function openSchedulePopup() {
+  const pop = document.getElementById('schedulePopup');
+  const list = document.getElementById('schedulePopupList');
+  if (!pop || !list) return;
+  const ups = upcomingSchedules();
+  if (!ups.length) {
+    list.innerHTML = '<div style="color:#999;font-weight:700;padding:6px 0;">예정된 일정이 없어요</div>';
+  } else {
+    const days = ['일','월','화','수','목','금','토'];
+    list.innerHTML = ups.map(s => {
+      const [y,m,d] = s.date_key.split('-').map(Number);
+      const dt = new Date(y, m-1, d);
+      const dl = ddayLabel(s.date_key);
+      return `<div onclick="jumpToScheduleDate('${s.date_key}')" style="display:flex;align-items:center;gap:8px;padding:7px 2px;border-bottom:1px dashed #E5DCC8;cursor:pointer;">
+        <span style="color:#5A8A5E;font-size:13px;flex-shrink:0;">★</span>
+        <span style="color:#777;font-weight:700;font-size:12px;flex-shrink:0;min-width:62px;">${m}/${d}(${days[dt.getDay()]})</span>
+        <span style="color:#222;font-weight:700;flex:1;min-width:0;">${escapeHTML(s.title)}</span>
+        <span style="color:#2E7D32;font-weight:800;font-size:13px;flex-shrink:0;">${dl}</span>
+      </div>`;
+    }).join('');
+  }
+  pop.style.display = 'block';
+}
+function closeSchedulePopup() {
+  const pop = document.getElementById('schedulePopup');
+  if (pop) pop.style.display = 'none';
+}
+function jumpToScheduleDate(dk) {
+  selectedDate = dk;
+  const [y,m] = dk.split('-').map(Number);
+  viewYear = y; viewMonth = m - 1;
+  closeSchedulePopup();
+  renderAll();
+  loadNotes();
+}
+
 let upcomingCollapsed = false;
 function toggleUpcoming() {
   upcomingCollapsed = !upcomingCollapsed;
