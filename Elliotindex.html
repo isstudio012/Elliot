@@ -1660,6 +1660,8 @@
     box-shadow: 4px 4px 0 #4A2F1B !important;
   }
   #subjectModalInner { box-shadow: none !important; border: 1.5px solid #D8C9A8 !important; }
+  #subjectModalInner button { box-shadow: none !important; }
+  #subjectModalInner .preset-chip { box-shadow: none !important; }
   /* 설정 저장 버튼 — 입력 중 파랑, 저장 후 녹색, 누르는 효과 */
   .save-btn {
     flex-shrink: 0; padding: 10px 14px; border: none; border-radius: 6px;
@@ -2790,31 +2792,33 @@
     <div id="subjectModalDragHandle" style="position:absolute;top:0;left:0;right:0;height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none;z-index:5;">
       <div style="width:50px;height:6px;border-radius:3px;background:#222;"></div>
     </div>
-    <!-- 닫기 (빨간 동그라미, 우상단) -->
-    <button onclick="closeAddSubject()" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:#E53935;color:white;border:2px solid #B71C1C;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;box-shadow:2px 2px 0 #B71C1C;line-height:1;">✕</button>
-
     <div style="height:14px;"></div>
-    <!-- 즐겨찾기 모드 토글 (★ 즐겨찾기 등록) -->
-    <button id="subjectModalTitle" onclick="togglePresetView()" style="display:inline-flex;align-items:center;gap:5px;background:#E87722;color:white;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:6px 14px;border:none;border-radius:8px;margin-bottom:12px;cursor:pointer;user-select:none;box-shadow:2px 2px 0 #8A3F0F;">
-      <span id="presetViewStar" style="color:white;font-size:16px;">☆</span>
-      <span id="presetViewLabel">즐겨찾기 등록</span>
-    </button>
+    <!-- 즐겨찾기 / 등록 / 닫기 메뉴 -->
+    <div style="display:flex;align-items:center;border:1px solid #7C5A3A;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+      <button id="subjectModalTitle" onclick="addPresetSubject()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:#4A2F1B;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 10px;border:none;cursor:pointer;user-select:none;">
+        <span id="presetViewStar" style="color:#E87722;font-size:16px;">☆</span>
+        <span id="presetViewLabel">즐겨찾기 등록</span>
+      </button>
+      <span style="width:1px;height:24px;background:#5A8A5E;flex-shrink:0;"></span>
+      <button onclick="addSubject()" style="width:70px;background:transparent;color:#5A8A5E;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">등록</button>
+      <span style="width:1px;height:24px;background:#5A8A5E;flex-shrink:0;"></span>
+      <button onclick="closeAddSubject()" style="width:70px;background:transparent;color:#4A2F1B;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">닫기</button>
+    </div>
 
     <!-- 입력 + 등록 -->
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="flex:1;padding:10px 12px;font-size:15px;margin-bottom:0;border-radius:10px;border:2px solid #4A2F1B;">
-      <button onclick="addPresetSubject()" style="padding:10px 18px;white-space:nowrap;background:#4A90D9;color:white;border:2px solid #2E5A8A;border-radius:18px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #2E5A8A;">등록</button>
+    <div style="display:flex;align-items:center;margin-bottom:12px;">
+      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="width:100%;padding:10px 12px;font-size:15px;margin-bottom:0;border-radius:10px;border:2px solid #4A2F1B;">
     </div>
     <div class="pwd-error" id="addSubjectError" style="margin-bottom:4px;"></div>
 
     <!-- 점선 구분 -->
-    <div style="border-top:1px dashed #C8A47C;margin:8px 0 10px;"></div>
+    <div style="display:none;border-top:1px dashed #C8A47C;margin:8px 0 10px;"></div>
 
     <!-- 과목 목록 (즐겨찾기 모드면 즐겨찾기만, 아니면 전체) -->
-    <div id="presetSubjectList" style="display:flex;flex-wrap:wrap;gap:14px 10px;justify-content:center;margin-bottom:14px;min-height:60px;padding:8px 4px 4px;"></div>
+    <div id="presetSubjectList" style="display:none;flex-wrap:wrap;gap:14px 10px;justify-content:center;margin-bottom:14px;padding:8px 4px 4px;"></div>
 
     <!-- 하단 점선 + 여백 -->
-    <div style="border-top:1px dashed #C8A47C;margin-top:4px;padding-bottom:10px;"></div>
+    <div style="display:none;border-top:1px dashed #C8A47C;margin-top:4px;padding-bottom:10px;"></div>
   </div>
 </div>
 
@@ -4536,7 +4540,7 @@ async function loadAllData() {
     if (inp) inp.placeholder = settings.new_subject_placeholder;
   }
   if (settings.subject_modal_title) {
-    const el = document.getElementById('subjectModalTitle');
+    const el = document.getElementById('presetViewLabel');
     if (el) el.textContent = settings.subject_modal_title;
   }
   if (settings.subject_guide) {
@@ -5204,9 +5208,11 @@ async function addSubject() {
   justAddedSubjectId = id;
 
   soundFanfare();
-  closeAddSubject();
+  document.getElementById('newSubjectInput').value = '';
+  err.textContent = '';
   showToast(`"${name}" 추가됨`);
   await refreshData();
+  document.getElementById('newSubjectInput').focus();
 }
 
 async function updateSubjectName(subjectId, newName) {
@@ -5628,7 +5634,7 @@ function openAddSubject() {
   const btn = document.getElementById('subjectModalTitle');
   if (star) star.textContent = '☆';
   if (label) label.textContent = '즐겨찾기 등록';
-  if (btn) btn.style.background = '#E87722';
+  if (btn) btn.style.background = 'transparent';
   renderPresetList();
   const modal = document.getElementById('subjectModalInner');
   const finalTop = getSubjectModalTop();
@@ -5747,11 +5753,11 @@ function togglePresetView() {
   if (_presetViewMode === 'favorites') {
     if (star) star.textContent = '★';
     if (label) label.textContent = '즐겨찾기 보기';
-    if (btn) btn.style.background = '#FFB74D';
+    if (btn) btn.style.background = 'transparent';
   } else {
     if (star) star.textContent = '☆';
     if (label) label.textContent = '즐겨찾기 등록';
-    if (btn) btn.style.background = '#E87722';
+    if (btn) btn.style.background = 'transparent';
   }
   renderPresetList();
   soundClick();
@@ -5767,14 +5773,12 @@ function renderPresetList() {
   const todaySubjects = getSubjectsForDate(selectedDate).map(s => s.name.trim().toLowerCase());
 
   if (presets.length === 0) {
-    if (_presetViewMode === 'favorites') {
-      container.innerHTML = '<div style="color:#aaa;font-family:Pretendard,sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">즐겨찾기가 비어있어요</div>';
-    } else {
-      container.innerHTML = '<div style="color:#aaa;font-family:Pretendard,sans-serif;font-size:14px;padding:10px;text-align:center;width:100%;">위에서 과목을 등록하면<br>여기서 선택해 추가할 수 있어요</div>';
-    }
+    container.innerHTML = '';
+    container.style.display = 'none';
     return;
   }
 
+  container.style.display = 'flex';
   container.innerHTML = presets.map((name) => {
     const isActive = todaySubjects.includes(name.trim().toLowerCase());
     const fav = isFavorite(name);
@@ -5861,11 +5865,24 @@ function addPresetSubject() {
   
   const presets = getPresets();
   if (presets.some(p => p.toLowerCase() === name.toLowerCase())) {
-    err.textContent = '이미 등록된 과목이에요';
+    const favs = getFavorites();
+    if (!favs.some(f => f.toLowerCase() === name.toLowerCase())) {
+      favs.push(name);
+      saveFavorites(favs);
+    }
+    input.value = '';
+    err.textContent = '';
+    renderPresetList();
+    soundClick();
     return;
   }
   presets.push(name);
   savePresets(presets);
+  const favs = getFavorites();
+  if (!favs.some(f => f.toLowerCase() === name.toLowerCase())) {
+    favs.push(name);
+    saveFavorites(favs);
+  }
   input.value = '';
   err.textContent = '';
   renderPresetList();
@@ -6451,7 +6468,7 @@ async function saveNewSubjectPlaceholder() {
 async function saveSubjectModalTitle() {
   const val = document.getElementById('settingsSubjectModalTitle').value.trim() || '과목 선택';
   await sb.from('app_settings').upsert({ key: 'subject_modal_title', value: val, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
-  const el = document.getElementById('subjectModalTitle');
+  const el = document.getElementById('presetViewLabel');
   if (el) el.textContent = val;
   showToast('✅ 저장!');
 }
@@ -7013,7 +7030,7 @@ function insertEmoji(emoji) {
 
 /* ====== 키보드 이벤트 ====== */
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('newSubjectInput').addEventListener('keypress', e => { if (e.key === 'Enter') addPresetSubject(); });
+  document.getElementById('newSubjectInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addSubject(); } });
   document.getElementById('deleteSubjectPwd').addEventListener('keypress', e => { if (e.key === 'Enter') confirmDeleteSubject(); });
 });
 
