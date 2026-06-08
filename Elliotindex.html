@@ -33,6 +33,7 @@
     font-family: 'Pretendard', sans-serif;
     background: #F5EDD7;
     min-height: 100vh;
+    min-height: 100dvh;
     padding: 12px 10px 30px;
     padding-top: max(12px, env(safe-area-inset-top));
     padding-bottom: max(30px, env(safe-area-inset-bottom));
@@ -1661,7 +1662,12 @@
   }
   #subjectModalInner { box-shadow: none !important; border: 1.5px solid #D8C9A8 !important; }
   #subjectModalInner button { box-shadow: none !important; }
-  #subjectModalInner .preset-chip { box-shadow: none !important; }
+  /* 과목 칩: 살짝 떠 보이게(인라인 그림자 유지) + 누르면 눌리는 효과 */
+  #subjectModalInner .preset-chip { transition: transform 0.06s, box-shadow 0.06s; }
+  #subjectModalInner .preset-chip:active { transform: translate(2px,2px); box-shadow: none !important; }
+  /* 즐겨찾기/등록/닫기 버튼 누름 효과 */
+  .sub-menu-btn { transition: transform 0.06s, background 0.06s; }
+  .sub-menu-btn:active { transform: translate(1px,1px); background: rgba(124,90,58,0.12) !important; }
   /* 설정 저장 버튼 — 입력 중 파랑, 저장 후 녹색, 누르는 효과 */
   .save-btn {
     flex-shrink: 0; padding: 10px 14px; border: none; border-radius: 6px;
@@ -2795,14 +2801,14 @@
     <div style="height:14px;"></div>
     <!-- 즐겨찾기 / 등록 / 닫기 메뉴 -->
     <div style="display:flex;align-items:center;border:1px solid #C4C4C4;border-radius:8px;margin-bottom:12px;overflow:hidden;">
-      <button id="subjectModalTitle" onclick="addPresetSubject()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:#4A2F1B;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 10px;border:none;cursor:pointer;user-select:none;">
+      <button id="subjectModalTitle" class="sub-menu-btn" onclick="togglePresetView()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:#4A2F1B;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 10px;border:none;cursor:pointer;user-select:none;white-space:nowrap;">
         <span id="presetViewStar" style="color:#E87722;font-size:16px;">☆</span>
-        <span id="presetViewLabel">즐겨찾기 등록</span>
+        <span id="presetViewLabel">즐겨찾기 보기</span>
       </button>
       <span style="width:1px;height:24px;background:#5A8A5E;flex-shrink:0;"></span>
-      <button onclick="addSubject()" style="width:70px;background:transparent;color:#5A8A5E;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">등록</button>
+      <button class="sub-menu-btn" onclick="addSubject()" style="width:70px;background:transparent;color:#5A8A5E;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">등록</button>
       <span style="width:1px;height:24px;background:#5A8A5E;flex-shrink:0;"></span>
-      <button onclick="closeAddSubject()" style="width:70px;background:transparent;color:#4A2F1B;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">닫기</button>
+      <button class="sub-menu-btn" onclick="closeAddSubject()" style="width:70px;background:transparent;color:#4A2F1B;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">닫기</button>
     </div>
 
     <!-- 입력 + 등록 -->
@@ -5625,22 +5631,24 @@ function openAddSubject() {
   collapseCalendarForSubjectModal();
   document.getElementById('newSubjectInput').value = '';
   document.getElementById('addSubjectError').textContent = '';
-  // 뷰 모드 항상 '전체'로 초기화
-  _presetViewMode = 'all';
+  // 즐겨찾기 목록은 기본 숨김 — 버튼 누르면 토글로 표시
+  _presetViewMode = 'favorites';
+  _presetListVisible = false;
   const star = document.getElementById('presetViewStar');
   const label = document.getElementById('presetViewLabel');
   const btn = document.getElementById('subjectModalTitle');
   if (star) star.textContent = '☆';
-  if (label) label.textContent = '즐겨찾기 등록';
+  if (label) label.textContent = '즐겨찾기 보기';
   if (btn) btn.style.background = 'transparent';
   renderPresetList();
   const modal = document.getElementById('subjectModalInner');
+  const finalTop = getSubjectModalTop();
   modal.classList.remove('subject-bottom-sheet', 'subject-sheet-open');
   modal.style.transition = 'none';
-  modal.style.top = '';
-  modal.style.bottom = '0';
+  modal.style.top = finalTop + 'px';
+  modal.style.bottom = '';
   modal.style.left = '50%';
-  modal.style.transform = 'translate(-50%, 100%)';
+  modal.style.transform = 'translate(-50%, 100vh)';
   document.getElementById('addSubjectModal').style.display = 'block';
   requestAnimationFrame(() => {
     modal.style.transition = 'transform 0.38s cubic-bezier(0.22, 1, 0.36, 1)';
@@ -5660,8 +5668,6 @@ function openAddSubject() {
     const rect = modal.getBoundingClientRect();
     offX = cx - rect.left;
     offY = cy - rect.top;
-    modal.style.bottom = '';
-    modal.style.top = rect.top + 'px';
     modal.style.transform = 'none';
     modal.style.transition = 'none';
   }
@@ -5742,21 +5748,19 @@ function toggleFavorite(name) {
   soundClick();
 }
 
-let _presetViewMode = 'all'; // 'all' or 'favorites'
+let _presetViewMode = 'favorites'; // 즐겨찾기만 표시
+let _presetListVisible = false;    // 즐겨찾기 목록 표시 여부 (토글)
 
 function togglePresetView() {
-  _presetViewMode = _presetViewMode === 'all' ? 'favorites' : 'all';
+  _presetListVisible = !_presetListVisible;
   const star = document.getElementById('presetViewStar');
   const label = document.getElementById('presetViewLabel');
-  const btn = document.getElementById('subjectModalTitle');
-  if (_presetViewMode === 'favorites') {
+  if (_presetListVisible) {
     if (star) star.textContent = '★';
-    if (label) label.textContent = '즐겨찾기 보기';
-    if (btn) btn.style.background = 'transparent';
+    if (label) label.textContent = '즐겨찾기 숨기기';
   } else {
     if (star) star.textContent = '☆';
-    if (label) label.textContent = '즐겨찾기 등록';
-    if (btn) btn.style.background = 'transparent';
+    if (label) label.textContent = '즐겨찾기 보기';
   }
   renderPresetList();
   soundClick();
@@ -5764,11 +5768,15 @@ function togglePresetView() {
 
 function renderPresetList() {
   const container = document.getElementById('presetSubjectList');
+  if (!_presetListVisible) {
+    container.innerHTML = '';
+    container.style.display = 'none';
+    return;
+  }
   const allPresets = getPresets();
   const favs = getFavorites();
-  const presets = _presetViewMode === 'favorites'
-    ? allPresets.filter(p => favs.some(f => f.toLowerCase() === p.toLowerCase()))
-    : allPresets;
+  // 즐겨찾기한 과목만 표시
+  const presets = allPresets.filter(p => favs.some(f => f.toLowerCase() === p.toLowerCase()));
   const todaySubjects = getSubjectsForDate(selectedDate).map(s => s.name.trim().toLowerCase());
 
   if (presets.length === 0) {
@@ -7506,7 +7514,10 @@ function updateBottomActionSheetLayout() {
   if (!sheet || !cal) return;
   const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
   const gap = viewH - cal.getBoundingClientRect().bottom;
-  const h = Math.max(120, Math.min(260, Math.round(gap * 0.5)));
+  // 시트 높이는 달력 밑 빈 공간(gap)을 절대 넘지 않게 → 폰 메뉴바가 떠도 달력 범례를 안 덮음
+  let h = Math.round(gap * 0.5);
+  h = Math.min(h, 260, Math.round(gap - 10));
+  h = Math.max(64, h);
   sheet.style.setProperty('--bottom-action-height', h + 'px');
 }
 
