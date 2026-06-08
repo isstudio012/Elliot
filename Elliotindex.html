@@ -784,6 +784,102 @@
   .top-nav-btn:focus, .top-nav-btn:focus-visible { outline: none; }
   .top-nav-btn:active { color: #4A2F1B; transform: scale(0.86); background: rgba(124,90,58,0.12); }
 
+  .bottom-action-sheet {
+    display: none;
+    position: fixed;
+    left: 50%;
+    bottom: max(0px, env(safe-area-inset-bottom, 0px));
+    width: min(380px, calc(100vw - 20px));
+    transform: translate(-50%, calc(100% - 20px));
+    z-index: 260;
+    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    touch-action: none;
+    will-change: transform;
+    height: var(--bottom-action-height, min(220px, 24vh));
+    background: rgba(255,255,255,0.5);
+    border: 1.5px solid #3C6B40;
+    border-radius: 12px 12px 0 0;
+    box-shadow: none;
+    overflow: hidden;
+  }
+  .bottom-action-sheet.show {
+    display: block;
+  }
+  .bottom-action-sheet.open {
+    transform: translate(-50%, 0);
+  }
+  .bottom-action-grip {
+    width: 100%;
+    height: 20px;
+    margin: 0 auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    cursor: grab;
+    position: relative;
+  }
+  .bottom-action-grip::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 7px;
+    width: 36px;
+    height: 3px;
+    transform: translateX(-50%);
+    background: #3C6B40;
+    border-radius: 3px;
+  }
+  .bottom-action-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 20px;
+    padding: 9px 10px max(9px, env(safe-area-inset-bottom, 9px));
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .bottom-action-btn {
+    font-family: 'Pretendard', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #7C5A3A;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    outline: none;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+    gap: 5px;
+  }
+  .bottom-action-btn:active { color: #4A2F1B; transform: scale(0.86); background: rgba(124,90,58,0.12); }
+  .bottom-action-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+  }
+  .bottom-action-sep {
+    width: 1px;
+    height: 16px;
+    background: #5A8A5E;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
   /* 설정 버튼 — 녹색, 톱니 3초에 한 바퀴 회전 */
   #settingsBtn { color: #5A8A5E; }
   #settingsBtn svg { animation: gearSpin 3s linear infinite; }
@@ -1259,7 +1355,7 @@
   
   .cal-nav {
     background: #FFFFFF;
-    border: 2px solid #4A2F1B;
+    border: 1px solid #7C5A3A;
     border-radius: 6px;
     width: 26px;
     height: 26px;
@@ -1267,7 +1363,7 @@
     font-size: 16px;
     cursor: pointer;
     font-weight: 700;
-    color: #4A2F1B;
+    color: #7C5A3A;
   }
   
   .cal-title { font-family: 'Pretendard', sans-serif; font-size: 17px; font-weight: 700; color: #4A2F1B; }
@@ -1654,7 +1750,7 @@
     background: #5A8A5E;
     border: 2px solid #2E5A32;
     border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
+    display: none; align-items: center; justify-content: center;
     font-size: 20px;
     cursor: pointer;
     box-shadow: 4px 4px 12px rgba(0,0,0,0.3);
@@ -2506,15 +2602,8 @@
       </div>
     </div>
 
-    <!-- 과목 컨트롤 바: 과목추가(좌) + 선택삭제(우) -->
+    <!-- 과목 컨트롤 바: 선택삭제 -->
     <div class="subject-ctrl-bar" id="subjectCtrlBar">
-      <div class="subject-ctrl-side" style="display:flex;gap:8px;">
-        <button class="add-sub-bar-btn" onclick="openAddSubject()" style="background:#5A8A5E;border-color:#3C6B40;box-shadow:2px 2px 0 #3C6B40;">+ 과목 추가</button>
-        <button class="add-sub-bar-btn" onclick="openNoteModal()" style="gap:5px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 5a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2z"/><line x1="8" y1="3" x2="8" y2="21"/></svg>
-          숙제노트
-        </button>
-      </div>
       <div class="subject-ctrl-side subject-ctrl-side-right" style="margin-left:auto;">
         <div class="select-bar-wrap" id="selectBarWrap"></div>
       </div>
@@ -2533,6 +2622,20 @@
 <div class="chat-fab" id="chatFab" onclick="toggleChat()" style="display:none;">
   💬
   <div class="badge" id="chatBadge">0</div>
+</div>
+
+<div class="bottom-action-sheet" id="bottomActionSheet">
+  <div class="bottom-action-grip" id="bottomActionGrip"></div>
+  <div class="bottom-action-menu">
+    <button class="bottom-action-btn" id="bottomAddSubjectBtn" onclick="openAddSubject(); closeBottomActionSheet();">+ 과목 추가</button>
+    <span class="bottom-action-sep"></span>
+    <button class="bottom-action-btn" onclick="openNoteModal(); closeBottomActionSheet();">숙제노트</button>
+    <span class="bottom-action-sep"></span>
+    <button class="bottom-action-btn" onclick="toggleChat(); closeBottomActionSheet();">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 18-5z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
+      메신저
+    </button>
+  </div>
 </div>
 
 <!-- 채팅 패널 -->
@@ -3870,6 +3973,7 @@ async function showLoginScreen() {
   document.getElementById('loginScreen').style.display = '';
   document.getElementById('appMain').classList.remove('show');
   document.getElementById('chatFab').style.display = 'none';
+  document.getElementById('bottomActionSheet').classList.remove('show', 'open');
   stopLoginPhysics();
 
   const familyCode = getFamilyCode();
@@ -4320,6 +4424,7 @@ async function showMainApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appMain').classList.add('show');
   document.getElementById('chatFab').style.display = '';
+  document.getElementById('bottomActionSheet').classList.add('show');
   
   const savedSound = localStorage.getItem('soundOn');
   if (savedSound !== null) { soundOn = savedSound === 'true'; }
@@ -4419,7 +4524,7 @@ async function loadAllData() {
     document.getElementById('appTitle').textContent = settings.app_title;
   }
   if (settings.add_subject_btn) {
-    const btn = document.querySelector('.add-sub-bar-btn');
+    const btn = document.getElementById('bottomAddSubjectBtn') || document.querySelector('.add-sub-bar-btn');
     if (btn) btn.textContent = settings.add_subject_btn;
   }
   if (settings.delete_subject_btn) {
@@ -5513,6 +5618,7 @@ function editAppTitle() {
 /* ====== 모달들 ====== */
 function openAddSubject() {
   soundClick();
+  collapseCalendarForSubjectModal();
   document.getElementById('newSubjectInput').value = '';
   document.getElementById('addSubjectError').textContent = '';
   // 뷰 모드 항상 '전체'로 초기화
@@ -5525,10 +5631,19 @@ function openAddSubject() {
   if (btn) btn.style.background = '#E87722';
   renderPresetList();
   const modal = document.getElementById('subjectModalInner');
-  modal.style.top = '80px';
+  const finalTop = getSubjectModalTop();
+  modal.classList.remove('subject-bottom-sheet', 'subject-sheet-open');
+  modal.style.transition = 'none';
+  modal.style.top = finalTop + 'px';
+  modal.style.bottom = '';
   modal.style.left = '50%';
-  modal.style.transform = 'translateX(-50%)';
+  modal.style.transform = 'translate(-50%, 100vh)';
   document.getElementById('addSubjectModal').style.display = 'block';
+  requestAnimationFrame(() => {
+    modal.style.transition = 'transform 0.38s cubic-bezier(0.22, 1, 0.36, 1)';
+    modal.style.transform = 'translateX(-50%)';
+    setTimeout(() => { modal.style.transition = ''; }, 420);
+  });
 }
 
 // 과목 선택 모달 드래그
@@ -5571,6 +5686,8 @@ function openAddSubject() {
   });
   
   window.closeAddSubject = function() {
+    const modal = document.getElementById('subjectModalInner');
+    if (modal) modal.classList.remove('subject-bottom-sheet', 'subject-sheet-open');
     document.getElementById('addSubjectModal').style.display = 'none';
   };
 })();
@@ -5916,7 +6033,7 @@ async function openSettings() {
   if (noteTitleEl) noteTitleEl.value = document.getElementById('homeworkNoteTitle').textContent || '숙제노트';
   const addSubBtnEl = document.getElementById('settingsAddSubjectBtn');
   if (addSubBtnEl) {
-    const cur = document.querySelector('.add-sub-bar-btn');
+    const cur = document.getElementById('bottomAddSubjectBtn') || document.querySelector('.add-sub-bar-btn');
     addSubBtnEl.value = cur ? cur.textContent.trim() : '+ 과목 추가';
   }
   renderMemberSettings();
@@ -6310,7 +6427,7 @@ async function saveProfileSettings() {
 async function saveAddSubjectBtnText() {
   const val = document.getElementById('settingsAddSubjectBtn').value.trim() || '+ 과목 추가';
   await sb.from('app_settings').upsert({ key: 'add_subject_btn', value: val, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
-  const btn = document.querySelector('.add-sub-bar-btn');
+  const btn = document.getElementById('bottomAddSubjectBtn') || document.querySelector('.add-sub-bar-btn');
   if (btn) btn.textContent = val;
   showToast('✅ 과목추가 버튼 저장!');
 }
@@ -7321,6 +7438,89 @@ function toggleCalendar() {
   if (title) title.style.visibility = isOpen ? 'hidden' : 'visible';
 }
 
+function collapseCalendarForSubjectModal() {
+  const body = document.getElementById('calBody');
+  const icon = document.getElementById('calToggleIcon');
+  if (!body || !icon) return;
+  if (body.style.maxHeight === '0px') return;
+  body.style.maxHeight = '0px';
+  icon.style.transform = 'rotate(-90deg)';
+  const sticker = document.getElementById('calSticker');
+  const headLeft = document.getElementById('calHeaderLeft');
+  const title = document.getElementById('calTitle');
+  if (sticker) sticker.style.display = 'block';
+  if (headLeft) headLeft.style.visibility = 'hidden';
+  if (title) title.style.visibility = 'hidden';
+}
+
+function getSubjectModalTop() {
+  const cal = document.querySelector('.calendar-card');
+  const modal = document.getElementById('subjectModalInner');
+  const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  if (!cal || !modal) return Math.max(80, Math.round(viewH * 0.5));
+  const header = cal.querySelector('.cal-header');
+  const calStyle = getComputedStyle(cal);
+  const calBottom = header
+    ? header.getBoundingClientRect().bottom + parseFloat(calStyle.paddingBottom || '0')
+    : cal.getBoundingClientRect().bottom;
+  const desiredTop = Math.round(calBottom + 150);
+  return Math.max(80, desiredTop);
+}
+
+function setBottomActionSheet(open) {
+  const sheet = document.getElementById('bottomActionSheet');
+  if (!sheet) return;
+  updateBottomActionSheetLayout();
+  sheet.classList.toggle('open', !!open);
+}
+
+function toggleBottomActionSheet() {
+  const sheet = document.getElementById('bottomActionSheet');
+  if (!sheet) return;
+  setBottomActionSheet(!sheet.classList.contains('open'));
+}
+
+function closeBottomActionSheet() {
+  setBottomActionSheet(false);
+}
+
+function updateBottomActionSheetLayout() {
+  const sheet = document.getElementById('bottomActionSheet');
+  const cal = document.querySelector('.calendar-card');
+  if (!sheet || !cal) return;
+  const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  const gap = viewH - cal.getBoundingClientRect().bottom;
+  const h = Math.max(120, Math.min(260, Math.round(gap * 0.5)));
+  sheet.style.setProperty('--bottom-action-height', h + 'px');
+}
+
+function bindBottomActionSheet() {
+  const grip = document.getElementById('bottomActionGrip');
+  if (!grip) return;
+  updateBottomActionSheetLayout();
+  let startY = 0;
+  let lastY = 0;
+  grip.addEventListener('pointerdown', e => {
+    startY = lastY = e.clientY;
+    grip.setPointerCapture(e.pointerId);
+  });
+  grip.addEventListener('pointermove', e => {
+    lastY = e.clientY;
+  });
+  grip.addEventListener('pointerup', () => {
+    const dy = lastY - startY;
+    if (dy < -12) setBottomActionSheet(true);
+    else if (dy > 12) setBottomActionSheet(false);
+    else toggleBottomActionSheet();
+  });
+  grip.addEventListener('pointercancel', () => {
+    startY = lastY = 0;
+  });
+  window.addEventListener('resize', updateBottomActionSheetLayout);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', updateBottomActionSheetLayout);
+}
+
+bindBottomActionSheet();
 pushHistoryBlock();
 initApp();
 </script>
