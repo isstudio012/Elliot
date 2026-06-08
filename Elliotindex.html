@@ -1248,11 +1248,10 @@
   
   .calendar-card {
     background: white;
-    border: 2px solid #4A2F1B;
+    border: 2px solid #3C6B40;
     border-radius: 12px;
     padding: 8px;
     margin-bottom: 10px;
-    box-shadow: 2px 2px 0 #4A2F1B;
     overflow: hidden;
   }
   
@@ -2436,9 +2435,9 @@
     
     <!-- 광고 자리 (코인박스와 달력 사이) — 다가오는 일정은 달력 ★ 버튼 팝업으로 이동 -->
     <div id="upcomingBox"></div>
-    <div id="adSlot" style="margin-bottom:8px;background:#F5EDD7;border:1.5px dashed #C9BFA6;border-radius:12px;min-height:64px;display:flex;align-items:center;justify-content:center;font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#A99B7C;">
-      <!-- 여기에 광고 코드(예: AdSense)를 넣으세요 -->
-      광고 영역
+    <div id="adSlot" style="display:none;margin:0 0 18px;background:#F5EDD7;border:1.5px dashed #C9BFA6;border-radius:12px;min-height:64px;align-items:center;justify-content:center;">
+      <!-- 실제 광고는 이 #adContent 안에 코드(예: AdSense)를 넣으세요. 비어 있으면 박스 전체가 숨겨져 달력이 위로 올라옵니다. -->
+      <div id="adContent" style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#A99B7C;"></div>
     </div>
 
     <div class="calendar-card" style="position:relative;">
@@ -2463,7 +2462,7 @@
       <div id="schedulePopup" style="display:none;position:absolute;top:44px;left:8px;right:8px;z-index:20;background:white;border:2px solid #5A8A5E;border-radius:12px;padding:12px 14px 14px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-bottom:1.5px solid #5A8A5E;padding-bottom:6px;">
           <span style="font-family:Pretendard,sans-serif;font-size:15px;font-weight:800;color:#2E7D32;"><span style="color:#5A8A5E;">★</span> 다가오는 일정</span>
-          <button onclick="closeSchedulePopup()" title="닫기" style="width:26px;height:26px;border:none;background:#F5EDD7;border-radius:50%;cursor:pointer;font-size:15px;font-weight:800;color:#4A2F1B;line-height:1;display:flex;align-items:center;justify-content:center;">×</button>
+          <button onclick="closeSchedulePopup()" title="닫기" style="border:none;background:transparent;cursor:pointer;font-size:22px;font-weight:800;color:#4A2F1B;line-height:1;padding:0 2px;">×</button>
         </div>
         <div id="schedulePopupList" style="font-family:Pretendard,sans-serif;font-size:14px;color:#333;max-height:260px;overflow-y:auto;"></div>
       </div>
@@ -4606,12 +4605,26 @@ async function refreshMembersNow() {
 /* ====== 렌더링 ====== */
 function renderAll() {
   syncActiveCoins(); // 활성 자녀의 코인/티켓으로 동기화
+  syncAdSlot();      // 광고 있으면 표시, 없으면 숨겨 달력이 위로
   renderCalendar();
   renderUpcoming();
   renderControlBar();
   renderTasks();
   renderMomSection();
   renderCoins();
+}
+
+/* ====== 광고 자리 ====== */
+// #adContent 안에 광고 코드가 들어 있으면 박스를 보여주고, 비어 있으면 숨겨 달력이 위로 올라오게 한다.
+// 개발 중 "광고 영역" 자리표시를 보고 싶으면 아래 값을 true 로 바꾸세요.
+const AD_SHOW_PLACEHOLDER = false;
+function syncAdSlot() {
+  const slot = document.getElementById('adSlot');
+  const c = document.getElementById('adContent');
+  if (!slot || !c) return;
+  let hasAd = c.children.length > 0 || c.textContent.trim().length > 0;
+  if (!hasAd && AD_SHOW_PLACEHOLDER) { c.textContent = '광고 영역'; hasAd = true; }
+  slot.style.display = hasAd ? 'flex' : 'none';
 }
 
 /* ====== 다가오는 일정 박스 (메인) — 선택한 날짜 기준 ====== */
