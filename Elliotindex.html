@@ -916,7 +916,7 @@
   /* 스냅 포인트: 1=동그라미(시작), 2=코인 블록 */
   .head-strip > #profileCircle { scroll-snap-align: start; }
   .head-strip > .top-bar { scroll-snap-align: start; }
-  .head-strip .profile-msg { flex: 0 0 auto; padding-right: 8px; max-width: min(62vw, 280px); }
+  .head-strip .profile-msg { flex: 0 0 min(62vw, 280px); width: min(62vw, 280px); padding-right: 8px; }
   .head-strip .profile-msg h1 {
     white-space: normal;
     word-break: keep-all;
@@ -2790,11 +2790,11 @@
   <div class="modal pwd-modal" id="subjectModalInner" style="max-width:340px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;padding:16px;">
     <!-- 드래그 핸들 바 -->
     <div id="subjectModalDragHandle" style="position:absolute;top:0;left:0;right:0;height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none;z-index:5;">
-      <div style="width:50px;height:6px;border-radius:3px;background:#222;"></div>
+      <div style="width:50px;height:6px;border-radius:3px;background:#5A8A5E;"></div>
     </div>
     <div style="height:14px;"></div>
     <!-- 즐겨찾기 / 등록 / 닫기 메뉴 -->
-    <div style="display:flex;align-items:center;border:1px solid #7C5A3A;border-radius:8px;margin-bottom:12px;overflow:hidden;">
+    <div style="display:flex;align-items:center;border:1px solid #C4C4C4;border-radius:8px;margin-bottom:12px;overflow:hidden;">
       <button id="subjectModalTitle" onclick="addPresetSubject()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:#4A2F1B;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 10px;border:none;cursor:pointer;user-select:none;">
         <span id="presetViewStar" style="color:#E87722;font-size:16px;">☆</span>
         <span id="presetViewLabel">즐겨찾기 등록</span>
@@ -2807,7 +2807,7 @@
 
     <!-- 입력 + 등록 -->
     <div style="display:flex;align-items:center;margin-bottom:12px;">
-      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="width:100%;padding:10px 12px;font-size:15px;margin-bottom:0;border-radius:10px;border:2px solid #4A2F1B;">
+      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="width:100%;padding:10px 12px;font-size:15px;margin-bottom:0;border-radius:10px;border:2px solid #C4C4C4;">
     </div>
     <div class="pwd-error" id="addSubjectError" style="margin-bottom:4px;"></div>
 
@@ -3758,10 +3758,8 @@ function closeTopOverlay() {
   return false;
 }
 window.addEventListener('popstate', function() {
-  if (window._allowBack) return;           // 실제 나가기 허용
-  history.pushState({ blocked: true }, ''); // 일단 현재 화면 유지
-  if (closeTopOverlay()) return;            // 열린 팝업/패널 있으면 그것부터 닫기
-  document.getElementById('exitConfirmModal').classList.add('show'); // 없으면 나가기 확인
+  // 뒤로가기는 막지 않음 — 누르면 바로 나감. 열린 팝업이 있으면 닫기만 시도.
+  closeTopOverlay();
 });
 function cancelExit() {
   document.getElementById('exitConfirmModal').classList.remove('show');
@@ -5185,7 +5183,7 @@ async function addSubject() {
   const name = document.getElementById('newSubjectInput').value.trim();
   const err = document.getElementById('addSubjectError');
 
-  if (!name) { err.textContent = '과목 이름을 입력하세요'; soundError(); return; }
+  if (!name) { err.textContent = ''; soundError(); return; }
 
   const id = genId();
   const familyCode = getFamilyCode();
@@ -5637,13 +5635,12 @@ function openAddSubject() {
   if (btn) btn.style.background = 'transparent';
   renderPresetList();
   const modal = document.getElementById('subjectModalInner');
-  const finalTop = getSubjectModalTop();
   modal.classList.remove('subject-bottom-sheet', 'subject-sheet-open');
   modal.style.transition = 'none';
-  modal.style.top = finalTop + 'px';
-  modal.style.bottom = '';
+  modal.style.top = '';
+  modal.style.bottom = '0';
   modal.style.left = '50%';
-  modal.style.transform = 'translate(-50%, 100vh)';
+  modal.style.transform = 'translate(-50%, 100%)';
   document.getElementById('addSubjectModal').style.display = 'block';
   requestAnimationFrame(() => {
     modal.style.transition = 'transform 0.38s cubic-bezier(0.22, 1, 0.36, 1)';
@@ -5663,6 +5660,8 @@ function openAddSubject() {
     const rect = modal.getBoundingClientRect();
     offX = cx - rect.left;
     offY = cy - rect.top;
+    modal.style.bottom = '';
+    modal.style.top = rect.top + 'px';
     modal.style.transform = 'none';
     modal.style.transition = 'none';
   }
@@ -5861,7 +5860,7 @@ function addPresetSubject() {
   const input = document.getElementById('newSubjectInput');
   const name = input.value.trim();
   const err = document.getElementById('addSubjectError');
-  if (!name) { err.textContent = '과목 이름을 입력하세요'; return; }
+  if (!name) { err.textContent = ''; return; }
   
   const presets = getPresets();
   if (presets.some(p => p.toLowerCase() === name.toLowerCase())) {
@@ -7480,7 +7479,7 @@ function getSubjectModalTop() {
   const calBottom = header
     ? header.getBoundingClientRect().bottom + parseFloat(calStyle.paddingBottom || '0')
     : cal.getBoundingClientRect().bottom;
-  const desiredTop = Math.round(calBottom + 150);
+  const desiredTop = Math.round(calBottom + 80);
   return Math.max(80, desiredTop);
 }
 
@@ -7538,7 +7537,6 @@ function bindBottomActionSheet() {
 }
 
 bindBottomActionSheet();
-pushHistoryBlock();
 initApp();
 </script>
 
