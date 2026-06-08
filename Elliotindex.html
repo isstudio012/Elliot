@@ -789,7 +789,8 @@
     display: none;
     position: fixed;
     left: 50%;
-    bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     width: min(380px, calc(100vw - 20px));
     transform: translate(-50%, calc(100% - 20px));
     z-index: 260;
