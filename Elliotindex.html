@@ -2696,6 +2696,9 @@
   <div class="badge" id="chatBadge">0</div>
 </div>
 
+<!-- 하단 빈 영역: 더블탭하면 메뉴 올라옴 (투명, 시트보다 아래 z-index) -->
+<div id="bottomTapZone" aria-hidden="true" style="position:fixed;left:0;right:0;bottom:0;height:64px;z-index:250;background:transparent;touch-action:none;"></div>
+
 <div class="bottom-action-sheet" id="bottomActionSheet">
   <div class="bottom-action-grip" id="bottomActionGrip"></div>
   <div class="bottom-action-menu">
@@ -7660,6 +7663,16 @@ function bindBottomActionSheet() {
   grip.addEventListener('pointercancel', () => {
     startY = lastY = 0;
   });
+  // 하단 빈 영역(투명) 더블탭 → 메뉴 올라옴
+  const zone = document.getElementById('bottomTapZone');
+  if (zone) {
+    let zTap = 0;
+    zone.addEventListener('pointerup', () => {
+      const now = Date.now();
+      if (now - zTap < 350) { setBottomActionSheet(true); zTap = 0; }
+      else zTap = now;
+    });
+  }
   window.addEventListener('resize', updateBottomActionSheetLayout);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', updateBottomActionSheetLayout);
 }
