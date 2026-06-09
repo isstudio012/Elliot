@@ -812,19 +812,22 @@
   }
   .bottom-action-grip {
     width: 100%;
-    height: 20px;
+    height: 28px;
     margin: 0 auto;
     background: transparent;
     border: none;
     border-radius: 0;
     cursor: grab;
     position: relative;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .bottom-action-grip::before {
     content: '';
     position: absolute;
     left: 50%;
-    top: 7px;
+    top: 11px;
     width: 36px;
     height: 3px;
     transform: translateX(-50%);
@@ -2619,16 +2622,22 @@
           <div style="display:flex;flex-direction:column;gap:5px;">
             <span style="display:inline-flex;align-items:center;gap:5px;">
               <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:linear-gradient(to top,#E53935 0%,#FB8C00 25%,#FDD835 50%,#43A047 75%,#1E88E5 100%);"></span>
-              숙제한 만큼 무지개가 차요
+              숙제 달성률
             </span>
             <span style="display:inline-flex;align-items:center;gap:5px;">
               <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:#5A8A5E;"></span>
-              부모님이 확인·완료하면 녹색
+              부모님 확인 완료
             </span>
           </div>
-          <div style="display:flex;gap:5px;text-align:left;">
-            <span style="font-size:10px;color:#8A7A60;line-height:1.5;flex-shrink:0;">☆</span>
-            <span style="line-height:1.5;">날짜를 톡톡 누르면<br>그날 숙제와 일정을 볼 수 있어요</span>
+          <div style="display:flex;flex-direction:column;gap:5px;text-align:left;">
+            <span style="display:inline-flex;align-items:center;gap:5px;line-height:1.5;">
+              <span style="font-size:13px;flex-shrink:0;">📅</span>
+              더블클릭 해서 당일 숙제·일정 보기
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:5px;line-height:1.5;">
+              <span style="font-size:13px;color:#E53935;flex-shrink:0;">★</span>
+              다가오는 일정 보기
+            </span>
           </div>
         </div>
       </div>
@@ -2851,19 +2860,21 @@
     <div style="height:14px;"></div>
     <!-- 즐겨찾기 / 등록 / 닫기 메뉴 -->
     <div style="display:flex;align-items:center;border:1px solid #C4C4C4;border-radius:8px;margin-bottom:12px;overflow:hidden;">
-      <button id="subjectModalTitle" class="sub-menu-btn" onclick="togglePresetView()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:#4A2F1B;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 10px;border:none;cursor:pointer;user-select:none;white-space:nowrap;">
-        <span id="presetViewStar" style="color:#E87722;font-size:16px;">☆</span>
-        <span id="presetViewLabel">즐겨찾기 보기</span>
+      <button id="subjectModalTitle" class="sub-menu-btn" onclick="togglePresetView()" style="width:70px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:transparent;color:#4A2F1B;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;border:none;cursor:pointer;user-select:none;white-space:nowrap;">
+        <span id="presetViewStar" style="color:#E87722;font-size:22px;">☆</span>
+        <span id="presetViewLabel" style="display:none;">즐겨찾기 보기</span>
       </button>
       <span style="width:1px;height:24px;background:#5A8A5E;flex-shrink:0;"></span>
-      <button class="sub-menu-btn" onclick="addSubject()" style="width:70px;background:transparent;color:#5A8A5E;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">등록</button>
+      <button class="sub-menu-btn" onclick="addSubject()" style="flex:1;background:transparent;color:#5A8A5E;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">등록</button>
       <span style="width:1px;height:24px;background:#5A8A5E;flex-shrink:0;"></span>
-      <button class="sub-menu-btn" onclick="closeAddSubject()" style="width:70px;background:transparent;color:#4A2F1B;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">닫기</button>
+      <button class="sub-menu-btn" onclick="closeAddSubject()" style="width:70px;flex-shrink:0;background:transparent;color:#4A2F1B;border:none;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;padding:8px 8px;cursor:pointer;">닫기</button>
     </div>
 
-    <!-- 입력 + 등록 -->
-    <div style="display:flex;align-items:center;margin-bottom:12px;">
-      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="width:100%;padding:10px 12px;font-size:15px;margin-bottom:0;border-radius:10px;border:2px solid #C4C4C4;">
+    <!-- 입력 + 별표등록 -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:12px;border:2px solid #C4C4C4;border-radius:10px;overflow:hidden;">
+      <button onclick="addPresetSubject()" title="즐겨찾기 등록" style="flex-shrink:0;width:70px;display:flex;align-items:center;justify-content:center;gap:4px;background:transparent;border:none;color:#E87722;font-size:16px;font-weight:700;padding:8px 0;cursor:pointer;line-height:1;"><span style="font-size:20px;">★</span>등록</button>
+      <span style="width:1px;height:24px;background:#5A8A5E;flex-shrink:0;"></span>
+      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="flex:1;min-width:0;padding:10px 12px;font-size:15px;margin-bottom:0;border:none;border-radius:0;">
     </div>
     <div class="pwd-error" id="addSubjectError" style="margin-bottom:4px;"></div>
 
@@ -5204,6 +5215,9 @@ function renderMomSection() {
 function updateConfirmPopup(allDone, confirmed) {
   const overlay = document.getElementById('confirmPopup');
   if (!overlay) return;
+  // 팝업 비활성화 — 화면을 덮어 불편하여 일단 끔
+  overlay.classList.remove('show');
+  return;
   if (allDone && !confirmed) {
     const btn = document.getElementById('confirmBtn');
     if (btn) {
@@ -5843,16 +5857,14 @@ function renderPresetList() {
     const fav = isFavorite(name);
     // 색상: 즐겨찾기=주황(우선), 오늘 추가됨=녹색, 기본=흰색
     let bg, fg, bd;
-    if (fav) { bg = '#E87722'; fg = 'white'; bd = '#C25E15'; }
+    if (fav) { bg = '#F4B071'; fg = 'white'; bd = '#E0934A'; }
     else if (isActive) { bg = '#5A8A5E'; fg = 'white'; bd = '#2E5A32'; }
     else { bg = 'white'; fg = '#4A2F1B'; bd = '#4A2F1B'; }
     const colored = fav || isActive;
     const origIdx = allPresets.findIndex(p => p === name);
     const safe = escapeHTML(name).replace(/'/g, "\\'");
     return `
-      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${bg};color:${fg};border:2px solid ${bd};border-radius:22px;box-shadow:2px 2px 0 ${bd};font-family:'Pretendard',sans-serif;font-weight:700;overflow:hidden;margin:4px;">
-        <button onclick="event.stopPropagation();toggleFavorite('${safe}')" title="즐겨찾기"
-          style="background:transparent;color:${colored?'white':'#E87722'};border:none;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;padding:7px 9px;flex-shrink:0;">${fav?'★':'☆'}</button>
+      <div class="preset-chip ${isActive ? 'active' : ''}" style="display:inline-flex;align-items:center;background:${bg};color:${fg};border:2px solid ${bd};border-radius:22px;font-family:'Pretendard',sans-serif;font-weight:700;overflow:hidden;margin:4px;">
         <button onclick="togglePresetSubject('${safe}')"
           style="background:transparent;color:inherit;border:none;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;cursor:pointer;padding:7px 14px;flex:1;white-space:nowrap;">
           ${escapeHTML(name)}
@@ -7579,6 +7591,7 @@ function bindBottomActionSheet() {
   updateBottomActionSheetLayout();
   let startY = 0;
   let lastY = 0;
+  let lastTapTime = 0;
   grip.addEventListener('pointerdown', e => {
     startY = lastY = e.clientY;
     grip.setPointerCapture(e.pointerId);
@@ -7588,9 +7601,17 @@ function bindBottomActionSheet() {
   });
   grip.addEventListener('pointerup', () => {
     const dy = lastY - startY;
-    if (dy < -12) setBottomActionSheet(true);
-    else if (dy > 12) setBottomActionSheet(false);
-    else toggleBottomActionSheet();
+    // 끌어올리기/내리기는 그대로
+    if (dy < -12) { setBottomActionSheet(true); lastTapTime = 0; return; }
+    if (dy > 12) { setBottomActionSheet(false); lastTapTime = 0; return; }
+    // 제자리 탭 → 두 번 톡톡(더블탭) 치면 토글
+    const now = Date.now();
+    if (now - lastTapTime < 350) {
+      toggleBottomActionSheet();
+      lastTapTime = 0;
+    } else {
+      lastTapTime = now;
+    }
   });
   grip.addEventListener('pointercancel', () => {
     startY = lastY = 0;
