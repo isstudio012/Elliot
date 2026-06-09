@@ -812,7 +812,7 @@
   }
   .bottom-action-grip {
     width: 100%;
-    height: 28px;
+    height: 20px;
     margin: 0 auto;
     background: transparent;
     border: none;
@@ -827,7 +827,7 @@
     content: '';
     position: absolute;
     left: 50%;
-    top: 11px;
+    top: 7px;
     width: 36px;
     height: 3px;
     transform: translateX(-50%);
@@ -2661,8 +2661,9 @@
       </div>
     </div>
 
-    <!-- 과목 컨트롤 바: 선택삭제 -->
+    <!-- 과목 컨트롤 바: 승인 / 선택삭제 -->
     <div class="subject-ctrl-bar" id="subjectCtrlBar">
+      <div class="subject-ctrl-center" id="approveBtnWrap"></div>
       <div class="subject-ctrl-side subject-ctrl-side-right" style="margin-left:auto;">
         <div class="select-bar-wrap" id="selectBarWrap"></div>
       </div>
@@ -5164,10 +5165,12 @@ function renderTasks() {
       
       tEl.innerHTML = `
         <input type="text" class="task-input" placeholder="내용을 입력하세요" value="${esc(task.text)}" onfocus="this.select()">
-        ${isParent() && selectMode ? `<span class="sel-box ${selectedTasks.has(task.id)?'on':''}" onclick="toggleSelectTask(event,'${task.id}')">${selectedTasks.has(task.id)?'✓':''}</span>` : ''}
-        <div class="checkbox"></div>
+        ${isParent() && selectMode
+          ? `<span class="sel-box ${selectedTasks.has(task.id)?'on':''}" onclick="toggleSelectTask(event,'${task.id}')">${selectedTasks.has(task.id)?'✓':''}</span>`
+          : `<div class="checkbox"></div>`}
       `;
-      tEl.querySelector('.checkbox').addEventListener('click', () => toggleTask(task));
+      const _cb = tEl.querySelector('.checkbox');
+      if (_cb) _cb.addEventListener('click', () => toggleTask(task));
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
       tEl.querySelector('.task-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
       list.appendChild(tEl);
@@ -5213,20 +5216,16 @@ function renderMomSection() {
 
 // 숙제 다 체크하면 승인 팝업 표시, 하나라도 풀면 숨김 (부모/자녀 동일)
 function updateConfirmPopup(allDone, confirmed) {
+  // 팝업은 사용 안 함 (화면을 덮어 불편) — 컨트롤 바 왼쪽에 인라인 버튼으로 표시
   const overlay = document.getElementById('confirmPopup');
-  if (!overlay) return;
-  // 팝업 비활성화 — 화면을 덮어 불편하여 일단 끔
-  overlay.classList.remove('show');
-  return;
+  if (overlay) overlay.classList.remove('show');
+  const wrap = document.getElementById('approveBtnWrap');
+  if (!wrap) return;
   if (allDone && !confirmed) {
-    const btn = document.getElementById('confirmBtn');
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = isParent() ? '확인 승인하기' : '승인 요청하기';
-    }
-    overlay.classList.add('show');
+    const label = isParent() ? '확인 승인하기' : '승인 요청하기';
+    wrap.innerHTML = `<button onclick="onConfirmPopupBtn()" style="background:#5A8A5E;color:white;border:none;border-radius:8px;padding:7px 14px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">${label}</button>`;
   } else {
-    overlay.classList.remove('show');
+    wrap.innerHTML = '';
   }
 }
 
