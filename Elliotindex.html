@@ -1979,6 +1979,15 @@
     justify-content: center;
     min-width: 0;
   }
+  /* 부모 승인 버튼: 주황 깜빡임(밝아졌다 어두워졌다) */
+  @keyframes approvePulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.28); }
+  }
+  .approve-pulse { animation: approvePulse 1s ease-in-out infinite; }
+  /* 승인 버튼 누름 효과 */
+  .approve-btn { transition: transform 0.07s ease; }
+  .approve-btn:active { transform: scale(0.93); }
   .subject-ctrl-left {
     flex: 1;
     min-width: 0;
@@ -2663,7 +2672,10 @@
 
     <!-- 과목 컨트롤 바: 승인 / 선택삭제 -->
     <div class="subject-ctrl-bar" id="subjectCtrlBar">
-      <div class="subject-ctrl-center" id="approveBtnWrap"></div>
+      <div class="subject-ctrl-side" style="flex:1;gap:10px;">
+        <div id="approveBtnWrap"></div>
+        <span id="approveMsg" style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#000;opacity:0;transition:opacity 0.4s;white-space:nowrap;"></span>
+      </div>
       <div class="subject-ctrl-side subject-ctrl-side-right" style="margin-left:auto;">
         <div class="select-bar-wrap" id="selectBarWrap"></div>
       </div>
@@ -3085,6 +3097,7 @@ function getFamilyCode() {
 let currentUser = null; // { id, name, role, pin }
 let justAddedSubjectId = null; // 방금 숙제 추가된 과목 (등장 애니메이션용)
 let selectMode = false; // 선택삭제 모드 (부모)
+const _requestedKeys = new Set(); // 자녀가 승인 요청 보낸 날짜(getConfKey) — 버튼 녹색 표시용
 let selectedSubjects = new Set();
 let selectedTasks = new Set();
 let cachedSubjects = [];
@@ -5221,9 +5234,24 @@ function updateConfirmPopup(allDone, confirmed) {
   if (overlay) overlay.classList.remove('show');
   const wrap = document.getElementById('approveBtnWrap');
   if (!wrap) return;
-  if (allDone && !confirmed) {
-    const label = isParent() ? '확인 승인하기' : '승인 요청하기';
-    wrap.innerHTML = `<button onclick="onConfirmPopupBtn()" style="background:#5A8A5E;color:white;border:none;border-radius:8px;padding:7px 14px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">${label}</button>`;
+  const parent = isParent();
+  const requested = _requestedKeys.has(getConfKey(selectedDate));
+  const base = "color:white;border:none;border-radius:8px;padding:7px 14px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;white-space:nowrap;";
+  if (confirmed) {
+    // 부모 승인 완료 → 녹색
+    const label = parent ? '확인 승인하기' : '승인 요청하기';
+    wrap.innerHTML = `<button disabled style="background:#5A8A5E;${base}">${label}</button>`;
+  } else if (allDone) {
+    if (parent) {
+      // 부모: 주황 + 깜빡임
+      wrap.innerHTML = `<button onclick="onConfirmPopupBtn()" class="approve-pulse approve-btn" style="background:#E87722;${base}cursor:pointer;">확인 승인하기</button>`;
+    } else if (requested) {
+      // 자녀: 요청 보냄 → 녹색 (다시 누르면 취소→파랑)
+      wrap.innerHTML = `<button onclick="cancelRequest()" class="approve-btn" style="background:#5A8A5E;${base}cursor:pointer;">승인 요청하기</button>`;
+    } else {
+      // 자녀: 파랑
+      wrap.innerHTML = `<button onclick="onConfirmPopupBtn()" class="approve-btn" style="background:#4A90D9;${base}cursor:pointer;">승인 요청하기</button>`;
+    }
   } else {
     wrap.innerHTML = '';
   }
@@ -5246,8 +5274,25 @@ async function requestConfirm() {
     family_id: getFamilyCode(),
     message: msg
   });
-  showToast('📢 엄마 아빠에게 요청했어요!');
-  showDogMsg('요청 완료! 🙏', 1500);
+  _requestedKeys.add(getConfKey(selectedDate));
+  updateConfirmPopup(true, false);
+  showApproveMsg('요청을 보냈습니다');
+}
+
+function cancelRequest() {
+  soundClick();
+  _requestedKeys.delete(getConfKey(selectedDate));
+  updateConfirmPopup(true, false);
+  showApproveMsg('요청을 취소했습니다');
+}
+
+function showApproveMsg(text) {
+  const el = document.getElementById('approveMsg');
+  if (!el) return;
+  el.textContent = text;
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 1500);
 }
 
 async function addSubject() {
