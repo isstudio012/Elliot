@@ -789,7 +789,8 @@
     display: none;
     position: fixed;
     left: 50%;
-    bottom: 0;
+    /* LOCKED: bottom menu must stay attached to the screen bottom. Admin approval required before unpinning. */
+    bottom: 0 !important;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     width: min(380px, calc(100vw - 20px));
     transform: translate(-50%, calc(100% - 28px));
@@ -7679,13 +7680,9 @@ function updateBottomActionSheetLayout() {
 function pinBottomActionSheet() {
   const sheet = document.getElementById('bottomActionSheet');
   const zone = document.getElementById('bottomTapZone');
-  const vv = window.visualViewport;
-  let inset = 0;
-  if (vv) {
-    inset = Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop)));
-  }
-  if (sheet) sheet.style.bottom = inset + 'px';
-  if (zone) zone.style.bottom = inset + 'px';
+  // LOCKED: bottom menu must stay attached to the screen bottom. Admin approval required before unpinning.
+  if (sheet) sheet.style.setProperty('bottom', '0px', 'important');
+  if (zone) zone.style.setProperty('bottom', '0px', 'important');
 }
 
 function bindBottomActionSheet() {
