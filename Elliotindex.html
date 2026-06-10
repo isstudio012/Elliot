@@ -1247,6 +1247,10 @@
   }
   .note-modal-add:active { background: #F5F5F5; }
 
+  #noteModal {
+    background: transparent;
+  }
+
   #noteModal .note-modal {
     width: min(380px, calc(100vw - 24px));
     height: auto;
@@ -1259,13 +1263,13 @@
     overflow: hidden;
   }
   #noteModal .note-modal.fullscreen {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100vh;
-    background: #FFFFFF;
-    border: none;
-    border-radius: 0;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    max-height: calc(100vh - 16px);
+    background: #fffbf0;
+    border: 2px solid #5A8A5E;
+    border-radius: 14px;
     box-shadow: none;
     overflow: hidden;
   }
@@ -1287,10 +1291,11 @@
   #noteModal .note-modal-body {
     padding: 12px 14px;
     background: #FFFFFF;
-    min-height: 180px;
-    max-height: 58vh;
+    min-height: 0;
+    max-height: none;
   }
   #noteModal .note-modal-add {
+    margin-top: auto;
     background: #FFFFFF;
     border-top: 1px dashed #D0D0D0;
     color: #777777;
@@ -5503,6 +5508,7 @@ async function addSubject() {
   justAddedSubjectId = id;
 
   soundFanfare();
+  _addSubjectCreated = true;
   document.getElementById('newSubjectInput').value = '';
   err.textContent = '';
   showToast(`"${name}" 추가됨`);
@@ -5932,8 +5938,30 @@ function editAppTitle() {
 }
 
 /* ====== 모달들 ====== */
+let _addSubjectCalendarWasOpen = false;
+let _addSubjectCreated = false;
+
+function restoreCalendarAfterEmptySubjectModal() {
+  if (_addSubjectCreated || !_addSubjectCalendarWasOpen) return;
+  const body = document.getElementById('calBody');
+  const icon = document.getElementById('calToggleIcon');
+  if (!body || !icon) return;
+  body.style.maxHeight = '520px';
+  icon.style.transform = 'rotate(0deg)';
+  const sticker = document.getElementById('calSticker');
+  const headLeft = document.getElementById('calHeaderLeft');
+  const title = document.getElementById('calTitle');
+  if (sticker) sticker.style.display = 'none';
+  if (headLeft) headLeft.style.visibility = 'visible';
+  if (title) title.style.visibility = 'visible';
+  closeBottomActionSheet();
+  setTimeout(closeBottomActionSheet, 380);
+}
 function openAddSubject() {
   soundClick();
+  const body = document.getElementById('calBody');
+  _addSubjectCalendarWasOpen = !!body && body.style.maxHeight !== '0px';
+  _addSubjectCreated = false;
   collapseCalendarForSubjectModal();
   document.getElementById('newSubjectInput').value = '';
   document.getElementById('addSubjectError').textContent = '';
@@ -6006,6 +6034,7 @@ function openAddSubject() {
     const modal = document.getElementById('subjectModalInner');
     if (modal) modal.classList.remove('subject-bottom-sheet', 'subject-sheet-open');
     document.getElementById('addSubjectModal').style.display = 'none';
+    restoreCalendarAfterEmptySubjectModal();
   };
 })();
 
@@ -6242,6 +6271,7 @@ async function togglePresetSubject(name) {
     // 즉시 캐시에 추가
     cachedSubjects.push(newSub);
     cachedTasks.push(newTask);
+    _addSubjectCreated = true;
     collapsedSubjects[id] = false;
     justAddedSubjectId = id;
     renderAll();
