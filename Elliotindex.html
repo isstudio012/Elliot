@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#F5EDD7">
+<meta name="theme-color" content="#fffbf0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="잘했어~⭐">
@@ -31,7 +31,7 @@
   
   body {
     font-family: 'Pretendard', sans-serif;
-    background: #F5EDD7;
+    background: #fffbf0;
     min-height: 100vh;
     min-height: 100dvh;
     padding: 12px 10px 30px;
@@ -50,7 +50,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: #F5EDD7;
+    background: #fffbf0;
     overflow: hidden;
     touch-action: none;
   }
@@ -329,7 +329,7 @@
     flex: 1;
     overflow-y: auto;
     padding: 16px 0;
-    background: #F5EDD7;
+    background: #fffbf0;
   }
   .settings-view { display: none; }
   .settings-view.show { display: block; }
@@ -373,7 +373,7 @@
   .settings-header-menu {
     display: flex;
     gap: 6px;
-    background: #F5EDD7;
+    background: #fffbf0;
     padding: 8px 10px;
   }
   .settings-header-menu-btn {
@@ -735,7 +735,7 @@
     padding: 5px 10px;
     border: 1px solid #777777;
     border-radius: 12px;
-    background: #F5EDD7;
+    background: #fffbf0;
     position: sticky;
     top: max(4px, env(safe-area-inset-top));
     z-index: 150;
@@ -962,7 +962,7 @@
     height: 64px;
     border-radius: 50%;
     border: 1px solid #777777;
-    background: radial-gradient(circle at 40% 35%, #F5EDD7 60%, #E8D9B8 100%);
+    background: radial-gradient(circle at 40% 35%, #fffbf0 60%, #E8D9B8 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1524,7 +1524,7 @@
     display: flex; align-items: center; gap: 6px; padding: 6px 8px;
     cursor: pointer; user-select: none;
   }
-  .task:active { background: #F5EDD7; }
+  .task:active { background: #fffbf0; }
   @keyframes taskIn {
     from { opacity: 0; transform: translateY(-8px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -1568,7 +1568,7 @@
     border-top: 1px dashed #C4C4C4; font-family: 'Pretendard', sans-serif;
     font-size: 28px; font-weight: 700; color: #5A8A5E; cursor: pointer; line-height: 1;
   }
-  .add-btn:active { background: #F5EDD7; color: #2E5A32; }
+  .add-btn:active { background: #fffbf0; color: #2E5A32; }
   
   .add-subject-btn {
     width: 100%; padding: 10px; background: #1E4FB5; border: 2px solid #2E5A8A;
@@ -1728,7 +1728,7 @@
   .pwd-modal-sub { text-align: center; margin-bottom: 10px; font-family: 'Pretendard', sans-serif; font-size: 15px; color: #777777; }
   
   .modal {
-    background: #F5EDD7; border: 4px solid #2A2A2A; border-radius: 22px;
+    background: #fffbf0; border: 4px solid #2A2A2A; border-radius: 22px;
     padding: 24px; max-width: 380px; width: 100%; box-shadow: 8px 8px 0 #2A2A2A;
     max-height: 85vh; overflow-y: auto;
   }
@@ -1823,7 +1823,7 @@
 
   .chat-panel {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: #F5EDD7;
+    background: #fffbf0;
     z-index: 280;
     display: flex; flex-direction: column;
     transform: translateX(100%);
@@ -2065,7 +2065,7 @@
     border-bottom: 1px dashed #E0D0BC;
   }
   .child-dropdown-item:last-child { border-bottom: none; }
-  .child-dropdown-item:active { background: #F5EDD7; }
+  .child-dropdown-item:active { background: #fffbf0; }
   .child-dropdown-item.active { background: #E8F5E9; color: #5A8A5E; }
   .child-dropdown-check { font-size: 14px; color: #5A8A5E; }
   .add-sub-bar-btn {
@@ -2102,7 +2102,7 @@
 
   /* 로딩 */
   .loading-overlay {
-    position: fixed; inset: 0; background: #F5EDD7;
+    position: fixed; inset: 0; background: #fffbf0;
     display: flex; align-items: center; justify-content: center;
     z-index: 999; font-family: 'Pretendard', sans-serif; font-size: 24px; color: #2A2A2A;
   }
@@ -2113,7 +2113,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: #F5EDD7;
+    background: #fffbf0;
     z-index: 998;
     flex-direction: column;
     align-items: center;
@@ -2168,7 +2168,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: #F5EDD7;
+    background: #fffbf0;
     z-index: 998;
     overflow-y: auto;
   }
@@ -2608,7 +2608,7 @@
     
     <!-- 광고 자리 (코인박스와 달력 사이) — 다가오는 일정은 달력 ★ 버튼 팝업으로 이동 -->
     <div id="upcomingBox"></div>
-    <div id="adSlot" style="display:none;margin:0 0 18px;background:#F5EDD7;border:1.5px dashed #C9BFA6;border-radius:12px;min-height:64px;align-items:center;justify-content:center;">
+    <div id="adSlot" style="display:none;margin:0 0 18px;background:#fffbf0;border:1.5px dashed #C9BFA6;border-radius:12px;min-height:64px;align-items:center;justify-content:center;">
       <!-- 실제 광고는 이 #adContent 안에 코드(예: AdSense)를 넣으세요. 비어 있으면 박스 전체가 숨겨져 달력이 위로 올라옵니다. -->
       <div id="adContent" style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#A99B7C;"></div>
     </div>
@@ -3025,7 +3025,7 @@
     <div class="pwd-modal-title">우리 가족 코드</div>
     <div class="pwd-modal-sub" style="margin-bottom:12px;font-size:13px;color:#888;">코드를 공유하면 가족이 입장할 수 있어요</div>
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
-      <div id="familyCodeDisplay" style="flex:1;background:#F5EDD7;border:2px solid #2A2A2A;border-radius:8px;padding:14px;font-family:'Pretendard',sans-serif;font-size:26px;font-weight:700;color:#2A2A2A;text-align:center;letter-spacing:4px;">------</div>
+      <div id="familyCodeDisplay" style="flex:1;background:#fffbf0;border:2px solid #2A2A2A;border-radius:8px;padding:14px;font-family:'Pretendard',sans-serif;font-size:26px;font-weight:700;color:#2A2A2A;text-align:center;letter-spacing:4px;">------</div>
       <button onclick="copyFamilyCode()" title="복사" style="background:#5A8A5E;color:white;border:2px solid #2E5A32;border-radius:8px;padding:0 14px;height:54px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 #2E5A32;flex-shrink:0;">📋<br>복사</button>
     </div>
     <button onclick="closeFamilyCodeShow()" style="width:100%;padding:10px;background:#2A2A2A;color:white;border:none;border-radius:8px;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">닫기</button>
@@ -3099,7 +3099,7 @@
       <button class="chat-close-btn" style="color:white;" onclick="closeDayDetail()">✕</button>
     </div>
   </div>
-  <div style="flex:1;overflow-y:auto;padding:10px 12px;background:#F5EDD7;" id="dayDetailBody">
+  <div style="flex:1;overflow-y:auto;padding:10px 12px;background:#fffbf0;" id="dayDetailBody">
   </div>
 </div>
 
@@ -3259,7 +3259,7 @@ function buildGuideSummaryHTML(txt) {
   return `<div style="padding:14px 16px 18px;background:#fff;">
     ${t.title ? `<h3 style="margin:0 0 10px;color:#2E5A32;font-size:15px;border-bottom:1.5px solid #2E5A32;padding-bottom:6px;">${guideInline(t.title)}</h3>` : ''}
     <ul style="padding-left:16px;margin:0;font-family:'Pretendard',sans-serif;font-size:13px;line-height:1.65;color:#333;word-break:keep-all;">${t.items.map(it => `<li style="margin-bottom:8px;">${guideInline(it)}</li>`).join('')}</ul>
-    <div style="margin-top:14px;padding:11px 12px;background:#F5EDD7;border-radius:8px;font-family:'Pretendard',sans-serif;font-size:12.5px;color:#5a3f33;text-align:center;line-height:1.5;">더 자세한 내용은 <strong>[설정 ⚙ → 📋 사용 가이드]</strong>에서<br>확인할 수 있어요!</div>
+    <div style="margin-top:14px;padding:11px 12px;background:#fffbf0;border-radius:8px;font-family:'Pretendard',sans-serif;font-size:12.5px;color:#5a3f33;text-align:center;line-height:1.5;">더 자세한 내용은 <strong>[설정 ⚙ → 📋 사용 가이드]</strong>에서<br>확인할 수 있어요!</div>
   </div>`;
 }
 // 자동 팝업(방장 첫 가입)용 모달 — 요약본만
