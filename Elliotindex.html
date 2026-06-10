@@ -789,18 +789,21 @@
     display: none;
     position: fixed;
     left: 50%;
-    /* LOCKED: bottom menu must stay attached to the screen bottom. Admin approval required before unpinning. */
+    /* LOCKED: bottom anchor stays on the screen bottom. Drag motion is allowed; admin approval required before changing the anchor. */
     bottom: 0 !important;
+    --bottom-sheet-handle-height: 28px;
+    --bottom-sheet-offset: calc(100% - var(--bottom-sheet-handle-height));
     padding-bottom: env(safe-area-inset-bottom, 0px);
     width: min(380px, calc(100vw - 20px));
-    transform: translate(-50%, calc(100% - 28px));
+    transform: translate(-50%, var(--bottom-sheet-offset));
     z-index: 260;
-    transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     touch-action: none;
     will-change: transform;
     height: var(--bottom-action-height, min(220px, 24vh));
     background: #FFFFFF;
     border: 1.5px solid #3C6B40;
+    border-bottom: 0;
     border-radius: 12px 12px 0 0;
     box-shadow: none;
     overflow: hidden;
@@ -809,7 +812,7 @@
     display: block;
   }
   .bottom-action-sheet.open {
-    transform: translate(-50%, 0);
+    --bottom-sheet-offset: 0px;
   }
   .bottom-action-grip {
     width: 140px;
@@ -7644,11 +7647,22 @@ function getSubjectModalTop() {
   return Math.max(80, desiredTop);
 }
 
+function getBottomSheetClosedOffset(sheet) {
+  const handleHeight = 28;
+  return Math.max(0, Math.round(sheet.getBoundingClientRect().height - handleHeight));
+}
+
+function setBottomSheetOffset(sheet, offsetPx) {
+  sheet.style.setProperty('--bottom-sheet-offset', Math.max(0, Math.round(offsetPx)) + 'px');
+}
+
 function setBottomActionSheet(open) {
   const sheet = document.getElementById('bottomActionSheet');
   if (!sheet) return;
   updateBottomActionSheetLayout();
+  sheet.style.transition = '';
   sheet.classList.toggle('open', !!open);
+  sheet.style.setProperty('--bottom-sheet-offset', open ? '0px' : 'calc(100% - var(--bottom-sheet-handle-height))');
 }
 
 function toggleBottomActionSheet() {
@@ -7667,44 +7681,65 @@ function updateBottomActionSheetLayout() {
   if (!sheet || !cal) return;
   const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
   const gap = viewH - cal.getBoundingClientRect().bottom;
-  // 시트 높이는 달력 밑 빈 공간(gap)을 절대 넘지 않게 → 폰 메뉴바가 떠도 달력 범례를 안 덮음
-  let h = Math.round(gap * 0.5);
-  h = Math.min(h, 260, Math.round(gap - 10));
-  h = Math.max(64, h);
+  const h = Math.max(96, Math.round(gap - 8));
   sheet.style.setProperty('--bottom-action-height', h + 'px');
   pinBottomActionSheet();
+  sheet.style.setProperty('--bottom-sheet-offset', sheet.classList.contains('open') ? '0px' : 'calc(100% - var(--bottom-sheet-handle-height))');
 }
 
-// 카카오 등 인앱 브라우저: fixed; bottom:0 이 실제 보이는 화면 바닥과 어긋나 떠 보임
-// → visualViewport 기준 실제 보이는 바닥에 딱 붙임
 function pinBottomActionSheet() {
   const sheet = document.getElementById('bottomActionSheet');
   const zone = document.getElementById('bottomTapZone');
-  // LOCKED: bottom menu must stay attached to the screen bottom. Admin approval required before unpinning.
+  // LOCKED: bottom anchor stays on the screen bottom. Drag motion is allowed; admin approval required before changing the anchor.
   if (sheet) sheet.style.setProperty('bottom', '0px', 'important');
   if (zone) zone.style.setProperty('bottom', '0px', 'important');
 }
 
 function bindBottomActionSheet() {
   const grip = document.getElementById('bottomActionGrip');
-  if (!grip) return;
+  const sheet = document.getElementById('bottomActionSheet');
+  if (!grip || !sheet) return;
   updateBottomActionSheetLayout();
   let startY = 0;
   let lastY = 0;
+  let startOffset = 0;
+  let dragOffset = 0;
+  let didDrag = false;
   let lastTapTime = 0;
+
   grip.addEventListener('pointerdown', e => {
+    updateBottomActionSheetLayout();
     startY = lastY = e.clientY;
-    grip.setPointerCapture(e.pointerId);
+    startOffset = sheet.classList.contains('open') ? 0 : getBottomSheetClosedOffset(sheet);
+    dragOffset = startOffset;
+    didDrag = false;
+    sheet.style.transition = 'none';
+    try { grip.setPointerCapture(e.pointerId); } catch (_) {}
   });
+
   grip.addEventListener('pointermove', e => {
     lastY = e.clientY;
-  });
-  grip.addEventListener('pointerup', () => {
     const dy = lastY - startY;
-    // 끌어올리기/내리기는 그대로
-    if (dy < -8) { setBottomActionSheet(true); lastTapTime = 0; return; }
-    if (dy > 8) { setBottomActionSheet(false); lastTapTime = 0; return; }
-    // 제자리 탭 → 두 번 톡톡(더블탭) 치면 토글
+    if (Math.abs(dy) > 2) didDrag = true;
+    const closedOffset = getBottomSheetClosedOffset(sheet);
+    dragOffset = Math.min(closedOffset, Math.max(0, startOffset + dy));
+    setBottomSheetOffset(sheet, dragOffset);
+    e.preventDefault();
+  });
+
+  grip.addEventListener('pointerup', e => {
+    const dy = lastY - startY;
+    sheet.style.transition = '';
+    try { grip.releasePointerCapture(e.pointerId); } catch (_) {}
+
+    if (didDrag) {
+      const closedOffset = getBottomSheetClosedOffset(sheet);
+      const shouldOpen = dy < -24 || (dy <= 24 && dragOffset < closedOffset * 0.5) || dragOffset < closedOffset * 0.35;
+      setBottomActionSheet(shouldOpen);
+      lastTapTime = 0;
+      return;
+    }
+
     const now = Date.now();
     if (now - lastTapTime < 450) {
       toggleBottomActionSheet();
@@ -7713,10 +7748,13 @@ function bindBottomActionSheet() {
       lastTapTime = now;
     }
   });
+
   grip.addEventListener('pointercancel', () => {
+    sheet.style.transition = '';
+    setBottomActionSheet(sheet.classList.contains('open'));
     startY = lastY = 0;
   });
-  // 하단 빈 영역(투명) 더블탭 → 메뉴 올라옴
+
   const zone = document.getElementById('bottomTapZone');
   if (zone) {
     let zTap = 0;
