@@ -726,29 +726,66 @@
   .logout-btn:active { color: #2A2A2A; }
 
   /* ====== 상단 네비 바 ====== */
+  /* 바깥: 끈끈이(sticky) 위치 고정 + 높이 애니메이션으로 서랍처럼 여닫음.
+     높이가 줄면 안쪽 바의 위쪽이 잘리고 아래(그립)만 빼꼼 남음. */
   .top-nav {
+    position: sticky;
+    top: max(4px, env(safe-area-inset-top));
+    z-index: 150;
+    margin-bottom: 10px;
+    --top-nav-handle: 22px;
+    overflow: hidden;
+    transition: height 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: height;
+  }
+  /* 안쪽: 실제 보이는 바(테두리·배경·버튼·그립). 아래 정렬되어 위가 잘림. */
+  .top-nav-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
-    padding: 5px 34px;
-    border: 1px solid #777777;
+    padding: 5px 34px 22px 34px;
+    border: 2px solid #3C6B40;
     border-radius: 12px;
-    background: #fffbf0;
-    position: sticky;
-    top: max(4px, env(safe-area-inset-top));
-    z-index: 150;
-    transition: transform 0.28s ease, opacity 0.28s ease;
+    background: #FFFFFF;
   }
-  .top-nav::before,
-  .top-nav::after {
+  /* 상단바 서랍 그립 (아래쪽 가장자리) */
+  .top-nav-grip {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 140px;
+    height: var(--top-nav-handle);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    z-index: 2;
+  }
+  .top-nav-grip::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 7px;
+    width: 36px;
+    height: 3px;
+    transform: translateX(-50%);
+    background: #3C6B40;
+    border-radius: 3px;
+  }
+  .top-nav-bar::before,
+  .top-nav-bar::after {
     position: absolute;
     top: 50%;
     width: 26px;
     height: 26px;
     transform: translateY(-50%);
-    background: transparent;
+    background: #FFFFFF;
     border: none;
     border-radius: 0;
     display: flex;
@@ -761,19 +798,18 @@
     line-height: 1;
     pointer-events: none;
   }
-  .top-nav::before {
+  .top-nav-bar::before {
     content: '‹';
-    left: 7px;
+    left: 2px;
   }
-  .top-nav::after {
+  .top-nav-bar::after {
     content: '›';
-    right: 7px;
+    right: 2px;
   }
-  .top-nav.nav-hidden {
-    transform: translateY(-150%);
-    opacity: 0;
-    pointer-events: none;
-  }
+  /* 스크롤 가능한 방향 화살표만 살짝 깜빡임 */
+  @keyframes navArrowBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .top-nav-bar.can-left::before  { animation: navArrowBlink 1.1s ease-in-out infinite; }
+  .top-nav-bar.can-right::after  { animation: navArrowBlink 1.1s ease-in-out infinite; }
   .top-nav-row {
     display: flex;
     align-items: center;
@@ -788,9 +824,10 @@
   .top-nav-row::-webkit-scrollbar { display: none; }
   .top-nav-row > * { flex-shrink: 0; }
   .top-nav-sep {
-    width: 1px;
-    height: 16px;
+    width: 5px;
+    height: 5px;
     background: #5A8A5E;
+    border-radius: 50%;
     display: inline-block;
     flex-shrink: 0;
   }
@@ -2711,6 +2748,7 @@
   <div class="app-main" id="appMain">
     <!-- 상단 네비 -->
     <div class="top-nav" id="topNav">
+      <div class="top-nav-bar" id="topNavBar">
       <div class="top-nav-row">
         <span class="top-nav-btn" id="navLogoutBtn" style="cursor:default;"></span>
         <span class="top-nav-sep"></span>
@@ -2725,6 +2763,8 @@
         </span>
         <span class="top-nav-sep"></span>
         <button class="top-nav-btn" id="settingsBtn" onclick="openSettings()" title="설정" style="padding:2px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+      </div>
+      <div class="top-nav-grip" id="topNavGrip"></div>
       </div>
     </div>
     
@@ -3898,7 +3938,7 @@ function toggleSound() {
   soundOn = !soundOn;
   const btn = document.getElementById('soundToggle');
   btn.innerHTML = soundOn ? SVG_VOL_ON : SVG_VOL_OFF;
-  btn.style.color = soundOn ? '#2A2A2A' : '#888';
+  btn.style.color = soundOn ? '#777777' : '#888';
   btn.style.background = 'none';
   localStorage.setItem('soundOn', soundOn);
   if (soundOn) soundClick();
@@ -4756,11 +4796,12 @@ async function showMainApp() {
   document.getElementById('appMain').classList.add('show');
   document.getElementById('chatFab').style.display = '';
   document.getElementById('bottomActionSheet').classList.add('show');
+  requestAnimationFrame(() => { if (typeof refreshTopNavHeight === 'function') refreshTopNavHeight(); });
   
   const savedSound = localStorage.getItem('soundOn');
   if (savedSound !== null) { soundOn = savedSound === 'true'; }
   document.getElementById('soundToggle').innerHTML = soundOn ? SVG_VOL_ON : SVG_VOL_OFF;
-  document.getElementById('soundToggle').style.color = soundOn ? '#2A2A2A' : '#888';
+  document.getElementById('soundToggle').style.color = soundOn ? '#777777' : '#888';
   document.getElementById('soundToggle').style.background = 'none';
   
   const t = new Date();
@@ -5253,9 +5294,9 @@ document.addEventListener('click', () => closeChildDropdown());
     const nav = document.getElementById('topNav');
     if (!nav) return;
     const y = window.scrollY || document.documentElement.scrollTop || 0;
-    if (y < 8) { nav.classList.remove('nav-hidden'); }     // 맨 위에선 항상 표시
-    else if (y > lastY + 6) { nav.classList.add('nav-hidden'); }   // 아래로 → 닫힘
-    else if (y < lastY - 6) { nav.classList.remove('nav-hidden'); } // 위로 → 열림
+    if (y < 8) { setTopNav(true); }     // 맨 위에선 항상 표시
+    else if (y > lastY + 6) { setTopNav(false); }   // 아래로 → 닫힘
+    else if (y < lastY - 6) { setTopNav(true); } // 위로 → 열림
     lastY = y;
     ticking = false;
   }
@@ -5871,6 +5912,27 @@ function onProfileCircleTap() {
   };
   if (document.readyState !== 'loading') attach();
   else document.addEventListener('DOMContentLoaded', attach);
+})();
+
+/* 상단바 ‹ › : 스크롤 가능한 방향 화살표만 살짝 깜빡임 */
+function updateTopNavArrows() {
+  const bar = document.querySelector('.top-nav-bar');
+  const row = document.querySelector('.top-nav-row');
+  if (!bar || !row) return;
+  const max = row.scrollWidth - row.clientWidth;
+  bar.classList.toggle('can-left', row.scrollLeft > 2);
+  bar.classList.toggle('can-right', row.scrollLeft < max - 2);
+}
+(function(){
+  function attachNavArrows() {
+    const row = document.querySelector('.top-nav-row');
+    if (!row) return;
+    row.addEventListener('scroll', updateTopNavArrows, { passive: true });
+    window.addEventListener('resize', updateTopNavArrows);
+    updateTopNavArrows();
+  }
+  if (document.readyState !== 'loading') attachNavArrows();
+  else document.addEventListener('DOMContentLoaded', attachNavArrows);
 })();
 function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
 function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
@@ -8039,7 +8101,96 @@ function bindBottomActionSheet() {
   }
 }
 
+/* ====== 상단바 서랍: 손으로 내리면 열림 / 올리면 닫힘 (높이 클립 방식) ====== */
+const TOP_NAV_HANDLE = 22;
+function getTopNavFullHeight() {
+  const bar = document.getElementById('topNavBar');
+  return bar ? Math.round(bar.getBoundingClientRect().height) : 0;
+}
+function applyTopNavHeight(h) {
+  const nav = document.getElementById('topNav');
+  if (nav) nav.style.height = Math.max(0, Math.round(h)) + 'px';
+}
+function setTopNav(open) {
+  const nav = document.getElementById('topNav');
+  if (!nav) return;
+  nav.style.transition = '';
+  nav.classList.toggle('nav-hidden', !open);
+  applyTopNavHeight(open ? getTopNavFullHeight() : TOP_NAV_HANDLE);
+}
+function toggleTopNav() {
+  const nav = document.getElementById('topNav');
+  if (!nav) return;
+  setTopNav(nav.classList.contains('nav-hidden'));
+}
+// 앱 진입 시/리사이즈 시 절대배치 바의 실제 높이로 펼친 상태 고정
+function refreshTopNavHeight() {
+  const nav = document.getElementById('topNav');
+  if (!nav) return;
+  if (!nav.classList.contains('nav-hidden')) {
+    const prev = nav.style.transition;
+    nav.style.transition = 'none';
+    applyTopNavHeight(getTopNavFullHeight());
+    void nav.offsetHeight;
+    nav.style.transition = prev;
+  }
+}
+function bindTopNavDrawer() {
+  const grip = document.getElementById('topNavGrip');
+  const nav = document.getElementById('topNav');
+  if (!grip || !nav) return;
+  let startY = 0, lastY = 0, startH = 0, curH = 0, full = 0, didDrag = false, lastTapTime = 0;
+
+  grip.addEventListener('pointerdown', e => {
+    startY = lastY = e.clientY;
+    full = getTopNavFullHeight();
+    startH = nav.classList.contains('nav-hidden') ? TOP_NAV_HANDLE : full;
+    curH = startH;
+    didDrag = false;
+    nav.style.transition = 'none';
+    try { grip.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+
+  grip.addEventListener('pointermove', e => {
+    lastY = e.clientY;
+    const dy = lastY - startY;
+    if (Math.abs(dy) > 2) didDrag = true;
+    // 아래로 끌면(dy>0) 높이 증가 → 펼침 / 위로 끌면 줄어 접힘
+    curH = Math.min(full, Math.max(TOP_NAV_HANDLE, startH + dy));
+    applyTopNavHeight(curH);
+    e.preventDefault();
+  });
+
+  grip.addEventListener('pointerup', e => {
+    const dy = lastY - startY;
+    nav.style.transition = '';
+    try { grip.releasePointerCapture(e.pointerId); } catch (_) {}
+
+    if (didDrag) {
+      const mid = (TOP_NAV_HANDLE + full) / 2;
+      const shouldOpen = dy > 24 || (dy >= -24 && curH > mid) || curH > full * 0.65;
+      setTopNav(shouldOpen);
+      lastTapTime = 0;
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastTapTime < 450) { toggleTopNav(); lastTapTime = 0; }
+    else lastTapTime = now;
+  });
+
+  grip.addEventListener('pointercancel', () => {
+    nav.style.transition = '';
+    setTopNav(!nav.classList.contains('nav-hidden'));
+    startY = lastY = 0;
+  });
+
+  window.addEventListener('resize', refreshTopNavHeight);
+  refreshTopNavHeight();
+}
+
 bindBottomActionSheet();
+bindTopNavDrawer();
 initApp();
 </script>
 
