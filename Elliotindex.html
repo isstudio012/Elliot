@@ -1021,18 +1021,13 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 0 10px 14px;
+    padding: 0 12px;
   }
-  .head-strip > .top-bar { padding-bottom: 14px !important; }
   .head-strip .profile-msg { flex: 0 0 min(62vw, 280px); width: min(62vw, 280px); padding-right: 8px; }
   .head-strip .profile-msg h1 {
-    white-space: normal;
-    word-break: keep-all;
-    overflow-wrap: anywhere;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
     line-height: 1.15;
   }
   /* 1번(제목)과 2번(코인) 사이 여유 + 코인박스는 화면폭에 맞춰 비례, 상점은 오른쪽 끝 */
@@ -1054,23 +1049,27 @@
     gap: 12px;
     background: none;
     border-radius: 14px;
-    padding: 5px 14px 12px;
+    padding: 4px 8px 12px;
     scroll-snap-align: start;
     overflow: hidden;
   }
-  .wg-left { display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; min-width: 96px; }
-  .wg-date-row { display: flex; align-items: center; gap: 6px; }
+  /* 위젯 3칸: 시계 | 알람 | 음악 */
+  .widget-slide .wg-col { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 6px; box-sizing: border-box; }
+  .widget-slide .wg-clock-col { flex: 0 0 auto; align-items: flex-start; }
+  .widget-slide .wg-alarm-col, .widget-slide .wg-music-col { align-items: flex-start; }
+  .widget-slide .wg-alarm-col { border: none; background: none; cursor: pointer; text-align: left; font-family: Pretendard, sans-serif; }
+  .wg-vdiv { flex: 0 0 auto; align-self: stretch; width: 1px; background: #D7DDE3; margin: 8px 2px; }
   .wg-date { font-family: Pretendard, sans-serif; font-size: 12px; font-weight: 700; color: #5C6B7A; line-height: 1.1; white-space: nowrap; }
-  .wg-alarm { border: none; background: none; padding: 0; display: inline-flex; align-items: center; gap: 2px; color: #9AA7B4; cursor: pointer; font-family: Pretendard, sans-serif; font-size: 11px; font-weight: 700; line-height: 1; }
-  .wg-alarm.on { color: #3C6B40; }
-  .wg-clock { font-family: Pretendard, sans-serif; font-size: 30px; font-weight: 800; color: #1E2832; line-height: 1; letter-spacing: -1px; }
-  .wg-clock .wg-ampm { font-size: 12px; font-weight: 700; color: #8492A0; margin-left: 3px; letter-spacing: 0; }
-  .wg-right { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1px; overflow: hidden; border-left: 1px solid #CBD5DF; padding-left: 12px; }
-  .wg-todo-row { display: flex; justify-content: space-between; align-items: baseline; font-family: Pretendard, sans-serif; line-height: 1.3; }
-  .wg-todo-name { font-size: 12px; font-weight: 700; color: #3A4A57; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .wg-todo-cnt { font-size: 12px; font-weight: 700; color: #8492A0; margin-left: 8px; flex-shrink: 0; }
-  .wg-todo-more { font-size: 10px; font-weight: 700; color: #9AA7B4; }
-  .wg-todo-empty { font-family: Pretendard, sans-serif; font-size: 12px; font-weight: 700; color: #8492A0; }
+  .wg-clock { font-family: Pretendard, sans-serif; font-size: 28px; font-weight: 800; color: #1E2832; line-height: 1; letter-spacing: -1px; white-space: nowrap; }
+  .wg-clock .wg-ampm { font-size: 11px; font-weight: 700; color: #8492A0; margin-left: 2px; letter-spacing: 0; }
+  .wg-col-head { display: flex; align-items: center; gap: 4px; color: #6B7785; font-family: Pretendard, sans-serif; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .wg-alarm-col.on .wg-col-head { color: #3C6B40; }
+  .wg-alarm-time { font-family: Pretendard, sans-serif; font-size: 17px; font-weight: 800; color: #1E2832; line-height: 1.1; white-space: nowrap; }
+  .wg-alarm-time .wg-ampm { font-size: 10px; font-weight: 700; color: #8492A0; margin-left: 2px; }
+  .wg-col-sub { font-family: Pretendard, sans-serif; font-size: 10px; font-weight: 700; color: #9AA7B4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .wg-music-btns { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .wg-music-btns button { border: none; background: none; padding: 0; cursor: pointer; color: #6B7785; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; }
+  .wg-music-btns .wg-play { background: #6C5CE7; color: #fff; width: 24px; height: 24px; }
   .wg-dots { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; justify-content: center; align-items: center; gap: 7px; }
   .wg-dot { width: 5px; height: 5px; border-radius: 50%; background: #B8C2CC; }
   .wg-dot.active { background: #3C6B40; }
@@ -2858,12 +2857,28 @@
     <div class="head-strip" id="headStrip">
       <!-- 위젯 슬라이드 (맨 왼쪽): 시계 · 날짜 · 오늘 할일 · 알람 -->
       <div class="widget-slide" id="widgetSlide">
-        <div class="wg-left">
-          <div class="wg-date-row">
-            <span class="wg-date" id="wgDate">--월 --일</span>
-            <button class="wg-alarm" id="wgAlarm" onclick="setWidgetAlarm()" title="알람"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/></svg><span id="wgAlarmTime"></span></button>
+        <!-- 1칸: 날짜 + 큰 시계 -->
+        <div class="wg-col wg-clock-col">
+          <span class="wg-date" id="wgDate">--월 --일</span>
+          <span class="wg-clock" id="wgClock">--:--</span>
+        </div>
+        <div class="wg-vdiv"></div>
+        <!-- 2칸: 알람 -->
+        <button class="wg-col wg-alarm-col" id="wgAlarm" onclick="setWidgetAlarm()">
+          <div class="wg-col-head"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/></svg><span>다음 알람</span></div>
+          <div class="wg-alarm-time" id="wgAlarmTime">알람 없음</div>
+          <div class="wg-col-sub" id="wgAlarmLabel"></div>
+        </button>
+        <div class="wg-vdiv"></div>
+        <!-- 3칸: 음악 (자리만 — 추후 연결) -->
+        <div class="wg-col wg-music-col">
+          <div class="wg-col-head"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2.5" y="14" width="4" height="6" rx="1.2"/><rect x="17.5" y="14" width="4" height="6" rx="1.2"/></svg><span>음악 듣기</span></div>
+          <div class="wg-col-sub">집중 플레이리스트</div>
+          <div class="wg-music-btns">
+            <button type="button" title="이전" aria-label="이전"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM20 6v12L9 12z"/></svg></button>
+            <button type="button" class="wg-play" title="재생" aria-label="재생"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <button type="button" title="다음" aria-label="다음"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM4 18V6l11 6z"/></svg></button>
           </div>
-          <div class="wg-clock" id="wgClock">--:--</div>
         </div>
         <div class="wg-dots" id="wgDots" aria-hidden="true">
           <span class="wg-dot" data-head-slide="widget"></span>
@@ -3167,7 +3182,7 @@
       <div style="display:flex;flex-direction:column;gap:12px;padding:10px 12px;">
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
           <div style="width:56px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;color:#111;">한마디</div>
-          <input type="text" id="settingsAppTitle" maxlength="20" placeholder="응원 한마디 (최대 20자, 2줄)" oninput="this.parentElement.querySelector('.save-btn').classList.remove('saved')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+          <input type="text" id="settingsAppTitle" maxlength="7" placeholder="응원 한마디 (최대 7자, 한 줄)" oninput="this.parentElement.querySelector('.save-btn').classList.remove('saved')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
           <button class="save-btn" onclick="saveAppTitleOnly(); this.classList.add('saved')">저장</button>
         </div>
         <div style="display:flex;align-items:center;gap:8px;width:100%;">
@@ -6012,7 +6027,16 @@ function syncWidgetAlarm() {
   const t = localStorage.getItem('widgetAlarm');
   const el = document.getElementById('wgAlarmTime');
   const btn = document.getElementById('wgAlarm');
-  if (el) el.textContent = t ? ' ' + t : '';
+  if (el) {
+    if (t) {
+      const [H, M] = t.split(':').map(Number);
+      const ap = H < 12 ? 'AM' : 'PM';
+      let h = H % 12; if (h === 0) h = 12;
+      el.innerHTML = `${h}:${String(M).padStart(2,'0')}<span class="wg-ampm">${ap}</span>`;
+    } else {
+      el.textContent = '알람 없음';
+    }
+  }
   if (btn) btn.classList.toggle('on', !!t);
 }
 function checkWidgetAlarm(now) {
