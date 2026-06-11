@@ -1031,8 +1031,8 @@
     line-height: 1.15;
   }
   /* 1번(제목)과 2번(코인) 사이 여유 + 코인박스는 화면폭에 맞춰 비례, 상점은 오른쪽 끝 */
-  .head-strip .top-bar { flex: 0 0 100%; width: 100%; margin: 0; border: 1px solid #3C6B40; border-radius: 14px; padding: 4px 10px; }
-  .head-strip .coin-display { flex: 0 0 auto; padding-left: 0; }
+  .head-strip .top-bar { flex: 0 0 100%; width: 100%; margin: 0; border: 1px solid #3C6B40; border-radius: 14px; padding: 4px 4px; }
+  .head-strip .coin-display { flex: 1; padding-left: 0; gap: 8px; }
   .head-strip .top-bar > span { margin-left: auto; }  /* 구분선+상점을 오른쪽 끝으로 */
   .head-strip .shop-btn { margin-left: 8px; }
   .head-strip .coin-stack-visual { margin-left: 14px; }
@@ -1593,8 +1593,8 @@
     overflow: visible;
   }
   
-  .coin-icon { font-size: clamp(28px, 7vw, 45px); animation: spin 4s linear infinite; display: inline-flex; }
-  .coin-icon svg { width: clamp(32px, 8vw, 46px); height: clamp(32px, 8vw, 46px); display: block; }
+  .coin-icon { font-size: clamp(28px, 7vw, 45px); animation: spin 4s linear infinite; display: inline-flex; flex-shrink: 0; }
+  .coin-icon svg { width: clamp(50px, 14vw, 62px); height: clamp(50px, 14vw, 62px); display: block; }
   
   @keyframes spin {
     0%, 90%, 100% { transform: rotateY(0deg); }
