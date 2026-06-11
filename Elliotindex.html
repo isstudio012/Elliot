@@ -792,10 +792,10 @@
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: none;
-    padding: 2px 2px;
+    padding: 2px 34px;
     will-change: transform;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 26px, #000 calc(100% - 26px), transparent 100%);
   }
   .top-nav-row::-webkit-scrollbar { display: none; }
   .top-nav-row > * { flex-shrink: 0; }
@@ -914,10 +914,12 @@
   }
   .bottom-action-label {
     display: block;
-    font-size: 15px;
+    font-size: 17px;
     line-height: 1.05;
     text-align: center;
   }
+  .bottom-action-menu .bottom-action-btn:first-child .bottom-action-label { position: relative; left: 4px; }
+  .bottom-action-menu .bottom-action-btn:last-child .bottom-action-label { position: relative; right: 4px; }
   .bottom-action-btn {
     font-family: 'Pretendard', sans-serif;
     font-size: 14px;
@@ -8070,7 +8072,8 @@ function closeBottomActionSheet() {
 }
 
 // 달력↔메뉴바 고정 간격(px)
-const CAL_SHEET_GAP = 15;
+const CAL_SHEET_GAP = 25;
+const COLLAPSED_CAL_SHEET_TOP_RATIO = 0.52;
 let _calLift = 0;
 
 function refreshBottomActionSheetLayoutSoon() {
@@ -8085,14 +8088,17 @@ function updateBottomActionSheetLayout() {
   const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
   // 본문이 올라가 있을 수 있으니 _calLift를 더해 '원래' 달력 바닥 기준으로 계산
   const gap = viewH - (cal.getBoundingClientRect().bottom + _calLift);
-  const h = Math.max(96, Math.round(gap - CAL_SHEET_GAP));
+  const body = document.getElementById('calBody');
+  const isCalendarCollapsed = !!body && body.style.maxHeight === '0px';
+  const maxH = isCalendarCollapsed ? Math.round(viewH * (1 - COLLAPSED_CAL_SHEET_TOP_RATIO)) : viewH;
+  const h = Math.max(96, Math.min(maxH, Math.round(gap - CAL_SHEET_GAP)));
   sheet.style.setProperty('--bottom-action-height', h + 'px');
   pinBottomActionSheet();
   sheet.style.setProperty('--bottom-sheet-offset', sheet.classList.contains('open') ? '0px' : 'calc(100% - var(--bottom-sheet-handle-height))');
   applyCalendarLift();
 }
 
-// 메뉴바가 올라온 만큼 본문(상단바 제외)을 위로 밀어 달력과 12px 간격 유지
+// 메뉴바가 올라온 만큼 본문(상단바 제외)을 위로 밀어 달력과 고정 간격 유지
 function applyCalendarLift() {
   const sheet = document.getElementById('bottomActionSheet');
   const cal = document.querySelector('.calendar-card');
