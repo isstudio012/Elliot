@@ -780,8 +780,8 @@
   }
   /* 메뉴바 펼치면 그만큼 위로 올라가는 본문 묶음(상단바 제외) */
   #appScroll {
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: scroll-position;
+    transition: transform 0.46s cubic-bezier(0.34, 1.22, 0.64, 1);
+    will-change: transform;
   }
   .top-nav-row {
     display: flex;
@@ -837,7 +837,7 @@
     width: min(380px, calc(100vw - 20px));
     transform: translate(-50%, var(--bottom-sheet-offset));
     z-index: 260;
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.46s cubic-bezier(0.34, 1.22, 0.64, 1);
     touch-action: none;
     will-change: transform;
     height: var(--bottom-action-height, min(220px, 24vh));
@@ -881,7 +881,7 @@
   .bottom-action-menu {
     display: grid;
     align-items: center;
-    grid-template-columns: 1fr 5px auto 5px 1fr;
+    grid-template-columns: minmax(0, 1fr) 5px auto 5px minmax(0, 1fr);
     gap: 18px;
     position: absolute;
     left: 0;
@@ -5042,6 +5042,7 @@ function toggleCalendarLegend() {
     dot.style.background = isClosed ? '#5A8A5E' : '#E87722';
     dot.style.animation = isClosed ? 'none' : 'calendarLegendPulse 1s ease-in-out infinite';
   }
+  refreshBottomActionSheetLayoutSoon();
 }
 
 function getDayStats(dk) {
@@ -7976,6 +7977,7 @@ function toggleCalendar() {
   if (sticker) sticker.style.display = isOpen ? 'block' : 'none';
   if (headLeft) headLeft.style.visibility = isOpen ? 'hidden' : 'visible';
   if (title) title.style.visibility = isOpen ? 'hidden' : 'visible';
+  refreshBottomActionSheetLayoutSoon();
   if (!isOpen) {
     closeBottomActionSheet();
     setTimeout(closeBottomActionSheet, 380);
@@ -7995,6 +7997,7 @@ function collapseCalendarForSubjectModal() {
   if (sticker) sticker.style.display = 'block';
   if (headLeft) headLeft.style.visibility = 'hidden';
   if (title) title.style.visibility = 'hidden';
+  refreshBottomActionSheetLayoutSoon();
 }
 
 function getSubjectModalTop() {
@@ -8042,8 +8045,13 @@ function closeBottomActionSheet() {
 }
 
 // 달력↔메뉴바 고정 간격(px)
-const CAL_SHEET_GAP = 12;
+const CAL_SHEET_GAP = 15;
 let _calLift = 0;
+
+function refreshBottomActionSheetLayoutSoon() {
+  requestAnimationFrame(updateBottomActionSheetLayout);
+  setTimeout(updateBottomActionSheetLayout, 380);
+}
 
 function updateBottomActionSheetLayout() {
   const sheet = document.getElementById('bottomActionSheet');
