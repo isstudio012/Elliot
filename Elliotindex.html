@@ -6062,7 +6062,7 @@ function scrollHeadToProfileOnce() {
   if (!strip || !prof) return;
   window._headScrolledInit = true;
   requestAnimationFrame(() => {
-    strip.scrollLeft = Math.max(0, prof.offsetLeft - 8);
+    strip.scrollLeft = Math.max(0, prof.offsetLeft);
     document.querySelectorAll('[data-head-slide]').forEach(h => h.classList.toggle('active', h.dataset.headSlide === 'profile'));
   });
 }
