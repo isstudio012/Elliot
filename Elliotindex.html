@@ -820,7 +820,7 @@
     left: 50%;
     /* LOCKED: bottom anchor stays on the screen bottom. Drag motion is allowed; admin approval required before changing the anchor. */
     bottom: 0 !important;
-    --bottom-sheet-handle-height: 28px;
+    --bottom-sheet-handle-height: 32px;
     --bottom-sheet-offset: calc(100% - var(--bottom-sheet-handle-height));
     padding-bottom: env(safe-area-inset-bottom, 0px);
     width: min(380px, calc(100vw - 20px));
@@ -831,7 +831,7 @@
     will-change: transform;
     height: var(--bottom-action-height, min(220px, 24vh));
     background: #FFFFFF;
-    border: 1.5px solid #3C6B40;
+    border: 2px solid #3C6B40;
     border-bottom: 0;
     border-radius: 12px 12px 0 0;
     box-shadow: none;
@@ -913,7 +913,7 @@
   .bottom-action-sep {
     width: 1px;
     height: 16px;
-    background: #5A8A5E;
+    background: #3C6B40;
     display: inline-block;
     flex-shrink: 0;
   }
@@ -2881,7 +2881,7 @@
 <div class="bottom-action-sheet" id="bottomActionSheet">
   <div class="bottom-action-grip" id="bottomActionGrip"></div>
   <div class="bottom-action-menu">
-    <button class="bottom-action-btn" id="bottomAddSubjectBtn" onclick="openAddSubject(); closeBottomActionSheet();" style="color:#5A8A5E;">+ 과목 추가</button>
+    <button class="bottom-action-btn" id="bottomAddSubjectBtn" onclick="openAddSubject(); closeBottomActionSheet();" style="color:#3C6B40;">+ 과목 추가</button>
     <span class="bottom-action-sep"></span>
     <button class="bottom-action-btn" onclick="openNoteModal(); closeBottomActionSheet();" style="color:#1E4FB5;">숙제노트</button>
     <span class="bottom-action-sep"></span>
@@ -7953,9 +7953,13 @@ function updateBottomActionSheetLayout() {
 function pinBottomActionSheet() {
   const sheet = document.getElementById('bottomActionSheet');
   const zone = document.getElementById('bottomTapZone');
-  // LOCKED: bottom anchor stays on the screen bottom. Drag motion is allowed; admin approval required before changing the anchor.
-  if (sheet) sheet.style.setProperty('bottom', '0px', 'important');
-  if (zone) zone.style.setProperty('bottom', '0px', 'important');
+  // LOCKED: bottom anchor stays on the *visible* screen bottom. Drag motion is allowed; admin approval required before changing the anchor.
+  // 카카오톡 인앱 브라우저는 레이아웃 뷰포트 바닥(툴바 뒤) 기준이라 bottom:0이 화면 밖으로 감.
+  // visualViewport로 어긋난 만큼(inset) 보정해 보이는 화면 바닥에 붙임. (일반 브라우저는 inset=0)
+  const vv = window.visualViewport;
+  const inset = vv ? Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop))) : 0;
+  if (sheet) sheet.style.setProperty('bottom', inset + 'px', 'important');
+  if (zone) zone.style.setProperty('bottom', inset + 'px', 'important');
 }
 
 function bindBottomActionSheet() {
