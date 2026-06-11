@@ -1248,7 +1248,15 @@
   .note-modal-add:active { background: #F5F5F5; }
 
   #noteModal {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  /* 숙제노트 팝업 등장 애니메이션 */
+  @keyframes notePopIn {
+    from { opacity: 0; transform: translateY(100%); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  #noteModal.show .note-modal {
+    animation: notePopIn 0.28s ease;
   }
 
   #noteModal .note-modal {
@@ -1257,7 +1265,7 @@
     max-width: min(380px, calc(100vw - 24px));
     max-height: 85vh;
     background: #FFFFFF;
-    border: 2px solid #5A8A5E;
+    border: 2px solid #3C6B40;
     border-radius: 14px;
     box-shadow: none;
     overflow: hidden;
@@ -1268,25 +1276,42 @@
     max-width: calc(100% - 16px);
     max-height: calc(100vh - 16px);
     background: #fffbf0;
-    border: 2px solid #5A8A5E;
+    border: 2px solid #3C6B40;
     border-radius: 14px;
     box-shadow: none;
     overflow: hidden;
   }
   #noteModal .note-modal-header {
     background: #FFFFFF;
-    border-bottom: 1.5px solid #5A8A5E;
-    padding: 12px 14px 8px;
+    border-bottom: none;
+    height: 45px;
+    padding: 0 14px;
+    align-items: center;
+    position: relative;
+  }
+  #noteModal .note-modal-header::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 0;
+    height: 1.5px;
+    background: #3C6B40;
   }
   #noteModal .note-modal-title {
     color: #5A8A5E;
     font-size: 18px;
     font-weight: 800;
+    line-height: 1;
   }
   #noteModal .note-modal-close {
-    color: #2A2A2A;
+    color: #E87722;            /* 닫기 ✕ 주황(즐겨찾기 ★ 색) */
     font-size: 22px;
     font-weight: 800;
+    line-height: 1;
+  }
+  #noteModal #noteFullscreenBtn {
+    color: #777777;            /* 확대 ⤢ 화살표 = 메모추가 색 */
   }
   #noteModal .note-modal-body {
     padding: 12px 14px;
@@ -1297,8 +1322,20 @@
   #noteModal .note-modal-add {
     margin-top: auto;
     background: #FFFFFF;
+    border-top: none;
+    color: #3C6B40;
+    position: relative;
+    font-size: 30px;
+    line-height: 1;
+    padding: 8px 10px;
+  }
+  #noteModal .note-modal-add::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 0;
     border-top: 1px dashed #D0D0D0;
-    color: #777777;
   }
 
   /* ====== 숙제노트 확대 버튼 ====== */
@@ -3080,7 +3117,7 @@
       </div>
     </div>
     <div class="note-modal-body" id="noteModalBody"></div>
-    <button class="note-modal-add" onclick="addNoteLineFromModal()">+ 메모 추가</button>
+    <button class="note-modal-add" onclick="addNoteLineFromModal()">+</button>
   </div>
 </div>
 
@@ -3603,25 +3640,67 @@ function openNoteModal() {
   document.getElementById('noteModalTitle').textContent = title;
   renderNoteModal();
   document.getElementById('noteModal').classList.add('show');
-  document.querySelector('.note-modal').classList.add('fullscreen');
+  positionNoteModal();
   // textarea 높이 재조정
   setTimeout(() => {
     document.querySelectorAll('#noteModalBody .note-input').forEach(el => autoResize(el));
   }, 50);
 }
 
+/* 숙제노트 팝업 위치/크기: 위=상단네비 밑, 아래=달력 끝, 좌우=화면 끝까지 */
+function positionNoteModal() {
+  const modal = document.querySelector('#noteModal .note-modal');
+  if (!modal) return;
+  const nav = document.getElementById('topNav');
+  const calBody = document.getElementById('calBody');
+  if (!nav || !calBody) return;
+  const top = nav.getBoundingClientRect().bottom;
+  // 달력이 접혀 있어도 "펼쳤을 때" 끝선 기준으로 고정.
+  // 잠깐 펼친 상태로 강제 측정 후 즉시 복원(동기 처리라 화면 깜빡임 없음).
+  const prevMax = calBody.style.maxHeight;
+  const prevTrans = calBody.style.transition;
+  calBody.style.transition = 'none';
+  calBody.style.maxHeight = 'none';
+  void calBody.offsetHeight;                       // reflow
+  const bottom = calBody.getBoundingClientRect().bottom;
+  calBody.style.maxHeight = prevMax;
+  void calBody.offsetHeight;
+  calBody.style.transition = prevTrans;
+  modal.style.position = 'fixed';
+  modal.style.left = '0';
+  modal.style.right = '0';
+  modal.style.top = top + 'px';
+  modal.style.width = '100%';
+  modal.style.maxWidth = '100%';
+  modal.style.height = Math.max(120, bottom - top) + 'px';
+  modal.style.maxHeight = 'none';
+}
+
 function closeNoteModal() {
   document.getElementById('noteModal').classList.remove('show');
-  document.querySelector('.note-modal').classList.remove('fullscreen');
+  const m = document.querySelector('#noteModal .note-modal');
+  m.classList.remove('fullscreen');
+  clearNoteModalInline(m);
   document.getElementById('noteFullscreenBtn').textContent = '⤢';
   renderNoteLines();
 }
 
+function clearNoteModalInline(m) {
+  if (!m) return;
+  ['position','left','right','top','width','maxWidth','height','maxHeight','borderRadius'].forEach(p => m.style[p] = '');
+}
+
 function toggleNoteFullscreen() {
-  const modal = document.querySelector('.note-modal');
+  const modal = document.querySelector('#noteModal .note-modal');
   const btn = document.getElementById('noteFullscreenBtn');
   modal.classList.toggle('fullscreen');
-  btn.textContent = modal.classList.contains('fullscreen') ? '⤡' : '⤢';
+  if (modal.classList.contains('fullscreen')) {
+    clearNoteModalInline(modal);   // 전체화면은 CSS에 맡김
+    btn.textContent = '⤡';
+  } else {
+    positionNoteModal();           // 도킹 위치로 복귀
+    btn.textContent = '⤢';
+  }
 }
 
 function renderNoteModal() {
@@ -3632,7 +3711,7 @@ function renderNoteModal() {
   }
   body.innerHTML = noteLines.map((text, i) => `
     <div class="note-line">
-      <span style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#999;min-width:22px;">${i+1}.</span>
+      <span style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#999;min-width:22px;line-height:1.5;padding-top:4px;">${i+1}.</span>
       <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
         oninput="noteLines[${i}]=this.value; autoResize(this); debounceSaveNotes();"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); noteLineEnter(${i},'modal');}">${escapeHTML(text)}</textarea>
