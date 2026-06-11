@@ -778,6 +778,11 @@
     opacity: 0;
     pointer-events: none;
   }
+  /* 메뉴바 펼치면 그만큼 위로 올라가는 본문 묶음(상단바 제외) */
+  #appScroll {
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
   .top-nav-row {
     display: flex;
     align-items: center;
@@ -2753,6 +2758,7 @@
       </div>
     </div>
     
+    <div id="appScroll">
     <!-- 헤더 가로 스크롤 줄: [자녀동그라미][제목][코인][상점] -->
     <div class="head-strip" id="headStrip">
       <!-- 자녀 동그라미 (세로 스와이프로 자녀 선택) -->
@@ -2886,6 +2892,7 @@
     </div>
     <div id="subjects"></div>
     <div id="momSection"></div>
+    </div>
   </div>
 </div>
 
@@ -7935,6 +7942,7 @@ function getBottomSheetClosedOffset(sheet) {
 
 function setBottomSheetOffset(sheet, offsetPx) {
   sheet.style.setProperty('--bottom-sheet-offset', Math.max(0, Math.round(offsetPx)) + 'px');
+  applyCalendarLift();
 }
 
 function setBottomActionSheet(open) {
@@ -7944,6 +7952,7 @@ function setBottomActionSheet(open) {
   sheet.style.transition = '';
   sheet.classList.toggle('open', !!open);
   sheet.style.setProperty('--bottom-sheet-offset', open ? '0px' : 'calc(100% - var(--bottom-sheet-handle-height))');
+  applyCalendarLift();
 }
 
 function toggleBottomActionSheet() {
@@ -7956,16 +7965,40 @@ function closeBottomActionSheet() {
   setBottomActionSheet(false);
 }
 
+// 달력↔메뉴바 고정 간격(px)
+const CAL_SHEET_GAP = 12;
+let _calLift = 0;
+
 function updateBottomActionSheetLayout() {
   const sheet = document.getElementById('bottomActionSheet');
   const cal = document.querySelector('.calendar-card');
   if (!sheet || !cal) return;
   const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
-  const gap = viewH - cal.getBoundingClientRect().bottom;
-  const h = Math.max(96, Math.round(gap - 8));
+  // 본문이 올라가 있을 수 있으니 _calLift를 더해 '원래' 달력 바닥 기준으로 계산
+  const gap = viewH - (cal.getBoundingClientRect().bottom + _calLift);
+  const h = Math.max(96, Math.round(gap - CAL_SHEET_GAP));
   sheet.style.setProperty('--bottom-action-height', h + 'px');
   pinBottomActionSheet();
   sheet.style.setProperty('--bottom-sheet-offset', sheet.classList.contains('open') ? '0px' : 'calc(100% - var(--bottom-sheet-handle-height))');
+  applyCalendarLift();
+}
+
+// 메뉴바가 올라온 만큼 본문(상단바 제외)을 위로 밀어 달력과 12px 간격 유지
+function applyCalendarLift() {
+  const sheet = document.getElementById('bottomActionSheet');
+  const cal = document.querySelector('.calendar-card');
+  const scroll = document.getElementById('appScroll');
+  if (!sheet || !cal || !scroll) return;
+  if (!sheet.classList.contains('show')) { scroll.style.transform = ''; _calLift = 0; return; }
+  const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  const sheetH = sheet.getBoundingClientRect().height;
+  const offStr = (sheet.style.getPropertyValue('--bottom-sheet-offset') || '').trim();
+  const off = offStr.endsWith('px') ? parseFloat(offStr) : getBottomSheetClosedOffset(sheet);
+  const calBottomTrue = cal.getBoundingClientRect().bottom + _calLift;
+  const sheetTop = viewH - sheetH + off;
+  const L = Math.max(0, Math.round(calBottomTrue + CAL_SHEET_GAP - sheetTop));
+  _calLift = L;
+  scroll.style.transform = L ? `translateY(${-L}px)` : '';
 }
 
 function pinBottomActionSheet() {
@@ -7999,6 +8032,8 @@ function bindBottomActionSheet() {
     dragOffset = startOffset;
     didDrag = false;
     sheet.style.transition = 'none';
+    const scroll = document.getElementById('appScroll');
+    if (scroll) scroll.style.transition = 'none';
     try { grip.setPointerCapture(e.pointerId); } catch (_) {}
   });
 
@@ -8015,6 +8050,8 @@ function bindBottomActionSheet() {
   grip.addEventListener('pointerup', e => {
     const dy = lastY - startY;
     sheet.style.transition = '';
+    const scroll = document.getElementById('appScroll');
+    if (scroll) scroll.style.transition = '';
     try { grip.releasePointerCapture(e.pointerId); } catch (_) {}
 
     if (didDrag) {
@@ -8036,6 +8073,8 @@ function bindBottomActionSheet() {
 
   grip.addEventListener('pointercancel', () => {
     sheet.style.transition = '';
+    const scroll = document.getElementById('appScroll');
+    if (scroll) scroll.style.transition = '';
     setBottomActionSheet(sheet.classList.contains('open'));
     startY = lastY = 0;
   });
