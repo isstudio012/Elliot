@@ -793,6 +793,7 @@
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x proximity;
     padding: 2px 2px;
+    will-change: transform;
   }
   .top-nav-row::-webkit-scrollbar { display: none; }
   .top-nav-row > * { flex-shrink: 0; }
@@ -878,9 +879,9 @@
     border-radius: 3px;
   }
   .bottom-action-menu {
-    display: flex;
+    display: grid;
     align-items: center;
-    justify-content: center;
+    grid-template-columns: 1fr 5px auto 5px 1fr;
     gap: 18px;
     position: absolute;
     left: 0;
@@ -892,6 +893,8 @@
     border-radius: 0;
     box-shadow: none;
   }
+  .bottom-action-menu .bottom-action-btn:first-child { justify-self: end; }
+  .bottom-action-menu .bottom-action-btn:last-child { justify-self: start; }
   .bottom-action-btn {
     font-family: 'Pretendard', sans-serif;
     font-size: 14px;
@@ -921,9 +924,10 @@
     flex-shrink: 0;
   }
   .bottom-action-sep {
-    width: 1px;
-    height: 16px;
-    background: #3C6B40;
+    width: 5px;
+    height: 5px;
+    background: #5A8A5E;
+    border-radius: 50%;
     display: inline-block;
     flex-shrink: 0;
   }
@@ -933,6 +937,10 @@
   #settingsBtn svg { animation: gearSpin 3s linear infinite; }
   #settingsBtn:active { color: #2E5A32; background: rgba(90,138,94,0.16); transform: scale(0.86); }
   @keyframes gearSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes calendarLegendPulse {
+    0%, 100% { filter: brightness(1.35); }
+    50% { filter: brightness(0.75); }
+  }
 
   /* ====== 프로필 카드 ====== */
   .profile-card {
@@ -2837,7 +2845,12 @@
       <div id="calBody" style="overflow:hidden;transition:max-height 0.35s ease;max-height:520px;">
         <div class="cal-grid" id="calGrid"></div>
         <!-- 달력 색상 범례 (접히면 같이 접힘) -->
-        <div style="display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-top:8px;border-top:1px dashed #C4C4C4;font-family:Pretendard,sans-serif;font-size:11.5px;font-weight:700;color:#444;">
+        <div id="calendarLegendLine" style="position:relative;margin-top:10px;border-top:none;">
+          <button onclick="event.stopPropagation();toggleCalendarLegend()" title="" style="position:absolute;left:50%;top:-3px;transform:translateX(-50%);width:48px;height:5px;padding:0;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+            <span id="calendarLegendDot" style="width:6px;height:6px;border-radius:50%;background:#E87722;display:block;animation:calendarLegendPulse 1s ease-in-out infinite;"></span>
+          </button>
+        </div>
+        <div id="calendarLegendBody" style="display:none;justify-content:space-between;gap:10px;padding-top:8px;font-family:Pretendard,sans-serif;font-size:11.5px;font-weight:700;color:#444;">
           <div style="display:flex;flex-direction:column;gap:5px;">
             <span style="display:inline-flex;align-items:center;gap:5px;">
               <span style="width:16px;height:16px;border-radius:4px;flex-shrink:0;background:linear-gradient(to top,#E53935 0%,#FB8C00 25%,#FDD835 50%,#43A047 75%,#1E88E5 100%);"></span>
@@ -5016,6 +5029,21 @@ function expandCalendarWhenNoHomeworkBoxes() {
   closeBottomActionSheet();
   setTimeout(closeBottomActionSheet, 380);
 }
+
+function toggleCalendarLegend() {
+  const legend = document.getElementById('calendarLegendBody');
+  const line = document.getElementById('calendarLegendLine');
+  const dot = document.getElementById('calendarLegendDot');
+  if (!legend) return;
+  const isClosed = legend.style.display === 'none';
+  legend.style.display = isClosed ? 'flex' : 'none';
+  if (line) line.style.borderTop = isClosed ? '1px dashed #C4C4C4' : 'none';
+  if (dot) {
+    dot.style.background = isClosed ? '#5A8A5E' : '#E87722';
+    dot.style.animation = isClosed ? 'none' : 'calendarLegendPulse 1s ease-in-out infinite';
+  }
+}
+
 function getDayStats(dk) {
   const subs = getSubjectsForDate(dk);
   let done = 0, total = 0;
@@ -5923,6 +5951,25 @@ function updateTopNavArrows() {
   }
   if (document.readyState !== 'loading') attachNavArrows();
   else document.addEventListener('DOMContentLoaded', attachNavArrows);
+})();
+(function(){
+  function attachTopNavAutoSlide() {
+    const row = document.querySelector('.top-nav-row');
+    if (!row) return;
+    let pausedUntil = 0;
+    const pause = () => { pausedUntil = performance.now() + 2500; };
+    row.addEventListener('pointerdown', pause, { passive: true });
+    row.addEventListener('touchstart', pause, { passive: true });
+    function step(now) {
+      if (now >= pausedUntil) {
+        row.style.transform = `translateX(${Math.sin(now / 4500) * 10}px)`;
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  if (document.readyState !== 'loading') attachTopNavAutoSlide();
+  else document.addEventListener('DOMContentLoaded', attachTopNavAutoSlide);
 })();
 function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
 function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
