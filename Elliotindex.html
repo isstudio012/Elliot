@@ -731,7 +731,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     padding: 5px 12px;
     border: 2px solid #3C6B40;
     border-radius: 12px;
@@ -982,10 +982,15 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    width: 100%;
+    max-width: 380px;
+    box-sizing: border-box;
+    position: relative;
+    border: none;
     overflow-x: auto;
     overflow-y: hidden;
     margin-bottom: 6px;
-    padding: 4px 16px 4px 2px;
+    padding: 4px 0;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     cursor: grab;
@@ -997,8 +1002,28 @@
   .head-strip::-webkit-scrollbar { display: none; }
   .head-strip > * { flex-shrink: 0; }
   /* 스냅 포인트: 1=동그라미(시작), 2=코인 블록 */
-  .head-strip > #profileCircle { scroll-snap-align: start; }
+  .head-strip > #profileSlide { scroll-snap-align: start; }
   .head-strip > .top-bar { scroll-snap-align: start; }
+  /* 슬라이드 공통: 개별 테두리 박스, 배경 없음 */
+  .head-strip > .widget-slide,
+  .head-strip > #profileSlide,
+  .head-strip > .top-bar {
+    height: 82px;
+    box-sizing: border-box;
+    border: 1px solid #3C6B40;
+    border-radius: 14px;
+    background: none;
+    position: relative;
+    flex: 0 0 100%;
+    width: 100%;
+  }
+  .head-strip > #profileSlide {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px 14px;
+  }
+  .head-strip > .top-bar { padding-bottom: 14px !important; }
   .head-strip .profile-msg { flex: 0 0 min(62vw, 280px); width: min(62vw, 280px); padding-right: 8px; }
   .head-strip .profile-msg h1 {
     white-space: normal;
@@ -1011,25 +1036,59 @@
     line-height: 1.15;
   }
   /* 1번(제목)과 2번(코인) 사이 여유 + 코인박스는 화면폭에 맞춰 비례, 상점은 오른쪽 끝 */
-  .head-strip .top-bar { flex: 0 0 auto; width: min(88vw, 360px); margin: 0 0 0 16px; border: none; padding: 4px 4px; }
+  .head-strip .top-bar { flex: 0 0 100%; width: 100%; margin: 0; border: 1px solid #3C6B40; border-radius: 14px; padding: 4px 10px; }
   .head-strip .coin-display { flex: 0 0 auto; padding-left: 0; }
   .head-strip .top-bar > span { margin-left: auto; }  /* 구분선+상점을 오른쪽 끝으로 */
   .head-strip .shop-btn { margin-left: 8px; }
   .head-strip .coin-stack-visual { margin-left: 14px; }
+  /* 위젯 슬라이드 (시계·날짜·오늘 할일·알람) */
+  .head-strip .widget-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    margin-right: 0;
+    height: 82px;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: none;
+    border-radius: 14px;
+    padding: 5px 14px 12px;
+    scroll-snap-align: start;
+    overflow: hidden;
+  }
+  .wg-left { display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; min-width: 96px; }
+  .wg-date-row { display: flex; align-items: center; gap: 6px; }
+  .wg-date { font-family: Pretendard, sans-serif; font-size: 12px; font-weight: 700; color: #5C6B7A; line-height: 1.1; white-space: nowrap; }
+  .wg-alarm { border: none; background: none; padding: 0; display: inline-flex; align-items: center; gap: 2px; color: #9AA7B4; cursor: pointer; font-family: Pretendard, sans-serif; font-size: 11px; font-weight: 700; line-height: 1; }
+  .wg-alarm.on { color: #3C6B40; }
+  .wg-clock { font-family: Pretendard, sans-serif; font-size: 30px; font-weight: 800; color: #1E2832; line-height: 1; letter-spacing: -1px; }
+  .wg-clock .wg-ampm { font-size: 12px; font-weight: 700; color: #8492A0; margin-left: 3px; letter-spacing: 0; }
+  .wg-right { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 1px; overflow: hidden; border-left: 1px solid #CBD5DF; padding-left: 12px; }
+  .wg-todo-row { display: flex; justify-content: space-between; align-items: baseline; font-family: Pretendard, sans-serif; line-height: 1.3; }
+  .wg-todo-name { font-size: 12px; font-weight: 700; color: #3A4A57; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wg-todo-cnt { font-size: 12px; font-weight: 700; color: #8492A0; margin-left: 8px; flex-shrink: 0; }
+  .wg-todo-more { font-size: 10px; font-weight: 700; color: #9AA7B4; }
+  .wg-todo-empty { font-family: Pretendard, sans-serif; font-size: 12px; font-weight: 700; color: #8492A0; }
+  .wg-dots { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; justify-content: center; align-items: center; gap: 7px; }
+  .wg-dot { width: 5px; height: 5px; border-radius: 50%; background: #B8C2CC; }
+  .wg-dot.active { background: #3C6B40; }
   .head-slide-handles {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 18px;
-    margin: -2px 0 8px;
-    height: 10px;
+    gap: 10px;
+    margin: 2px 0 6px;
+    height: 7px;
     opacity: 1;
   }
   .head-slide-handles .slide-handle {
-    width: 36px;
-    height: 3px;
+    width: 5px;
+    height: 5px;
     border: none;
-    background: #B8B8B0;
+    border-radius: 50%;
+    background: #B8C2CC;
     box-shadow: none;
     opacity: 1;
   }
@@ -2797,6 +2856,23 @@
     <div id="appScroll">
     <!-- 헤더 가로 스크롤 줄: [자녀동그라미][제목][코인][상점] -->
     <div class="head-strip" id="headStrip">
+      <!-- 위젯 슬라이드 (맨 왼쪽): 시계 · 날짜 · 오늘 할일 · 알람 -->
+      <div class="widget-slide" id="widgetSlide">
+        <div class="wg-left">
+          <div class="wg-date-row">
+            <span class="wg-date" id="wgDate">--월 --일</span>
+            <button class="wg-alarm" id="wgAlarm" onclick="setWidgetAlarm()" title="알람"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/></svg><span id="wgAlarmTime"></span></button>
+          </div>
+          <div class="wg-clock" id="wgClock">--:--</div>
+        </div>
+        <div class="wg-dots" id="wgDots" aria-hidden="true">
+          <span class="wg-dot" data-head-slide="widget"></span>
+          <span class="wg-dot" data-head-slide="profile"></span>
+          <span class="wg-dot" data-head-slide="coin"></span>
+        </div>
+      </div>
+      <!-- 프로필 슬라이드: [자녀동그라미][한마디] -->
+      <div class="profile-slide" id="profileSlide">
       <!-- 자녀 동그라미 (세로 스와이프로 자녀 선택) -->
       <div class="profile-photo-wrap" id="profileCircle">
         <img src="" class="profile-photo" id="profilePhoto" onerror="this.style.display='none'; document.getElementById('profilePhotoPlaceholder').style.display='flex';" onclick="onProfileCircleTap()">
@@ -2813,6 +2889,12 @@
       <div class="profile-msg">
         <h1 id="appTitle" onclick="onAppTitleClick()"></h1>
       </div>
+      <div class="wg-dots" aria-hidden="true">
+        <span class="wg-dot" data-head-slide="widget"></span>
+        <span class="wg-dot" data-head-slide="profile"></span>
+        <span class="wg-dot" data-head-slide="coin"></span>
+      </div>
+      </div>
       <!-- 코인 + 상점 -->
       <div class="top-bar">
         <div class="coin-display">
@@ -2823,14 +2905,16 @@
         </div>
         <span style="width:1px;height:32px;background:#777777;display:inline-block;flex-shrink:0;"></span>
         <button class="shop-btn" onclick="openShop()"><img src="shop.png" alt="상점" onerror="this.outerHTML='<span style=&quot;font-size:28px;line-height:1;&quot;>🎁</span>';"></button>
+        <div class="wg-dots" aria-hidden="true">
+          <span class="wg-dot" data-head-slide="widget"></span>
+          <span class="wg-dot" data-head-slide="profile"></span>
+          <span class="wg-dot" data-head-slide="coin"></span>
+        </div>
       </div>
       <!-- 코인 블록이 왼쪽 끝까지 오도록 뒤 여백 (크기 자동) -->
       <div class="head-spacer" id="headSpacer" style="flex:0 0 auto;width:0;"></div>
     </div>
-    <div class="head-slide-handles" id="headSlideHandles" aria-hidden="true">
-      <span class="slide-handle active" data-head-slide="profile"></span>
-      <span class="slide-handle" data-head-slide="coin"></span>
-    </div>
+    <div class="head-slide-handles" id="headSlideHandles" aria-hidden="true" style="display:none;"></div>
 
     <!-- 레거시 header 숨김 -->
     <div class="header" style="display:none;">
@@ -3333,7 +3417,7 @@
     <span class="chat-header-title" id="dayDetailTitle">5월 27일 (수)</span>
     <div style="display:flex;align-items:center;gap:16px;">
       <button class="chat-close-btn" style="color:#AAAAAA;font-size:24px;" onclick="closeDayDetail()">&lt;</button>
-      <button class="chat-close-btn" style="color:#AAAAAA;font-size:18px;font-weight:800;" onclick="closeDayDetail()">✕</button>
+      <button class="chat-close-btn" style="color:#E87722;font-size:18px;font-weight:800;" onclick="closeDayDetail()">✕</button>
     </div>
   </div>
   <div style="flex:1;overflow-y:auto;padding:12px 14px;background:#FFFFFF;" id="dayDetailBody">
@@ -5159,6 +5243,10 @@ function renderAll() {
   renderTasks();
   renderMomSection();
   renderCoins();
+  renderWidgetTodo();
+  startWidgetClock();
+  syncWidgetAlarm();
+  scrollHeadToProfileOnce();
 }
 
 /* ====== 광고 자리 ====== */
@@ -5869,6 +5957,91 @@ function sizeHeadSpacer() {
   });
 }
 window.addEventListener('resize', () => { try { sizeHeadSpacer(); } catch(e){} });
+
+/* ====== 위젯 슬라이드 (시계 · 날짜 · 오늘 할일 · 알람) ====== */
+function startWidgetClock() {
+  if (window._wgClockTimer) return;
+  const upd = () => {
+    const now = new Date();
+    const c = document.getElementById('wgClock');
+    const d = document.getElementById('wgDate');
+    if (c) {
+      let h = now.getHours();
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const ap = h < 12 ? 'AM' : 'PM';
+      let hh = h % 12; if (hh === 0) hh = 12;
+      c.innerHTML = `${hh}:${m}<span class="wg-ampm">${ap}</span>`;
+    }
+    if (d) {
+      const days = ['일','월','화','수','목','금','토'];
+      d.textContent = `${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+    }
+    checkWidgetAlarm(now);
+  };
+  upd();
+  window._wgClockTimer = setInterval(upd, 1000);
+}
+function renderWidgetTodo() {
+  const el = document.getElementById('wgTodo');
+  if (!el) return;
+  const dk = todayKey();
+  const subs = getSubjectsForDate(dk);
+  if (!subs.length) { el.innerHTML = '<div class="wg-todo-empty">오늘 숙제가 없어요 🎈</div>'; return; }
+  let h = '';
+  subs.slice(0, 3).forEach(s => {
+    const tasks = getTasksForSubject(dk, s.id);
+    const done = tasks.filter(t => t.done).length;
+    h += `<div class="wg-todo-row"><span class="wg-todo-name">${esc(s.name)}</span><span class="wg-todo-cnt">${done}/${tasks.length}</span></div>`;
+  });
+  if (subs.length > 3) h += `<div class="wg-todo-more">+${subs.length-3}개 더</div>`;
+  el.innerHTML = h;
+}
+function setWidgetAlarm() {
+  const cur = localStorage.getItem('widgetAlarm') || '';
+  const v = prompt('알람 시간 (24시간제, 예: 07:30). 비워서 끄기', cur);
+  if (v === null) return;
+  const t = v.trim();
+  if (t === '') { localStorage.removeItem('widgetAlarm'); }
+  else if (/^([01]?\d|2[0-3]):[0-5]\d$/.test(t)) {
+    const [hh, mm] = t.split(':');
+    localStorage.setItem('widgetAlarm', `${hh.padStart(2,'0')}:${mm}`);
+  } else { alert('형식이 올바르지 않아요. 예: 07:30'); return; }
+  syncWidgetAlarm();
+}
+function syncWidgetAlarm() {
+  const t = localStorage.getItem('widgetAlarm');
+  const el = document.getElementById('wgAlarmTime');
+  const btn = document.getElementById('wgAlarm');
+  if (el) el.textContent = t ? ' ' + t : '';
+  if (btn) btn.classList.toggle('on', !!t);
+}
+function checkWidgetAlarm(now) {
+  const t = localStorage.getItem('widgetAlarm');
+  if (!t) return;
+  const cur = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  if (cur === t) {
+    if (window._wgAlarmRungAt === cur) return;
+    window._wgAlarmRungAt = cur;
+    ringWidgetAlarm();
+  }
+}
+function ringWidgetAlarm() {
+  let n = 0;
+  const beep = () => { try { playTone(880, 0.25, 'sine', 0.12); } catch(e){} if (++n < 6) setTimeout(beep, 350); };
+  beep();
+  try { showToast('⏰ 알람!'); } catch(e) { alert('⏰ 알람!'); }
+}
+function scrollHeadToProfileOnce() {
+  if (window._headScrolledInit) return;
+  const strip = document.getElementById('headStrip');
+  const prof = document.getElementById('profileSlide') || document.getElementById('profileCircle');
+  if (!strip || !prof) return;
+  window._headScrolledInit = true;
+  requestAnimationFrame(() => {
+    strip.scrollLeft = Math.max(0, prof.offsetLeft - 8);
+    document.querySelectorAll('[data-head-slide]').forEach(h => h.classList.toggle('active', h.dataset.headSlide === 'profile'));
+  });
+}
 function cycleChild(dir) {
   const children = getSelectableChildren();
   if (children.length < 2) return;
@@ -5899,7 +6072,8 @@ function onProfileCircleTap() {
       const handles = document.querySelectorAll('[data-head-slide]');
       if (!handles.length) return;
       const max = Math.max(1, strip.scrollWidth - strip.clientWidth);
-      const active = strip.scrollLeft > max * 0.45 ? 'coin' : 'profile';
+      const r = strip.scrollLeft / max;
+      const active = r < 0.25 ? 'widget' : (r < 0.7 ? 'profile' : 'coin');
       handles.forEach(handle => handle.classList.toggle('active', handle.dataset.headSlide === active));
     }
     function stopMomentum() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
@@ -7765,7 +7939,7 @@ function renderDayDetail(dk) {
   // ===== 다가오는 일정 쓰기 (자녀별) =====
   const scheds = schedulesForDate(dk);
   html += `<div style="background:white;border:none;border-radius:0;padding:10px 12px;margin-bottom:10px;">`;
-  html += `<div style="font-family:Pretendard,sans-serif;font-size:17px;font-weight:800;color:#5A8A5E;margin-bottom:4px;"><span style="color:#E87722;">★</span> 다가오는 일정 쓰기 <span style="font-weight:700;color:#999;font-size:12px;">(${ddayLabel(dk)})</span></div>`;
+  html += `<div style="font-family:Pretendard,sans-serif;font-size:17px;font-weight:800;color:#5A8A5E;margin-bottom:4px;"><span style="color:#E87722;">★</span> 다가오는 일정 쓰기 <span style="font-weight:800;color:#E87722;font-size:16px;">(${ddayLabel(dk)})</span></div>`;
   scheds.forEach(s => {
     html += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px dashed #D0D0D0;">`;
     html += `<span style="flex:1;font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#222;min-width:0;">• ${escapeHTML(s.title)}</span>`;
@@ -7780,7 +7954,8 @@ function renderDayDetail(dk) {
   const fmtAmPm = (d) => {
     const h = d.getHours();
     const m = String(d.getMinutes()).padStart(2,'0');
-    return h < 12 ? `am${h === 0 ? 12 : h}:${m}` : `pm${h === 12 ? 12 : h-12}:${m}`;
+    const ap = `<span style="color:#555555;font-weight:400;">${h < 12 ? 'a' : 'p'}</span>`;
+    return h < 12 ? `${ap}${h === 0 ? 12 : h}:${m}` : `${ap}${h === 12 ? 12 : h-12}:${m}`;
   };
   html += `<div style="background:white;border:none;border-radius:0;margin:28px 0 10px;overflow:hidden;">`;
 
@@ -7807,7 +7982,7 @@ function renderDayDetail(dk) {
       html += `<div style="padding:8px 12px;border-top:1px dashed #D0D0D0;">`;
       html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">`;
       html += `<span style="font-family:Pretendard,sans-serif;font-size:16px;font-weight:800;color:#000;">${esc(s.name)}</span>`;
-      html += `<span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#000;">${done}/${tasks.length}</span>`;
+      html += `<span style="font-family:Pretendard,sans-serif;font-size:13px;font-weight:700;color:#BBBBBB;">${done}/${tasks.length}</span>`;
       html += `</div>`;
       if (tasks.length === 0) {
         html += `<div style="font-family:Pretendard,sans-serif;font-size:13px;color:#888;">숙제 없음</div>`;
@@ -7818,7 +7993,7 @@ function renderDayDetail(dk) {
             : `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:2px solid #000;background:white;flex-shrink:0;margin-top:2px;"></span>`;
           let startStr = '';
           let endStr = '';
-          if (t.created_at) startStr = `${fmtAmPm(new Date(t.created_at))} 시작`;
+          if (t.created_at) startStr = `${fmtAmPm(new Date(t.created_at))}`;
           if (t.done_at && t.created_at) {
             const ct = new Date(t.created_at), dt = new Date(t.done_at);
             const diff = Math.floor((dt - ct) / 60000);
@@ -7836,8 +8011,8 @@ function renderDayDetail(dk) {
           html += `<span style="flex:1;min-width:0;font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;color:#000;">${esc(t.text)}</span>`;
           if (startStr || endStr) {
             html += `<div style="flex-shrink:0;text-align:right;line-height:1.3;">`;
-            if (startStr) html += `<div style="font-family:Pretendard,sans-serif;font-size:12px;color:#555;font-weight:600;">${startStr}</div>`;
-            if (endStr) html += `<div style="font-family:Pretendard,sans-serif;font-size:12px;color:#555;font-weight:600;">${endStr}</div>`;
+            if (startStr) html += `<div style="font-family:Pretendard,sans-serif;font-size:12px;color:#000;font-weight:800;">${startStr}</div>`;
+            if (endStr) html += `<div style="font-family:Pretendard,sans-serif;font-size:12px;color:#000;font-weight:800;">${endStr}</div>`;
             html += `</div>`;
           }
           html += `</div>`;
