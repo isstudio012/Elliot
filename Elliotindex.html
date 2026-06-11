@@ -883,8 +883,8 @@
   .bottom-action-menu {
     display: grid;
     align-items: center;
-    grid-template-columns: minmax(0, 1fr) 5px auto 5px minmax(0, 1fr);
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr) 5px minmax(0, 1fr) 5px minmax(0, 1fr);
+    gap: 10px;
     position: absolute;
     left: 0;
     right: 0;
@@ -895,8 +895,29 @@
     border-radius: 0;
     box-shadow: none;
   }
-  .bottom-action-menu .bottom-action-btn:first-child { justify-self: end; }
-  .bottom-action-menu .bottom-action-btn:last-child { justify-self: start; }
+  .bottom-action-menu .bottom-action-btn {
+    justify-self: center;
+    flex-direction: column;
+    gap: 1px;
+    line-height: 1.05;
+  }
+  .bottom-action-menu .bottom-action-btn:first-child { position: relative; left: 6px; }
+  .bottom-action-menu .bottom-action-btn:last-child { position: relative; right: 6px; }
+  .bottom-action-icon,
+  .bottom-action-icon-spacer {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .bottom-action-label {
+    display: block;
+    font-size: 15px;
+    line-height: 1.05;
+    text-align: center;
+  }
   .bottom-action-btn {
     font-family: 'Pretendard', sans-serif;
     font-size: 14px;
@@ -932,6 +953,8 @@
     border-radius: 50%;
     display: inline-block;
     flex-shrink: 0;
+    align-self: start;
+    margin-top: 26px;
   }
 
   /* 설정 버튼 — 녹색, 톱니 3초에 한 바퀴 회전 */
@@ -2928,13 +2951,13 @@
 <div class="bottom-action-sheet" id="bottomActionSheet">
   <div class="bottom-action-grip" id="bottomActionGrip"></div>
   <div class="bottom-action-menu">
-    <button class="bottom-action-btn" id="bottomAddSubjectBtn" onclick="openAddSubject(); closeBottomActionSheet();" style="color:#3C6B40;">+ 과목 추가</button>
+    <button class="bottom-action-btn" id="bottomAddSubjectBtn" onclick="openAddSubject(); closeBottomActionSheet();" style="color:#3C6B40;"><span class="bottom-action-icon">+</span><span class="bottom-action-label">과목 추가</span></button>
     <span class="bottom-action-sep"></span>
-    <button class="bottom-action-btn" onclick="openNoteModal(); closeBottomActionSheet();" style="color:#1E4FB5;">숙제노트</button>
+    <button class="bottom-action-btn" onclick="openNoteModal(); closeBottomActionSheet();" style="color:#1E4FB5;"><span class="bottom-action-icon-spacer"></span><span class="bottom-action-label">숙제노트</span></button>
     <span class="bottom-action-sep"></span>
     <button class="bottom-action-btn" onclick="toggleChat(); closeBottomActionSheet();">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6a8 8 0 1 1 18-5z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
-      메신저
+      <span class="bottom-action-label">메신저</span>
     </button>
   </div>
 </div>
