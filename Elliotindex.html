@@ -781,7 +781,7 @@
   /* 메뉴바 펼치면 그만큼 위로 올라가는 본문 묶음(상단바 제외) */
   #appScroll {
     transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform;
+    will-change: scroll-position;
   }
   .top-nav-row {
     display: flex;
@@ -791,7 +791,7 @@
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
+    scroll-snap-type: none;
     padding: 2px 2px;
     will-change: transform;
   }
@@ -5956,13 +5956,42 @@ function updateTopNavArrows() {
   function attachTopNavAutoSlide() {
     const row = document.querySelector('.top-nav-row');
     if (!row) return;
+    const ease = t => 0.5 - Math.cos(Math.PI * t) / 2;
+    let start = 0;
+    let from = 0;
+    let to = 0;
+    let dir = 1;
+    let duration = 7000;
     let pausedUntil = 0;
-    const pause = () => { pausedUntil = performance.now() + 2500; };
+    const pause = () => { pausedUntil = performance.now() + 2500; start = 0; };
     row.addEventListener('pointerdown', pause, { passive: true });
     row.addEventListener('touchstart', pause, { passive: true });
+    row.addEventListener('wheel', pause, { passive: true });
+    function setNextLeg(now) {
+      const max = Math.max(0, row.scrollWidth - row.clientWidth);
+      if (max <= 1) return false;
+      from = row.scrollLeft;
+      if (from >= max - 1) dir = -1;
+      if (from <= 1) dir = 1;
+      to = dir > 0 ? max : 0;
+      duration = Math.max(2500, 7000 * (Math.abs(to - from) / max));
+      start = now;
+      row.style.transform = '';
+      return true;
+    }
     function step(now) {
       if (now >= pausedUntil) {
-        row.style.transform = `translateX(${Math.sin(now / 4500) * 10}px)`;
+        if (!start && !setNextLeg(now)) {
+          requestAnimationFrame(step);
+          return;
+        }
+        const progress = Math.min(1, (now - start) / duration);
+        row.scrollLeft = from + (to - from) * ease(progress);
+        if (progress >= 1) {
+          row.scrollLeft = to;
+          dir *= -1;
+          setNextLeg(now);
+        }
       }
       requestAnimationFrame(step);
     }
