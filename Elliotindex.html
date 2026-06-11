@@ -1311,7 +1311,7 @@
     line-height: 1;
   }
   #noteModal #noteFullscreenBtn {
-    color: #777777;            /* 확대 ⤢ 화살표 = 메모추가 색 */
+    color: #AAAAAA;            /* 확대 ⤢ 화살표 = 줄 삭제 ✕(회색)과 같은 색 */
   }
   #noteModal .note-modal-body {
     padding: 12px 14px;
@@ -3711,7 +3711,7 @@ function renderNoteModal() {
   }
   body.innerHTML = noteLines.map((text, i) => `
     <div class="note-line">
-      <span style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#999;min-width:22px;line-height:1.5;padding-top:4px;">${i+1}.</span>
+      <span style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#888888;min-width:22px;line-height:1.5;padding-top:4px;">${i+1}.</span>
       <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
         oninput="noteLines[${i}]=this.value; autoResize(this); debounceSaveNotes();"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); noteLineEnter(${i},'modal');}">${escapeHTML(text)}</textarea>
