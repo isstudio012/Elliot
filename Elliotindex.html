@@ -839,7 +839,7 @@
     width: min(380px, calc(100vw - 20px));
     transform: translate(-50%, var(--bottom-sheet-offset));
     z-index: 260;
-    transition: transform 0.46s cubic-bezier(0.34, 1.22, 0.64, 1);
+    transition: transform 0.46s cubic-bezier(0.34, 1.22, 0.64, 1), height 0.46s cubic-bezier(0.34, 1.22, 0.64, 1);
     touch-action: none;
     will-change: transform;
     height: var(--bottom-action-height, min(220px, 24vh));
@@ -8139,6 +8139,7 @@ function bindBottomActionSheet() {
   let dragOffset = 0;
   let didDrag = false;
   let lastTapTime = 0;
+  let baseSheetHeight = 0;
 
   grip.addEventListener('pointerdown', e => {
     updateBottomActionSheetLayout();
@@ -8146,6 +8147,7 @@ function bindBottomActionSheet() {
     startOffset = sheet.classList.contains('open') ? 0 : getBottomSheetClosedOffset(sheet);
     dragOffset = startOffset;
     didDrag = false;
+    baseSheetHeight = sheet.getBoundingClientRect().height;
     sheet.style.transition = 'none';
     const scroll = document.getElementById('appScroll');
     if (scroll) scroll.style.transition = 'none';
@@ -8157,7 +8159,16 @@ function bindBottomActionSheet() {
     const dy = lastY - startY;
     if (Math.abs(dy) > 2) didDrag = true;
     const closedOffset = getBottomSheetClosedOffset(sheet);
-    dragOffset = Math.min(closedOffset, Math.max(0, startOffset + dy));
+    const rawOffset = startOffset + dy;
+    dragOffset = Math.min(closedOffset, Math.max(0, rawOffset));
+    if (rawOffset < 0) {
+      const cal = document.querySelector('.calendar-card');
+      const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+      const calBottomTrue = cal ? cal.getBoundingClientRect().bottom + _calLift : 0;
+      const maxSheetHeight = cal ? Math.max(baseSheetHeight, Math.round(viewH - (calBottomTrue + CAL_SHEET_GAP))) : baseSheetHeight;
+      const rubberHeight = Math.min(maxSheetHeight, Math.round(baseSheetHeight + Math.abs(rawOffset) * 0.58));
+      sheet.style.setProperty('--bottom-action-height', rubberHeight + 'px');
+    }
     setBottomSheetOffset(sheet, dragOffset);
     e.preventDefault();
   });
