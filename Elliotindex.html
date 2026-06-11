@@ -1402,6 +1402,7 @@
     background: #3C6B40;
   }
   #dayDetailPanel .chat-header-title { color: #5A8A5E; font-size: 18px; font-weight: 800; }
+  #schedInput::placeholder { color: #AAAAAA; }
 
   /* ====== 숙제노트 확대 버튼 ====== */
   .homework-note-expand {
@@ -3122,7 +3123,7 @@
   <div class="modal pwd-modal" id="subjectModalInner" style="max-width:340px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;padding:16px;">
     <!-- 드래그 핸들 바 -->
     <div id="subjectModalDragHandle" style="position:absolute;top:0;left:0;right:0;height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none;z-index:5;">
-      <div style="width:50px;height:6px;border-radius:3px;background:#5A8A5E;"></div>
+      <div style="width:36px;height:3px;border-radius:3px;background:#5A8A5E;"></div>
     </div>
     <div style="height:14px;"></div>
     <!-- 즐겨찾기 / 등록 / 닫기 메뉴 -->
@@ -3332,7 +3333,7 @@
     <span class="chat-header-title" id="dayDetailTitle">5월 27일 (수)</span>
     <div style="display:flex;align-items:center;gap:16px;">
       <button class="chat-close-btn" style="color:#AAAAAA;font-size:24px;" onclick="closeDayDetail()">&lt;</button>
-      <button class="chat-close-btn" style="color:#FF6B9D;font-size:22px;font-weight:800;" onclick="closeDayDetail()">✕</button>
+      <button class="chat-close-btn" style="color:#AAAAAA;font-size:18px;font-weight:800;" onclick="closeDayDetail()">✕</button>
     </div>
   </div>
   <div style="flex:1;overflow-y:auto;padding:12px 14px;background:#FFFFFF;" id="dayDetailBody">
@@ -3785,12 +3786,18 @@ function renderNoteModal() {
     <div class="note-line">
       <span style="font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#888888;min-width:22px;line-height:1.5;padding-top:4px;">${i+1}.</span>
       <textarea class="note-input" placeholder="내용을 입력하세요..." rows="1"
-        oninput="noteLines[${i}]=this.value; autoResize(this); debounceSaveNotes();"
+        oninput="noteLines[${i}]=this.value; autoResize(this); toggleNoteModalDeleteBtn(this, ${i}); debounceSaveNotes();"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault(); noteLineEnter(${i},'modal');}">${escapeHTML(text)}</textarea>
-      ${noteLines.length > 1 ? `<button class="note-delete-btn" onclick="deleteNoteLineFromModal(${i})">✕</button>` : ''}
+      <button class="note-delete-btn" data-note-delete="${i}" onclick="deleteNoteLineFromModal(${i})" style="${noteLines.length > 1 || text.trim() ? '' : 'display:none;'}">✕</button>
     </div>
   `).join('');
   body.querySelectorAll('.note-input').forEach(el => autoResize(el));
+}
+
+function toggleNoteModalDeleteBtn(input, idx) {
+  const line = input.closest('.note-line');
+  const btn = line ? line.querySelector(`[data-note-delete="${idx}"]`) : null;
+  if (btn) btn.style.display = input.value.trim() ? '' : (noteLines.length > 1 ? '' : 'none');
 }
 
 function addNoteLineFromModal() {
@@ -7758,14 +7765,14 @@ function renderDayDetail(dk) {
   // ===== 다가오는 일정 쓰기 (자녀별) =====
   const scheds = schedulesForDate(dk);
   html += `<div style="background:white;border:none;border-radius:0;padding:10px 12px;margin-bottom:10px;">`;
-  html += `<div style="font-family:Pretendard,sans-serif;font-size:14px;font-weight:800;color:#5A8A5E;margin-bottom:4px;"><span style="color:#E87722;">★</span> 다가오는 일정 쓰기 <span style="font-weight:700;color:#999;font-size:12px;">(${ddayLabel(dk)})</span></div>`;
+  html += `<div style="font-family:Pretendard,sans-serif;font-size:17px;font-weight:800;color:#5A8A5E;margin-bottom:4px;"><span style="color:#E87722;">★</span> 다가오는 일정 쓰기 <span style="font-weight:700;color:#999;font-size:12px;">(${ddayLabel(dk)})</span></div>`;
   scheds.forEach(s => {
     html += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-top:1px dashed #D0D0D0;">`;
     html += `<span style="flex:1;font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#222;min-width:0;">• ${escapeHTML(s.title)}</span>`;
-    html += `<button onclick="deleteSchedule('${s.id}','${dk}')" style="border:none;background:none;color:#FF6B9D;font-size:16px;cursor:pointer;line-height:1;flex-shrink:0;">✕</button>`;
+    html += `<button onclick="deleteSchedule('${s.id}','${dk}')" style="border:none;background:none;color:#AAAAAA;font-size:18px;cursor:pointer;line-height:1;flex-shrink:0;">✕</button>`;
     html += `</div>`;
   });
-  html += `<input id="schedInput" type="text" maxlength="20" placeholder="일정 쓰기" onkeydown="if(event.key==='Enter'){event.preventDefault();addScheduleFromDetail('${dk}');}" style="width:100%;box-sizing:border-box;margin-top:6px;padding:8px 2px 6px;border:none;border-top:1px dashed #D0D0D0;background:transparent;font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;outline:none;color:#222;">`;
+  html += `<input id="schedInput" type="text" maxlength="20" placeholder="쓰기" onkeydown="if(event.key==='Enter'){event.preventDefault();addScheduleFromDetail('${dk}');}" style="width:100%;box-sizing:border-box;margin-top:6px;padding:8px 2px 6px;border:none;border-top:1px dashed #D0D0D0;background:transparent;font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;outline:none;color:#222;">`;
   html += `<button id="schedAddBtn" class="note-add-btn" onclick="addScheduleFromDetail('${dk}')" style="color:#3C6B40;font-size:30px;font-weight:400;line-height:1;padding:8px 10px;">+</button>`;
   html += `</div>`;
 
@@ -7780,10 +7787,10 @@ function renderDayDetail(dk) {
   // ===== 숙제노트 (읽기전용) — 맨 위에 먼저 =====
   if (_dayDetailNote && _dayDetailNote.lines && _dayDetailNote.lines.length > 0) {
     html += `<div style="padding:8px 12px 16px;background:#FFFFFF;">`;
-    html += `<div style="font-family:Pretendard,sans-serif;font-size:14px;font-weight:800;color:#5A8A5E;margin-bottom:6px;">📒 ${escapeHTML(_dayDetailNote.title)}</div>`;
+    html += `<div style="font-family:Pretendard,sans-serif;font-size:17px;font-weight:800;color:#5A8A5E;margin-bottom:6px;">📒 ${escapeHTML(_dayDetailNote.title)}</div>`;
     _dayDetailNote.lines.forEach((text, i) => {
       html += `<div style="display:flex;gap:6px;padding:2px 0;">`;
-      html += `<span style="font-family:Pretendard,sans-serif;font-size:14px;font-weight:700;color:#888;min-width:20px;">${i+1}.</span>`;
+      html += `<span style="font-family:Pretendard,sans-serif;font-size:15px;font-weight:700;color:#000;min-width:20px;">${i+1}.</span>`;
       html += `<span style="flex:1;font-family:Pretendard,sans-serif;font-size:15px;color:#000;font-weight:700;">${escapeHTML(text)}</span>`;
       html += `</div>`;
     });
@@ -8037,7 +8044,7 @@ function getSubjectModalTop() {
   const calBottom = header
     ? header.getBoundingClientRect().bottom + parseFloat(calStyle.paddingBottom || '0')
     : cal.getBoundingClientRect().bottom;
-  const desiredTop = Math.round(calBottom + 80);
+  const desiredTop = Math.round(calBottom + 25);
   return Math.max(80, desiredTop);
 }
 
