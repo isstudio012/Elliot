@@ -153,7 +153,7 @@
     transition: transform 0.2s;
   }
   .login-toggle input:checked + .login-toggle-slider {
-    background: #5A8A5E;
+    background: radial-gradient(circle at 42% 35%, #E8F5E9 0%, #5A8A5E 48%, #3C6B40 100%);
     border-color: #2E5A32;
   }
   .login-toggle input:checked + .login-toggle-slider::before {
@@ -1803,7 +1803,7 @@
   }
   
   .subject {
-    background: white; border: 1.5px solid #D8D8D8; border-radius: 12px;
+    background: white; border: 1px solid #3C6B40; border-radius: 12px;
     margin-bottom: 8px; overflow: hidden; box-shadow: none;
   }
   .subject-header {
@@ -1811,9 +1811,12 @@
     border-bottom: 1px dashed #C4C4C4;
     cursor: pointer; user-select: none;
   }
+  .subject.subject-collapsed .subject-header { border-bottom: none; }
   .subject-toggle {
     font-size: 12px; color: #2A2A2A; transition: transform 0.3s; flex-shrink: 0;
     padding: 4px;
+    margin-left: auto;
+    order: 3;
   }
   .subject-toggle.collapsed { transform: rotate(-90deg); }
   .subject-body {
@@ -1824,7 +1827,7 @@
     overflow: hidden;
   }
   .subject-name-input {
-    flex: 1; font-family: 'Pretendard', sans-serif; font-size: 20px; font-weight: 700;
+    flex: 0 1 auto; font-family: 'Pretendard', sans-serif; font-size: 20px; font-weight: 700;
     border: none; background: transparent; outline: none; padding: 2px 4px;
     border-radius: 6px; color: #2A2A2A; min-width: 0;
     -webkit-text-stroke: 0.5px #2A2A2A;
@@ -1842,6 +1845,7 @@
     display: flex; align-items: center; gap: 6px; padding: 6px 8px;
     cursor: pointer; user-select: none;
   }
+  .task + .task { border-top: 1px dashed #C4C4C4; }
   .task:active { background: #fffbf0; }
   @keyframes taskIn {
     from { opacity: 0; transform: translateY(-8px); }
@@ -1856,7 +1860,7 @@
   }
   .sel-box.on { background: #E8F5E9; border-color: #5A8A5E; }
   .checkbox {
-    width: 24px; height: 24px; border: 2px solid #2A2A2A; border-radius: 50%;
+    width: 24px; height: 24px; border: 2px solid #5A8A5E; border-radius: 50%;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     background: white; transition: all 0.2s; cursor: pointer;
     position: relative;
@@ -1868,18 +1872,20 @@
   }
   .task.done .checkbox { background: #5A8A5E; border-color: #5A8A5E; }
   .task.done .checkbox::after { content: '✓'; color: white; font-weight: bold; font-size: 15px; }
+  .task-index {
+    flex-shrink: 0; font-family: 'Pretendard', sans-serif; font-size: 15px;
+    font-weight: 700; color: #2A2A2A; line-height: 1;
+  }
+  .task.done .task-index { color: #5A8A5E; }
   .task-input {
-    flex: 1; border: none; background: transparent; font-family: 'Pretendard', sans-serif;
+    flex: 0 1 auto; width: auto; max-width: 100%; field-sizing: content;
+    border: none; background: transparent; font-family: 'Pretendard', sans-serif;
     font-size: 15px; color: #222222; outline: none; padding: 2px 0; min-width: 0;
     font-weight: 700;
   }
   .task-input::placeholder { color: #BBBBBB; font-weight: 500; }
   .task.done .task-input { text-decoration: none; color: #5A8A5E; }
-  .delete-btn {
-    background: transparent; border: none; color: #2A2A2A; font-size: 22px;
-    cursor: pointer; padding: 2px 8px; font-weight: 700; flex-shrink: 0; line-height: 1; opacity: 0.7;
-  }
-  .delete-btn:active { opacity: 1; }
+  .task-spacer { flex: 1 1 auto; min-width: 0; }
   
   .add-btn {
     width: 100%; padding: 8px; background: #FFFFFF; border: none;
@@ -2156,14 +2162,18 @@
   .confirm-msg { text-align: center; font-family: 'Pretendard', sans-serif; font-size: 20px; margin-bottom: 16px; line-height: 1.4; color: #2A2A2A; }
   
   .toast {
-    position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
-    background: none; color: #2A2A2A; padding: 0; border: none;
-    border-radius: 0; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700;
+    position: fixed; top: 10px; left: 50%;
+    width: fit-content; min-width: 170px; max-width: min(260px, calc(100vw - 96px)); min-height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.88); color: #2A2A2A; padding: 7px 14px;
+    border: 1.5px solid #3C6B40; border-radius: 12px;
+    font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700;
     box-shadow: none; opacity: 0; pointer-events: none;
-    transition: opacity 0.3s; z-index: 400; max-width: 80%; text-align: center;
-    text-shadow: 0 1px 3px rgba(255,255,255,0.9), 0 0 6px rgba(255,255,255,0.9);
+    transform: translate(-50%, -150%);
+    transition: transform 0.28s ease, opacity 0.28s ease;
+    z-index: 400; text-align: center; line-height: 1.25;
   }
-  .toast.show { opacity: 1; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
   /* ====== 채팅 ====== */
   .chat-fab {
@@ -3642,8 +3652,7 @@ async function loadGlobalGuide() {
 }
 
 function showInfoPopup(msg) {
-  document.getElementById('infoPopupMsg').innerHTML = msg;
-  document.getElementById('infoPopup').classList.add('show');
+  showToast(msg);
 }
 function closeInfoPopup() {
   document.getElementById('infoPopup').classList.remove('show');
@@ -4337,7 +4346,11 @@ function defaultLoginPosition(index, total, container, btn) {
 function showToast(msg) {
   const t = document.getElementById('toast');
   // 이모티콘/기호 제거 → 글씨만 작게 통일
-  msg = String(msg).replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{2190}-\u{21FF}]/gu, '').trim();
+  msg = String(msg)
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]*>/g, '')
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{2190}-\u{21FF}]/gu, '')
+    .trim();
   t.textContent = msg; t.classList.add('show');
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 1800);
@@ -5741,23 +5754,20 @@ function renderTasks() {
     if (collapsedSubjects[s.id] === undefined) collapsedSubjects[s.id] = true;
     
     const sEl = document.createElement('div');
-    sEl.className = 'subject';
+    sEl.className = collapsedSubjects[s.id] ? 'subject subject-collapsed' : 'subject';
     
     sEl.innerHTML = `
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};" onclick="toggleSubject('${s.id}')">
-        <span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}">▼</span>
-        <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
-        <span class="subject-status" style="margin-left:auto;"><span style="color:${done>0?'#2A2A2A':'#BBBBBB'};">${done}</span><span style="color:#BBBBBB;">/${tasks.length}</span></span>
-        ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
+          ${isParent() && selectMode ? '' : `<span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}">▼</span>`}
+          <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
+          <span class="subject-status"><span style="color:${done>0?'#2A2A2A':'#BBBBBB'};">${done}</span><span style="color:#BBBBBB;">/${tasks.length}</span></span>
+          ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" style="margin-left:auto;" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
       </div>
       <div class="subject-body ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-body-${s.id}">
         <div class="task-list" id="list-${s.id}"></div>
-        <button class="add-btn">+</button>
       </div>
     `;
     container.appendChild(sEl);
-
-    sEl.querySelector('.add-btn').addEventListener('click', () => addTask(s.id, dk));
     
     const list = sEl.querySelector(`#list-${s.id}`);
     tasks.forEach((task, idx) => {
@@ -5765,15 +5775,16 @@ function renderTasks() {
       tEl.className = 'task' + (task.done ? ' done' : '');
       
       tEl.innerHTML = `
+        <span class="task-index">${idx + 1}.</span>
         <input type="text" class="task-input" placeholder="내용을 입력하세요" value="${esc(task.text)}" onfocus="this.select()">
-        ${isParent() && selectMode
-          ? `<span class="sel-box ${selectedTasks.has(task.id)?'on':''}" onclick="toggleSelectTask(event,'${task.id}')">${selectedTasks.has(task.id)?'✓':''}</span>`
-          : `<div class="checkbox" data-tid="${task.id}"></div>`}
+        <span class="task-spacer"></span>
+        ${isParent() && selectMode ? '' : `<div class="checkbox" data-tid="${task.id}"></div>`}
       `;
       const _cb = tEl.querySelector('.checkbox');
       if (_cb) _cb.addEventListener('click', () => toggleTask(task));
+      bindTaskLongPress(tEl, task);
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
-      tEl.querySelector('.task-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
+      tEl.querySelector('.task-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addTaskFromEnter(task, e.target.value); } });
       list.appendChild(tEl);
     });
     // 방금 추가된 과목이면 마지막 숙제 줄만 부드럽게 등장
@@ -5875,12 +5886,7 @@ function cancelRequest() {
 }
 
 function showApproveMsg(text) {
-  const el = document.getElementById('approveMsg');
-  if (!el) return;
-  el.textContent = text;
-  el.style.opacity = '1';
-  clearTimeout(el._t);
-  el._t = setTimeout(() => { el.style.opacity = '0'; }, 1500);
+  showToast(text);
 }
 
 async function addSubject() {
@@ -5973,6 +5979,18 @@ async function addTask(subjectId, dk) {
   refreshData(); // 백그라운드 동기화 (임시 id → 실제 id 교체)
 }
 
+async function addTaskFromEnter(task, text) {
+  if (!task) return;
+  if (task.text !== text) {
+    await updateTaskText(task.id, text);
+  }
+  await addTask(task.subject_id, task.date_key);
+  setTimeout(() => {
+    const inputs = document.querySelectorAll(`#list-${task.subject_id} .task-input`);
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 60);
+}
+
 async function toggleTask(task) {
   const newDone = !task.done;
   const dk = task.date_key;
@@ -6019,10 +6037,37 @@ async function updateTaskText(taskId, text) {
   const task = cachedTasks.find(t => t.id === taskId);
   if (task) task.text = text;
   await sb.from('tasks').update({ text }).eq('id', taskId);
+  renderTasks();
 }
 
-async function deleteTask(taskId, dk) {
-  if (!isParent()) { showToast('부모만 삭제할 수 있어요'); return; }
+function bindTaskLongPress(el, task) {
+  let timer = null;
+  let fired = false;
+  const clear = () => {
+    if (timer) clearTimeout(timer);
+    timer = null;
+  };
+  el.addEventListener('pointerdown', e => {
+    if (e.target.closest('input, .checkbox, .sel-box')) return;
+    fired = false;
+    timer = setTimeout(() => {
+      fired = true;
+      deleteTask(e, task.id, task.date_key);
+    }, 650);
+  });
+  el.addEventListener('pointerup', clear);
+  el.addEventListener('pointercancel', clear);
+  el.addEventListener('pointerleave', clear);
+  el.addEventListener('click', e => {
+    if (fired) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  });
+}
+
+async function deleteTask(e, taskId, dk) {
+  if (e && e.stopPropagation) e.stopPropagation();
   soundClick();
   if (!confirm('이 숙제를 지울까요?')) return;
   // 체크된 숙제면 코인도 회수
@@ -6146,7 +6191,7 @@ function setWidgetAlarm() {
   else if (/^([01]?\d|2[0-3]):[0-5]\d$/.test(t)) {
     const [hh, mm] = t.split(':');
     localStorage.setItem('widgetAlarm', `${hh.padStart(2,'0')}:${mm}`);
-  } else { alert('형식이 올바르지 않아요. 예: 07:30'); return; }
+  } else { showToast('형식이 올바르지 않아요. 예: 07:30'); return; }
   syncWidgetAlarm();
 }
 function syncWidgetAlarm() {
@@ -6179,7 +6224,7 @@ function ringWidgetAlarm() {
   let n = 0;
   const beep = () => { try { playTone(880, 0.25, 'sine', 0.12); } catch(e){} if (++n < 6) setTimeout(beep, 350); };
   beep();
-  try { showToast('⏰ 알람!'); } catch(e) { alert('⏰ 알람!'); }
+  showToast('⏰ 알람!');
 }
 function scrollHeadToProfileOnce() {
   if (window._headScrolledInit) return;
@@ -6788,12 +6833,7 @@ function renderPresetList() {
 
 // 과목 추가/제거 안내 — 입력칸 아래 작은 글씨(배경 없음)
 function showPresetMsg(text) {
-  const el = document.getElementById('addSubjectError');
-  if (!el) return;
-  el.style.color = '#2A2A2A';
-  el.textContent = text;
-  clearTimeout(el._msgTimer);
-  el._msgTimer = setTimeout(() => { el.textContent = ''; el.style.color = ''; }, 1500);
+  showToast(text);
 }
 
 function addPresetSubject() {
@@ -8542,6 +8582,35 @@ function updateBottomSheetFrame() {
   line.setAttribute('d', d);
 }
 
+function bindBottomSheetFrameObserver() {
+  const sheet = document.getElementById('bottomActionSheet');
+  if (!sheet || sheet.dataset.frameObserverBound) return;
+  sheet.dataset.frameObserverBound = '1';
+  const scheduleFrameUpdate = () => {
+    updateBottomSheetFrame();
+    requestAnimationFrame(updateBottomSheetFrame);
+  };
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(scheduleFrameUpdate);
+    observer.observe(sheet);
+  }
+  if ('MutationObserver' in window) {
+    const observer = new MutationObserver(scheduleFrameUpdate);
+    observer.observe(sheet, { attributes: true, attributeFilter: ['class', 'style'] });
+  }
+  window.addEventListener('resize', scheduleFrameUpdate);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', scheduleFrameUpdate);
+  }
+  let frameChecks = 0;
+  const checkNextFrame = () => {
+    scheduleFrameUpdate();
+    frameChecks += 1;
+    if (frameChecks < 24) requestAnimationFrame(checkNextFrame);
+  };
+  requestAnimationFrame(checkNextFrame);
+}
+
 // 메뉴바가 올라온 만큼 본문(상단바 제외)을 위로 밀어 달력과 고정 간격 유지
 function applyCalendarLift() {
   const sheet = document.getElementById('bottomActionSheet');
@@ -8590,6 +8659,7 @@ function bindBottomActionSheet() {
   const grip = document.getElementById('bottomActionGrip');
   const sheet = document.getElementById('bottomActionSheet');
   if (!grip || !sheet) return;
+  bindBottomSheetFrameObserver();
   updateBottomActionSheetLayout();
   let startY = 0;
   let lastY = 0;
