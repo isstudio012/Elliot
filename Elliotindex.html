@@ -8378,13 +8378,26 @@ function refreshBottomActionSheetLayoutSoon() {
   setTimeout(updateBottomActionSheetLayout, 380);
 }
 
+// appScroll에 "지금 실제로" 적용된 올림량(px). 추정치(_calLift) 대신 현재 transform을 직접 읽어
+// 전환 애니메이션 도중 재계산이 와도 누적 점프(되먹임)가 생기지 않게 한다.
+function getAppScrollShift() {
+  const scroll = document.getElementById('appScroll');
+  if (!scroll) return 0;
+  const t = getComputedStyle(scroll).transform;
+  if (!t || t === 'none') return 0;
+  const v = t.match(/-?[\d.]+(?:e-?\d+)?/g);
+  if (!v) return 0;
+  const ty = parseFloat(t.indexOf('matrix3d') === 0 ? v[13] : v[5]);
+  return isNaN(ty) ? 0 : -ty;
+}
+
 function updateBottomActionSheetLayout() {
   const sheet = document.getElementById('bottomActionSheet');
   const cal = document.querySelector('.calendar-card');
   if (!sheet || !cal) return;
   const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
-  // 본문이 올라가 있을 수 있으니 _calLift를 더해 '원래' 달력 바닥 기준으로 계산
-  const gap = viewH - (cal.getBoundingClientRect().bottom + _calLift);
+  // 본문이 올라가 있을 수 있으니 현재 실제 올림량을 더해 '원래' 달력 바닥 기준으로 계산
+  const gap = viewH - (cal.getBoundingClientRect().bottom + getAppScrollShift());
   const body = document.getElementById('calBody');
   const isCalendarCollapsed = !!body && body.style.maxHeight === '0px';
   const maxH = isCalendarCollapsed ? Math.round(viewH * (1 - COLLAPSED_CAL_SHEET_TOP_RATIO)) : viewH;
@@ -8406,16 +8419,21 @@ function applyCalendarLift() {
   const sheetH = sheet.getBoundingClientRect().height;
   const offStr = (sheet.style.getPropertyValue('--bottom-sheet-offset') || '').trim();
   const off = offStr.endsWith('px') ? parseFloat(offStr) : getBottomSheetClosedOffset(sheet);
-  const calBottomTrue = cal.getBoundingClientRect().bottom + _calLift;
+  const shift = getAppScrollShift();
+  const calBottomTrue = cal.getBoundingClientRect().bottom + shift;
   const sheetTop = viewH - sheetH + off;
   const L1 = Math.max(0, Math.round(calBottomTrue + CAL_SHEET_GAP - sheetTop));
-  // 과목을 펼쳐 본문이 하단 버튼(원형 손잡이 돌출 포함)과 겹치면 그만큼 전체를 위로
+  // 과목을 펼쳐 본문이 하단 버튼(원형 손잡이 돌출 포함)과 겹치면 그만큼 전체를 위로.
+  // 단, 올리는 양은 "펼쳐진 과목 본문 높이 합"까지만 — 전부 접혀 있으면 0 (첫 화면·버튼 터치에서 안 움직임)
   let L2 = 0;
   const subj = document.getElementById('subjects');
   if (subj) {
-    const subjBottomTrue = subj.getBoundingClientRect().bottom + _calLift;
+    const subjBottomTrue = subj.getBoundingClientRect().bottom + shift;
     const closedTop = viewH - 32 - 19;  // 닫힌 메뉴바 윗변(핸들 32px) 위로 원형 버튼이 19px 돌출
-    L2 = Math.max(0, Math.round(subjBottomTrue + 8 - closedTop));
+    const overflow = Math.max(0, Math.round(subjBottomTrue + 8 - closedTop));
+    let openH = 0;
+    subj.querySelectorAll('.subject-body:not(.collapsed)').forEach(b => { openH += b.offsetHeight; });
+    L2 = Math.min(overflow, Math.round(openH));
   }
   const L = Math.max(L1, L2);
   _calLift = L;
@@ -8470,7 +8488,7 @@ function bindBottomActionSheet() {
     if (rawOffset < 0) {
       const cal = document.querySelector('.calendar-card');
       const viewH = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
-      const calBottomTrue = cal ? cal.getBoundingClientRect().bottom + _calLift : 0;
+      const calBottomTrue = cal ? cal.getBoundingClientRect().bottom + getAppScrollShift() : 0;
       const maxSheetHeight = cal ? Math.max(baseSheetHeight, Math.round(viewH - (calBottomTrue + CAL_SHEET_GAP))) : baseSheetHeight;
       const rubberHeight = Math.min(maxSheetHeight, Math.round(baseSheetHeight + Math.abs(rawOffset) * 0.58));
       sheet.style.setProperty('--bottom-action-height', rubberHeight + 'px');
