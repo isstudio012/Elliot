@@ -1843,6 +1843,20 @@
     cursor: pointer;
   }
   .subject-toggle-all.allcollapsed { transform: rotate(180deg); }
+  /* 접힌 과목 = 알약 칩 (가로 나열, 줄바꿈) */
+  .subject-chip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .subject-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #EAE0C2;
+    border: 1px solid #3C6B40; border-radius: 999px;
+    padding: 6px 12px;
+    font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700; color: #2A2A2A;
+    white-space: nowrap;
+    cursor: pointer; box-shadow: none;
+    transition: transform 0.06s, filter 0.06s;
+  }
+  .subject-chip:active, .subject-chip.pressing { transform: translate(1px,1px); filter: brightness(0.93); }
+  .subject-chip .chip-count { font-size: 12.5px; font-weight: 700; }
   .subject-body {
     overflow: hidden; transition: max-height 0.3s ease;
   }
@@ -4162,19 +4176,7 @@ let collapsedSubjects = {};
 
 function toggleSubject(subjectId) {
   collapsedSubjects[subjectId] = !collapsedSubjects[subjectId];
-  const body = document.querySelector(`#subject-body-${subjectId}`);
-  const icon = document.querySelector(`#subject-toggle-${subjectId}`);
-  if (body) {
-    if (collapsedSubjects[subjectId]) {
-      body.style.maxHeight = body.scrollHeight + 'px';
-      requestAnimationFrame(() => { body.classList.add('collapsed'); body.style.maxHeight = '0'; });
-    } else {
-      body.classList.remove('collapsed');
-      body.style.maxHeight = body.scrollHeight + 'px';
-      setTimeout(() => { body.style.maxHeight = ''; }, 300);
-    }
-  }
-  if (icon) icon.classList.toggle('collapsed');
+  renderTasks();  // 접힘=칩 ↔ 펼침=카드 구조가 바뀌므로 다시 그림
   refreshBottomActionSheetLayoutSoon();  // 펼침/접힘 후 본문 위로 올리기/내리기 재계산
 }
 
@@ -5776,18 +5778,42 @@ function renderTasks() {
     return;
   }
   
-  const allCollapsed = subs.every(s => collapsedSubjects[s.id] !== false);
+  const isSelect = isParent() && selectMode;
+  let chipRow = null;        // 연속된 접힌 과목들을 담는 칩 줄
+  let allArrowPlaced = false; // 주황 전체접기 화살표는 첫 펼친 카드에 1개만
   subs.forEach((s, si) => {
     const tasks = getTasksForSubject(dk, s.id);
     const done = tasks.filter(t => t.done).length;
     if (collapsedSubjects[s.id] === undefined) collapsedSubjects[s.id] = true;
-    
+
+    // 접힌 과목(부모 선택모드 제외) = 알약 칩
+    if (!isSelect && collapsedSubjects[s.id]) {
+      if (!chipRow) {
+        chipRow = document.createElement('div');
+        chipRow.className = 'subject-chip-row';
+        container.appendChild(chipRow);
+      }
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'subject-chip';
+      chip.style.background = s.color || '#EAE0C2';
+      chip.innerHTML = `${esc(s.name)}<span class="chip-count"><span style="color:${done>0?'#2A2A2A':'#BBBBBB'};">${done}</span><span style="color:#BBBBBB;">/${tasks.length}</span></span>`;
+      chip.onclick = () => toggleSubject(s.id);
+      bindSubjectHeaderLongPress(chip, s.id);
+      chipRow.appendChild(chip);
+      return;
+    }
+    chipRow = null;
+
+    const showAllArrow = !isSelect && !allArrowPlaced;
+    if (showAllArrow) allArrowPlaced = true;
+
     const sEl = document.createElement('div');
     sEl.className = collapsedSubjects[s.id] ? 'subject subject-collapsed' : 'subject';
     
     sEl.innerHTML = `
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};" onclick="toggleSubject('${s.id}')">
-          ${isParent() && selectMode ? '' : `${si === 0 ? `<span class="subject-toggle-all ${allCollapsed ? 'allcollapsed' : ''}" onclick="toggleAllSubjects(event)">▲</span>` : ''}<span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}"${si === 0 ? ' style="margin-left:8px;"' : ''}>▼</span>`}
+          ${isSelect ? '' : `${showAllArrow ? `<span class="subject-toggle-all" onclick="toggleAllSubjects(event)">▲</span>` : ''}<span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}"${showAllArrow ? ' style="margin-left:8px;"' : ''}>▼</span>`}
           <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
           <span class="subject-status"><span style="color:${done>0?'#2A2A2A':'#BBBBBB'};">${done}</span><span style="color:#BBBBBB;">/${tasks.length}</span></span>
           ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" style="margin-left:auto;" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
@@ -5829,6 +5855,15 @@ function renderTasks() {
       justAddedSubjectId = null;
     }
   });
+
+  // 전부 칩(모두 접힘)이면 칩 줄 맨 끝에 주황 전체펴기 화살표(▼)
+  if (!isSelect && !allArrowPlaced && chipRow) {
+    const allBtn = document.createElement('span');
+    allBtn.className = 'subject-toggle-all allcollapsed';
+    allBtn.textContent = '▲';
+    allBtn.onclick = toggleAllSubjects;
+    chipRow.appendChild(allBtn);
+  }
 }
 
 function renderMomSection() {
@@ -5923,11 +5958,11 @@ function updateBottomSelectDeleteButton() {
 
 function positionApprovalSheetNearLastTask() {
   const sheet = document.getElementById('bottomActionSheet');
-  // 마지막 '과목 박스' 기준 (접혀 있어도 헤더 아랫선 기준)
-  const subjects = document.querySelectorAll('#subjects .subject');
-  if (!sheet || !subjects.length) return;
-  const lastSubject = subjects[subjects.length - 1];
-  const taskBottom = lastSubject.getBoundingClientRect().bottom + getAppScrollShift();
+  // 마지막 줄(과목 카드 또는 칩 줄) 기준
+  const wrap = document.getElementById('subjects');
+  const lastEl = wrap ? wrap.lastElementChild : null;
+  if (!sheet || !lastEl) return;
+  const taskBottom = lastEl.getBoundingClientRect().bottom + getAppScrollShift();
   const sheetH = sheet.getBoundingClientRect().height || 220;
   const closedOffset = getBottomSheetClosedOffset(sheet);
   const knobTopWhenClosed = window.innerHeight - sheetH + closedOffset - 16 + getAppScrollShift();
