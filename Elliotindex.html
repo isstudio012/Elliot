@@ -3322,7 +3322,7 @@
 
 
 <!-- 과목 추가 -->
-<div id="addSubjectModal" style="display:none;position:fixed;z-index:300;">
+<div id="addSubjectModal" style="display:none;position:fixed;inset:0;background:rgba(0, 0, 0, 0.5);z-index:300;">
   <div class="modal pwd-modal" id="subjectModalInner" style="max-width:340px;position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:301;touch-action:none;padding:16px;">
     <!-- 드래그 핸들 바 -->
     <div id="subjectModalDragHandle" style="position:absolute;top:0;left:0;right:0;height:22px;cursor:grab;display:flex;align-items:center;justify-content:center;user-select:none;touch-action:none;z-index:5;">
@@ -3345,7 +3345,7 @@
     <div style="display:flex;align-items:center;gap:0;margin-bottom:12px;border:2px solid #3C6B40;border-radius:10px;overflow:hidden;">
       <button onclick="addPresetSubject()" title="즐겨찾기 등록" style="flex-shrink:0;width:70px;display:flex;align-items:center;justify-content:center;gap:4px;background:transparent;border:none;color:#E87722;font-size:16px;font-weight:700;padding:8px 0;cursor:pointer;line-height:1;"><span style="font-size:20px;">★</span>등록</button>
       <span style="width:1px;height:24px;background:#5A8A5E;flex-shrink:0;"></span>
-      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="flex:1;min-width:0;padding:10px 12px;font-size:15px;margin-bottom:0;border:none;border-radius:0;">
+      <input type="text" class="text-input" id="newSubjectInput" maxlength="20" placeholder="입력" style="flex:1;min-width:0;padding:10px 12px;font-size:15px;margin-bottom:0;border:none;border-radius:0;text-align:left;direction:ltr;unicode-bidi:plaintext;">
     </div>
     <div class="pwd-error" id="addSubjectError" style="margin-bottom:4px;"></div>
 
@@ -8474,6 +8474,7 @@ const COLLAPSED_CAL_SHEET_TOP_RATIO = 0.52;
 let _calLift = 0;
 
 function refreshBottomActionSheetLayoutSoon() {
+  updateBottomActionSheetLayout();
   requestAnimationFrame(updateBottomActionSheetLayout);
   setTimeout(updateBottomActionSheetLayout, 380);
 }
@@ -8517,8 +8518,11 @@ function updateBottomSheetFrame() {
   const line = sheet.querySelector('.bottom-sheet-line');
   if (!svg || !fill || !line) return;
   const rect = sheet.getBoundingClientRect();
-  const w = Math.round(rect.width || 380);
-  const h = Math.round(rect.height || 220);
+  if (rect.width < 1 || rect.height < 1) {
+    return;
+  }
+  const w = Math.round(rect.width);
+  const h = Math.round(rect.height);
   const stroke = 2;
   const inset = stroke / 2;
   const corner = 11;
