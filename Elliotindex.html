@@ -908,6 +908,7 @@
   .bottom-action-sheet.approve-ready .sheet-knob { pointer-events: auto; cursor: pointer; clip-path: inset(0px 0 0 0); }
   .bottom-action-sheet.approve-child .sheet-knob { background: #1E4FB5; animation: approvePulse 1s ease-in-out infinite; }
   .bottom-action-sheet.approve-parent .sheet-knob { background: #E87722; animation: approvePulse 1s ease-in-out infinite; }
+  .bottom-action-sheet.delete-ready .sheet-knob { pointer-events: auto; cursor: pointer; background: #5A8A5E; clip-path: inset(0px 0 0 0); }
   .bottom-action-menu {
     display: grid;
     align-items: center;
@@ -5572,24 +5573,8 @@ function renderControlBar() {
     }
   }
 
-  // 선택/삭제 버튼 (부모만, 과목이 있을 때만)
   selectWrap.innerHTML = '';
-  if (isParent()) {
-    const subs = getSubjectsForDate(selectedDate);
-    if (subs.length > 0) {
-      if (!selectMode) {
-        selectWrap.innerHTML = `<button onclick="enterSelectMode()" style="padding:6px 10px;background:white;color:#5A8A5E;border:1.5px solid #5A8A5E;border-radius:8px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">선택/삭제</button>`;
-      } else {
-        const n = selectedSubjects.size + selectedTasks.size;
-        selectWrap.innerHTML = `
-          <div style="display:flex;background:white;border:1.5px solid #5A8A5E;border-radius:8px;overflow:hidden;">
-            <button onclick="deleteSelected()" ${n===0?'disabled':''} style="background:${n===0?'#ccc':'#5A8A5E'};color:white;border:none;padding:6px 8px;font-family:'Pretendard',sans-serif;font-size:12px;font-weight:700;cursor:${n===0?'default':'pointer'};white-space:nowrap;">삭제(${n})</button>
-            <button onclick="exitSelectMode()" style="background:white;color:#999;border:none;border-left:1px solid #5A8A5E;padding:6px 6px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">✕</button>
-          </div>
-        `;
-      }
-    }
-  }
+  updateBottomSelectDeleteButton();
 }
 
 function toggleChildDropdown() {
@@ -5790,6 +5775,7 @@ function renderTasks() {
       </div>
     `;
     container.appendChild(sEl);
+    bindSubjectHeaderLongPress(sEl.querySelector('.subject-header'), s.id);
     
     const list = sEl.querySelector(`#list-${s.id}`);
     tasks.forEach((task, idx) => {
@@ -5867,6 +5853,7 @@ function updateBottomApproveButton(allDone, confirmed) {
   const sheet = document.getElementById('bottomActionSheet');
   const knob = document.getElementById('sheetKnob');
   if (!sheet || !knob) return;
+  if (selectMode) { updateBottomSelectDeleteButton(); return; }
   sheet.classList.remove('approve-ready', 'approve-child', 'approve-parent');
   sheet.style.setProperty('--approval-lift', '0px');
   knob.textContent = '';
@@ -5883,6 +5870,31 @@ function updateBottomApproveButton(allDone, confirmed) {
     onConfirmPopupBtn();
   };
   setBottomActionSheet(false);
+  refreshBottomActionSheetLayoutSoon();
+}
+
+function updateBottomSelectDeleteButton() {
+  const sheet = document.getElementById('bottomActionSheet');
+  const knob = document.getElementById('sheetKnob');
+  if (!sheet || !knob) return;
+  const n = selectedSubjects.size + selectedTasks.size;
+  sheet.classList.remove('delete-ready');
+  if (!selectMode) {
+    if (!sheet.classList.contains('approve-ready')) {
+      knob.textContent = '';
+      knob.onclick = null;
+      sheet.style.setProperty('--approval-lift', '0px');
+    }
+    return;
+  }
+  sheet.classList.remove('approve-ready', 'approve-child', 'approve-parent');
+  sheet.style.setProperty('--approval-lift', n > 0 ? '52px' : '0px');
+  knob.textContent = n > 0 ? '삭제' : '';
+  knob.onclick = n > 0 ? (e => { e.stopPropagation(); performSelectedDelete(); }) : null;
+  if (n > 0) {
+    sheet.classList.add('delete-ready');
+    setBottomActionSheet(false);
+  }
   refreshBottomActionSheetLayoutSoon();
 }
 
@@ -6498,17 +6510,45 @@ function updateTopNavArrows() {
   if (document.readyState !== 'loading') attachTopNavAutoSlide();
   else document.addEventListener('DOMContentLoaded', attachTopNavAutoSlide);
 })();
-function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
-function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); }
+function enterSelectMode() { selectMode = true; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); updateBottomSelectDeleteButton(); }
+function exitSelectMode() { selectMode = false; selectedSubjects.clear(); selectedTasks.clear(); renderControlBar(); renderTasks(); updateBottomSelectDeleteButton(); }
+function bindSubjectHeaderLongPress(header, id) {
+  if (!header || !isParent()) return;
+  let timer = null;
+  let fired = false;
+  const clear = () => {
+    if (timer) clearTimeout(timer);
+    timer = null;
+  };
+  header.addEventListener('pointerdown', e => {
+    if (e.target.closest('.sel-box')) return;
+    fired = false;
+    timer = setTimeout(() => {
+      fired = true;
+      if (!selectMode) {
+        enterSelectMode();
+      }
+    }, 550);
+  });
+  header.addEventListener('pointerup', clear);
+  header.addEventListener('pointercancel', clear);
+  header.addEventListener('pointerleave', clear);
+  header.addEventListener('click', e => {
+    if (fired) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, true);
+}
 function toggleSelectSubject(e, id) {
   e.stopPropagation();
   if (selectedSubjects.has(id)) selectedSubjects.delete(id); else selectedSubjects.add(id);
-  renderControlBar(); renderTasks();
+  renderControlBar(); renderTasks(); updateBottomSelectDeleteButton();
 }
 function toggleSelectTask(e, id) {
   e.stopPropagation();
   if (selectedTasks.has(id)) selectedTasks.delete(id); else selectedTasks.add(id);
-  renderControlBar(); renderTasks();
+  renderControlBar(); renderTasks(); updateBottomSelectDeleteButton();
 }
 async function deleteSelected() {
   if (!isParent()) return;
@@ -6558,8 +6598,13 @@ async function confirmDeleteSelected() {
     return;
   }
   closeDeleteSelectedModal();
+  await performSelectedDelete();
+}
+
+async function performSelectedDelete() {
   const subIds = [...selectedSubjects];
   const taskIds = [...selectedTasks];
+  if (subIds.length === 0 && taskIds.length === 0) { showToast('선택된 항목이 없어요'); return; }
 
   // 삭제될 숙제 모으기 (선택 숙제 + 선택 과목의 모든 숙제)
   const toDelete = new Map();
@@ -6589,6 +6634,7 @@ async function confirmDeleteSelected() {
   for (const dk of affectedDates) await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
 
   selectMode = false; selectedSubjects.clear(); selectedTasks.clear();
+  updateBottomSelectDeleteButton();
   showToast('선택 항목 삭제됨 🗑️');
   await refreshData();
   expandCalendarWhenNoHomeworkBoxes();
