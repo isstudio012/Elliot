@@ -2053,25 +2053,36 @@
   .modal-title { font-family: 'Pretendard', sans-serif; font-size: 30px; font-weight: 700; text-align: center; margin-bottom: 8px; color: #2A2A2A; }
   .modal-sub { text-align: center; margin-bottom: 20px; font-family: 'Pretendard', sans-serif; font-size: 20px; color: #1E4FB5; }
   
-  .shop-modal { max-width: 320px !important; padding: 14px !important; background: #E8F0E0 !important; border-color: #5A8A5E !important; box-shadow: 4px 4px 0 #5A8A5E !important; }
-  .shop-modal-title { font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 2px; color: #2E5A32; -webkit-text-stroke: 0.3px #2E5A32; }
-  .shop-modal-sub { text-align: center; margin-bottom: 8px; font-family: 'Pretendard', sans-serif; font-size: 14px; color: #2A2A2A; font-weight: 700; -webkit-text-stroke: 0.2px #2A2A2A; }
-  .shop-items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-  .shop-item {
-    background: #FFFFFF; border: 1.5px solid #5A8A5E; border-radius: 8px;
-    padding: 8px 4px; display: flex; flex-direction: column; align-items: center;
-    gap: 2px; box-shadow: 2px 2px 0 #5A8A5E;
+  .shop-modal {
+    max-width: 100% !important; padding: 20px 24px !important; background: #FFFFFF !important;
+    border: 2px solid #D8D8D8 !important; border-radius: 14px !important;
+    box-shadow: none !important; overflow-y: auto;
   }
-  .shop-item-icon { font-size: 22px; }
-  .shop-item-name { font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700; text-align: center; color: #2E5A32; line-height: 1.1; word-break: keep-all; -webkit-text-stroke: 0.2px #2E5A32; }
-  .shop-item-price { font-family: 'Pretendard', sans-serif; font-size: 13px; color: #2A2A2A; font-weight: 700; -webkit-text-stroke: 0.2px #2A2A2A; }
-  .shop-item-actions { display: flex; gap: 3px; width: 100%; margin-top: 2px; }
-  .buy-btn { flex: 1; background: #5A8A5E; border: 1.5px solid #2E5A32; color: white; font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700; padding: 4px 0; border-radius: 5px; cursor: pointer; -webkit-text-stroke: 0.2px white; }
+  .shop-modal-title { font-family: 'Pretendard', sans-serif; font-size: 28px; font-weight: 900; text-align: center; margin-bottom: 22px; color: #2A2A2A; line-height: 1; }
+  .shop-modal-sub { text-align: center; margin-bottom: 8px; font-family: 'Pretendard', sans-serif; font-size: 24px; color: #2A2A2A; font-weight: 900; line-height: 1; }
+  .shop-coin-main { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 8px 0 18px; font-family: 'Pretendard', sans-serif; font-size: 66px; font-weight: 900; color: #3C6B40; line-height: 1; }
+  .shop-coin-main .shop-coin-icon { font-size: 40px; line-height: 1; }
+  .shop-stats { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 22px; font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 800; color: #777777; }
+  .shop-stat-value { color: #3C6B40; }
+  .shop-stat-dot { color: #777777; }
+  .shop-items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .shop-item {
+    background: #FFFFFF; border: 1.5px solid #D8D8D8; border-radius: 8px;
+    padding: 26px 10px 16px; display: flex; flex-direction: column; align-items: center;
+    gap: 12px; box-shadow: 0 2px 8px #D8D8D8; min-height: 210px;
+  }
+  .shop-item-icon { font-size: 48px; line-height: 1; min-height: 52px; display: flex; align-items: center; }
+  .shop-item-name { font-family: 'Pretendard', sans-serif; font-size: 24px; font-weight: 900; text-align: center; color: #2A2A2A; line-height: 1.1; word-break: keep-all; }
+  .shop-item-divider { width: 100%; height: 1.5px; background: #D8D8D8; margin: 2px 0; }
+  .shop-item-price { display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Pretendard', sans-serif; font-size: 32px; color: #2A2A2A; font-weight: 900; line-height: 1; }
+  .shop-price-icon { font-size: 30px; line-height: 1; }
+  .shop-item-actions { display: flex; gap: 5px; width: 100%; margin-top: auto; }
+  .buy-btn { flex: 1; background: #5A8A5E; border: none; color: white; font-family: 'Pretendard', sans-serif; font-size: 24px; font-weight: 900; padding: 10px 0; border-radius: 8px; cursor: pointer; }
   .buy-btn:disabled { background: #B0B8AC; cursor: not-allowed; }
-  .shop-item-delete { background: white; border: 1.5px solid #5A8A5E; color: #5A8A5E; font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700; padding: 0 6px; border-radius: 5px; cursor: pointer; line-height: 1; }
-  .add-shop-item-btn { width: 100%; padding: 7px; background: white; border: 2px dashed #5A8A5E; border-radius: 6px; font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700; color: #2E5A32; cursor: pointer; margin-bottom: 6px; -webkit-text-stroke: 0.2px #2E5A32; }
-  .modal-close { width: 100%; margin-top: 4px; padding: 9px; background: #2E5A32; color: white; border: none; border-radius: 8px; font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
-  .owned-tickets { background: #FFFFFF; border: 1.5px dashed #5A8A5E; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; }
+  .shop-item-delete { background: white; border: 1.5px solid #5A8A5E; color: #5A8A5E; font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 900; padding: 0 8px; border-radius: 8px; cursor: pointer; line-height: 1; }
+  .add-shop-item-btn { width: 100%; padding: 18px; background: white; border: 2px dashed #5A8A5E; border-radius: 8px; font-family: 'Pretendard', sans-serif; font-size: 22px; font-weight: 900; color: #3C6B40; cursor: pointer; margin-bottom: 0; }
+  .modal-close { position: absolute; top: 16px; right: 16px; width: auto; margin-top: 0; padding: 0; background: none; color: #2A2A2A; border: none; border-radius: 0; font-family: 'Pretendard', sans-serif; font-size: 34px; font-weight: 400; line-height: 1; cursor: pointer; }
+  .owned-tickets { display: none; background: #FFFFFF; border: 1.5px dashed #5A8A5E; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; }
   .owned-title { font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 2px; color: #2E5A32; }
   .owned-list { font-family: 'Pretendard', sans-serif; font-size: 14px; color: #2A2A2A; font-weight: 700; }
   .owned-empty { color: #A8B0A4; font-style: italic; }
@@ -3132,9 +3143,17 @@
 <!-- 상점 -->
 <div class="modal-bg" id="shopModal" onclick="if(event.target===this)closeShop()">
   <div class="modal shop-modal">
-    <div class="shop-modal-title">🎁 코인 상점</div>
-    <div class="shop-modal-sub">내 코인: <span id="modalCoin">0</span> 💰</div>
-    <div class="shop-modal-sub" style="font-size:12px;color:#777777;margin-top:-4px;">총 누적 코인: <span id="totalCoinEver">0</span> 💰</div>
+    <button class="modal-close" onclick="closeShop()">×</button>
+    <div class="shop-modal-title">코인 상점</div>
+    <div class="shop-modal-sub">내 코인</div>
+    <div class="shop-coin-main"><span id="modalCoin">0</span><span class="shop-coin-icon">💰</span></div>
+    <div class="shop-stats">
+      <span>누적 <span class="shop-stat-value" id="totalCoinEver">0</span></span>
+      <span class="shop-stat-dot">•</span>
+      <span>이용권 <span class="shop-stat-value" id="ownedTicketCount">0</span></span>
+      <span class="shop-stat-dot">•</span>
+      <span>구매 <span class="shop-stat-value" id="purchaseHistoryCount">0</span></span>
+    </div>
     <div class="owned-tickets">
       <div class="owned-title">🎟️ 보유 이용권</div>
       <div class="owned-list" id="ownedList"></div>
@@ -3145,7 +3164,6 @@
     </div>
     <div class="shop-items-grid" id="shopItemsGrid"></div>
     <button class="add-shop-item-btn" id="addShopItemTrigger" onclick="openAddShopItem()">+ 상품 추가</button>
-    <button class="modal-close" onclick="closeShop()">닫기</button>
   </div>
 </div>
 
@@ -7457,14 +7475,48 @@ function openShop() {
     totalEl.textContent = cachedCoins.amount + pending;
   }
   document.getElementById('shopModal').classList.add('show');
+  positionShopModal();
 }
-function closeShop() { soundClick(); document.getElementById('shopModal').classList.remove('show'); }
+function positionShopModal() {
+  const modal = document.querySelector('#shopModal .shop-modal');
+  if (!modal) return;
+  const nav = document.getElementById('topNav');
+  const calBody = document.getElementById('calBody');
+  if (!nav || !calBody) return;
+  const top = nav.getBoundingClientRect().bottom;
+  const prevMax = calBody.style.maxHeight;
+  const prevTrans = calBody.style.transition;
+  calBody.style.transition = 'none';
+  calBody.style.maxHeight = 'none';
+  void calBody.offsetHeight;
+  const bottom = calBody.getBoundingClientRect().bottom;
+  calBody.style.maxHeight = prevMax;
+  void calBody.offsetHeight;
+  calBody.style.transition = prevTrans;
+  modal.style.position = 'fixed';
+  modal.style.left = '0';
+  modal.style.right = '0';
+  modal.style.top = top + 'px';
+  modal.style.width = '100%';
+  modal.style.maxWidth = '100%';
+  modal.style.height = Math.max(120, bottom - top) + 'px';
+  modal.style.maxHeight = 'none';
+}
+function clearShopModalInline(m) {
+  if (!m) return;
+  ['position','left','right','top','width','maxWidth','height','maxHeight'].forEach(p => m.style[p] = '');
+}
+function closeShop() {
+  soundClick();
+  document.getElementById('shopModal').classList.remove('show');
+  clearShopModalInline(document.querySelector('#shopModal .shop-modal'));
+}
 
 function renderShopItems() {
   const grid = document.getElementById('shopItemsGrid');
   grid.innerHTML = '';
   if (cachedShopItems.length === 0) {
-    grid.innerHTML = '<div style="grid-column:span 2;text-align:center;font-family:Pretendard,sans-serif;color:#A8967C;padding:10px;">상품이 없어요</div>';
+    grid.innerHTML = '<div style="grid-column:span 2;text-align:center;font-family:Pretendard,sans-serif;color:#777777;padding:10px;">상품이 없어요</div>';
     return;
   }
   cachedShopItems.forEach(item => {
@@ -7474,7 +7526,8 @@ function renderShopItems() {
     el.innerHTML = `
       <span class="shop-item-icon">${item.icon || '🎁'}</span>
       <div class="shop-item-name"></div>
-      <div class="shop-item-price">${item.price} 💰</div>
+      <div class="shop-item-divider"></div>
+      <div class="shop-item-price"><span class="shop-price-icon">💰</span><span>${item.price}</span></div>
       <div class="shop-item-actions">
         <button class="buy-btn" ${cachedCoins.amount < item.price ? 'disabled' : ''}>구매</button>
         ${delBtn}
@@ -7493,10 +7546,16 @@ function renderShopItems() {
 function renderOwned() {
   const el = document.getElementById('ownedList');
   const items = [];
+  let ownedCount = 0;
   cachedShopItems.forEach(item => {
     const cnt = cachedTickets[item.id] || 0;
-    if (cnt > 0) items.push(`${item.icon || '🎁'} ${item.name} ${cnt}장`);
+    if (cnt > 0) {
+      ownedCount += cnt;
+      items.push(`${item.icon || '🎁'} ${item.name} ${cnt}장`);
+    }
   });
+  const countEl = document.getElementById('ownedTicketCount');
+  if (countEl) countEl.textContent = ownedCount;
   el.innerHTML = items.length === 0 
     ? '<span class="owned-empty">아직 없어요</span>' 
     : items.join(' · ');
@@ -7510,6 +7569,8 @@ async function renderPurchaseHistory() {
     .order('created_at', { ascending: false })
     .limit(10);
   const el = document.getElementById('purchaseHistoryList');
+  const countEl = document.getElementById('purchaseHistoryCount');
+  if (countEl) countEl.textContent = data ? data.length : 0;
   if (!data || data.length === 0) {
     el.innerHTML = '<span class="owned-empty">아직 없어요</span>';
     return;
