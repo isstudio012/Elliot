@@ -1843,11 +1843,12 @@
   .task-list { padding: 2px 0; }
   .task {
     display: flex; align-items: center; gap: 6px; padding: 6px 8px;
-    cursor: pointer; user-select: none;
+    cursor: pointer; user-select: none; touch-action: pan-y;
+    transition: transform 0.12s ease, background 0.12s ease;
   }
   .task + .task { border-top: 1px dashed #C4C4C4; }
   .task:active { background: #fffbf0; }
-  .task.task-pressing {
+  .task.task-swiping {
     background: #fffbf0;
     transform: scale(0.985);
   }
@@ -3277,7 +3278,7 @@
     <button class="settings-header-menu-btn" data-sec="login" onclick="showSettingsSection('login')">프로필</button>
     <button class="settings-header-menu-btn" data-sec="title" onclick="showSettingsSection('title')">한마디</button>
     <button class="settings-header-menu-btn" data-sec="password" onclick="showSettingsSection('password')">비번변경</button>
-    <button class="settings-header-menu-btn" onclick="openCoinReset()">코인리셋</button>
+    <button class="settings-header-menu-btn" data-sec="coin" onclick="showSettingsSection('coin')">코인리셋</button>
     <button class="settings-header-menu-btn" onclick="openFamilyCodeCheck()">가족코드</button>
     <button class="settings-header-menu-btn" data-sec="guide" onclick="showSettingsSection('guide')">가이드</button>
   </div>
@@ -3286,7 +3287,7 @@
       <button class="settings-menu-btn" onclick="showSettingsSection('login')"><span class="settings-menu-dot"></span><span>프로필 추가/삭제</span></button>
       <button class="settings-menu-btn" onclick="showSettingsSection('title')"><span class="settings-menu-dot"></span><span>한마디 바꾸기</span></button>
       <button class="settings-menu-btn" onclick="showSettingsSection('password')"><span class="settings-menu-dot"></span><span>비밀번호 변경</span></button>
-      <button class="settings-menu-btn" onclick="openCoinReset()"><span class="settings-menu-dot"></span><span>코인 리셋</span></button>
+      <button class="settings-menu-btn" onclick="showSettingsSection('coin')"><span class="settings-menu-dot"></span><span>코인 리셋</span></button>
       <button class="settings-menu-btn" onclick="openFamilyCodeCheck()"><span class="settings-menu-dot"></span><span>가족코드 확인하기</span></button>
       <button class="settings-menu-btn" onclick="showSettingsSection('guide')"><span class="settings-menu-dot"></span><span>📋 사용 가이드</span></button>
       <div class="settings-menu-btn" style="justify-content:space-between;cursor:default;">
@@ -3327,6 +3328,9 @@
     </div>
     <div class="settings-view" id="settingsPasswordView">
       <div id="passwordSettingsList" style="display:flex;flex-direction:column;gap:0;"></div>
+    </div>
+    <div class="settings-view" id="settingsCoinView">
+      <div id="coinSettingsList" style="display:flex;flex-direction:column;gap:0;"></div>
     </div>
     <div class="settings-view" id="settingsGuideView">
       <div id="guidePageBody"></div>
@@ -3590,6 +3594,8 @@ let cachedTickets = {};            // 활성 자녀의 티켓 { item_id: count }
 let cachedTicketsMap = {};         // { memberId: { item_id: count } }
 let cachedMembers = [];
 let cachedSchedules = [];          // 다가오는 일정 [{id, date_key, title, member_id}]
+let appSettings = {};
+let weeklyBonusAmount = 15;
 let noteLines = [];
 let noteTitle = '숙제노트';
 
@@ -4086,9 +4092,7 @@ function fallbackCopy(text) {
 
 /* ====== 코인 리셋 ====== */
 function openCoinReset() {
-  document.getElementById('coinResetPwd').value = '';
-  document.getElementById('coinResetError').textContent = '';
-  document.getElementById('coinResetModal').classList.add('show');
+  showSettingsSection('coin');
 }
 
 function closeCoinReset() {
@@ -5171,6 +5175,8 @@ async function loadAllData() {
   
   const settings = {};
   (settRes.data || []).forEach(s => { settings[s.key] = s.value; });
+  appSettings = settings;
+  weeklyBonusAmount = Math.max(0, parseInt(settings.weekly_bonus_amount || '15', 10) || 0);
   if (settings.app_title) {
     document.getElementById('appTitle').textContent = settings.app_title;
     fitAppTitle();
@@ -5786,9 +5792,14 @@ function renderTasks() {
       `;
       const _cb = tEl.querySelector('.checkbox');
       if (_cb) _cb.addEventListener('click', () => toggleTask(task));
-      bindTaskLongPress(tEl, task);
+      bindTaskSwipe(tEl, task);
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
       tEl.querySelector('.task-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addTaskFromEnter(task, e.target.value); } });
+      tEl.addEventListener('click', e => {
+        if (e.target.closest('input, .checkbox, .sel-box')) return;
+        const input = tEl.querySelector('.task-input');
+        if (input) { input.focus(); input.select(); }
+      });
       list.appendChild(tEl);
     });
     // 방금 추가된 과목이면 마지막 숙제 줄만 부드럽게 등장
@@ -6044,32 +6055,44 @@ async function updateTaskText(taskId, text) {
   renderTasks();
 }
 
-function bindTaskLongPress(el, task) {
-  let timer = null;
-  let fired = false;
-  const clear = () => {
-    if (timer) clearTimeout(timer);
-    timer = null;
-    el.classList.remove('task-pressing');
-  };
+function bindTaskSwipe(el, task) {
+  let startX = 0;
+  let startY = 0;
+  let swiping = false;
   el.addEventListener('pointerdown', e => {
     if (e.target.closest('input, .checkbox, .sel-box')) return;
-    fired = false;
-    el.classList.add('task-pressing');
-    timer = setTimeout(() => {
-      fired = true;
-      deleteTask(e, task.id, task.date_key);
-      el.classList.remove('task-pressing');
-    }, 650);
+    startX = e.clientX;
+    startY = e.clientY;
+    swiping = false;
   });
-  el.addEventListener('pointerup', clear);
-  el.addEventListener('pointercancel', clear);
-  el.addEventListener('pointerleave', clear);
-  el.addEventListener('click', e => {
-    if (fired) {
-      e.preventDefault();
-      e.stopPropagation();
+  el.addEventListener('pointermove', e => {
+    if (!startX) return;
+    const dx = e.clientX - startX;
+    const dy = Math.abs(e.clientY - startY);
+    if (dx > 12 && dx > dy * 1.4) {
+      swiping = true;
+      el.classList.add('task-swiping');
+      el.style.transform = `translateX(${Math.min(dx, 54)}px)`;
     }
+  });
+  const finish = e => {
+    if (!startX) return;
+    const dx = e.clientX - startX;
+    const shouldDelete = swiping && dx > 48;
+    startX = 0;
+    startY = 0;
+    swiping = false;
+    el.classList.remove('task-swiping');
+    el.style.transform = '';
+    if (shouldDelete) deleteTask(e, task.id, task.date_key);
+  };
+  el.addEventListener('pointerup', finish);
+  el.addEventListener('pointercancel', e => {
+    startX = 0;
+    startY = 0;
+    swiping = false;
+    el.classList.remove('task-swiping');
+    el.style.transform = '';
   });
 }
 
@@ -6089,6 +6112,9 @@ async function deleteTask(e, taskId, dk) {
     await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
   }
   await sb.from('tasks').delete().eq('id', taskId);
+  if (task && !cachedTasks.some(t => t.id !== taskId && t.subject_id === task.subject_id && t.date_key === task.date_key)) {
+    await sb.from('subjects').delete().eq('id', task.subject_id);
+  }
   await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
   showToast('🗑️ 숙제가 삭제됐어요');
   await refreshData();
@@ -6471,6 +6497,28 @@ function closeDeleteSelectedModal() {
   document.getElementById('deleteSelectedModal').classList.remove('show');
 }
 
+function dateKeyFromDate(d) {
+  return dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function getWeeklyBonusForDate(dk) {
+  const bonus = Math.max(0, parseInt(weeklyBonusAmount || 0, 10) || 0);
+  if (bonus <= 0) return 0;
+  const friday = new Date(dk + 'T00:00:00');
+  if (friday.getDay() !== 5) return 0;
+  const monday = new Date(friday);
+  monday.setDate(friday.getDate() - 4);
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = dateKeyFromDate(d);
+    const stats = getDayStats(key);
+    if (!hasRealTask(key) || stats.total <= 0 || stats.done !== stats.total) return 0;
+    if (i < 4 && !cachedConfirmations[getConfKey(key)]) return 0;
+  }
+  return bonus;
+}
+
 async function confirmDeleteSelected() {
   if (!isParent()) return;
   const pin = document.getElementById('deleteSelectedPwd').value;
@@ -6523,7 +6571,8 @@ async function doConfirm() {
   if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
 
   const pending = cachedCoins.pending[selectedDate] || 0;
-  const newAmount = cachedCoins.amount + pending;
+  const weeklyBonus = getWeeklyBonusForDate(selectedDate);
+  const newAmount = cachedCoins.amount + pending + weeklyBonus;
   const newPending = { ...(cachedCoins.pending || {}) };
   delete newPending[selectedDate];
   
@@ -6535,7 +6584,7 @@ async function doConfirm() {
   renderAll();
 
   soundFanfare();
-  if (pending > 0) showDogMsg(`💕 +${pending} 💰`, 1800);
+  if (pending + weeklyBonus > 0) showDogMsg(`💕 +${pending + weeklyBonus} 💰`, 1800);
   else showDogMsg('💕 참 잘했어요', 1500);
 
   // 서버 저장: onConflict 의존 제거 — 기존 행 삭제 후 삽입
@@ -7080,10 +7129,11 @@ function settingsBack() {
 
 function showSettingsSection(section) {
   document.querySelectorAll('#settingsPanel .settings-view').forEach(v => v.classList.remove('show'));
-  const titleMap = { login: '로그인 프로필', title: '제목 바꾸기', password: '비밀번호 변경', guide: '📋 사용 가이드' };
+  const titleMap = { login: '로그인 프로필', title: '제목 바꾸기', password: '비밀번호 변경', coin: '코인 리셋', guide: '📋 사용 가이드' };
   document.getElementById(`settings${section[0].toUpperCase() + section.slice(1)}View`).classList.add('show');
   document.getElementById('settingsBackBtn').style.display = '';
   document.getElementById('settingsHeaderTitle').textContent = titleMap[section] || '설정';
+  if (section === 'coin') renderCoinSettings();
   if (section === 'guide') renderGuidePage();
   const hm = document.getElementById('settingsHeaderMenu');
   if (hm) {
@@ -7186,6 +7236,47 @@ function renderPasswordSettings() {
       </div>
     `;
   }).join('');
+}
+
+function coinSettingMembers() {
+  const children = orderedMembers().filter(m => m.role === 'child');
+  return children.length ? children : orderedMembers().filter(m => m.id === coinOwnerId());
+}
+
+function renderCoinSettings() {
+  const list = document.getElementById('coinSettingsList');
+  if (!list) return;
+  const emojis = { elliot: '👦', mom: '👩', dad: '👨' };
+  const rows = coinSettingMembers().map((m, idx) => {
+    const n = memberOrderId(m.id) || idx + 1;
+    const color = memberColor(m.id);
+    const photo = getMemberPhoto(m.id);
+    const coin = cachedCoinsMap[m.id] || { amount: 0, pending: {} };
+    const avatarHtml = photo
+      ? `<img src="${photo}" style="width:100%;height:100%;border-radius:50%;border:none;object-fit:cover;display:block;">`
+      : `<div style="width:100%;height:100%;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:24px;">${emojis[m.id] || '👤'}</div>`;
+    return `
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
+        <div style="position:relative;flex-shrink:0;width:48px;height:48px;border-radius:50%;border:3px solid #1E4FB5;padding:2px;box-sizing:border-box;">
+          <div style="width:100%;height:100%;border-radius:50%;overflow:hidden;">${avatarHtml}</div>
+          <span style="position:absolute;bottom:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:${color};border:2px solid white;display:flex;align-items:center;justify-content:center;font-family:'Pretendard',sans-serif;font-size:10px;font-weight:700;color:white;">${n}</span>
+        </div>
+        <div style="width:54px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#2A2A2A;white-space:nowrap;">${esc(m.name)}</div>
+        <input type="number" id="coinAmount-${m.id}" min="0" step="1" value="${coin.amount || 0}" oninput="markUnsaved('coinSaveBtn-${m.id}')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+        <button id="coinSaveBtn-${m.id}" class="save-toggle-btn saved" onclick="saveChildCoinAmount('${m.id}')" title="저장" style="align-self:stretch;padding:0 9px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
+        <button onclick="resetChildCoins('${m.id}')" title="리셋" style="width:34px;height:34px;background:#E87722;color:white;border:none;border-radius:50%;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">↺</button>
+      </div>
+    `;
+  }).join('');
+  list.innerHTML = `
+    ${rows}
+    <div style="border-top:1px dashed #C4C4C4;margin:8px 12px;"></div>
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:transparent;border:none;">
+      <div style="width:102px;flex-shrink:0;font-family:'Pretendard',sans-serif;font-size:15px;font-weight:700;color:#2A2A2A;">금요일 보너스</div>
+      <input type="number" id="weeklyBonusInput" min="0" step="1" value="${weeklyBonusAmount}" oninput="markUnsaved('weeklyBonusSaveBtn')" style="flex:1;min-width:0;padding:10px 8px;border:1.5px solid #999;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:16px;font-weight:700;outline:none;background:white;color:#111;">
+      <button id="weeklyBonusSaveBtn" class="save-toggle-btn saved" onclick="saveWeeklyBonusAmount()" title="저장" style="align-self:stretch;padding:0 9px;background:#5A8A5E;color:white;border:none;border-radius:6px;font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;cursor:pointer;writing-mode:vertical-rl;text-orientation:upright;letter-spacing:2px;">저장</button>
+    </div>
+  `;
 }
 
 // 색상 팔레트 모달
@@ -7384,6 +7475,61 @@ async function saveMemberSettings() {
   }
   soundFanfare();
   showToast('로그인 프로필이 저장됐어요!');
+}
+
+async function saveChildCoinAmount(memberId) {
+  const input = document.getElementById('coinAmount-' + memberId);
+  if (!input) return;
+  const amount = Math.max(0, parseInt(input.value || '0', 10) || 0);
+  const current = cachedCoinsMap[memberId] || { amount: 0, pending: {} };
+  const next = { amount, pending: current.pending || {} };
+  cachedCoinsMap[memberId] = next;
+  if (memberId === coinOwnerId()) {
+    cachedCoins = next;
+    renderCoins();
+  }
+  await sb.from('coins').upsert({
+    member_id: memberId,
+    family_id: getFamilyCode(),
+    amount,
+    pending: next.pending,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'member_id,family_id' });
+  markSaved('coinSaveBtn-' + memberId);
+  showToast('코인이 저장됐어요');
+}
+
+async function resetChildCoins(memberId) {
+  const member = cachedMembers.find(m => m.id === memberId);
+  if (!confirm(`${member ? member.name : '자녀'} 코인을 리셋할까요?`)) return;
+  cachedCoinsMap[memberId] = { amount: 0, pending: {} };
+  if (memberId === coinOwnerId()) {
+    cachedCoins = cachedCoinsMap[memberId];
+    renderCoins();
+  }
+  await sb.from('coins').upsert({
+    member_id: memberId,
+    family_id: getFamilyCode(),
+    amount: 0,
+    pending: {},
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'member_id,family_id' });
+  renderCoinSettings();
+  showToast('코인이 리셋되었습니다');
+}
+
+async function saveWeeklyBonusAmount() {
+  const input = document.getElementById('weeklyBonusInput');
+  if (!input) return;
+  weeklyBonusAmount = Math.max(0, parseInt(input.value || '0', 10) || 0);
+  appSettings.weekly_bonus_amount = String(weeklyBonusAmount);
+  await sb.from('app_settings').upsert({
+    key: 'weekly_bonus_amount',
+    value: String(weeklyBonusAmount),
+    family_id: getFamilyCode()
+  }, { onConflict: 'key,family_id' });
+  markSaved('weeklyBonusSaveBtn');
+  showToast('보너스 코인이 저장됐어요');
 }
 
 function loadSettingsPhotoPreview() {
