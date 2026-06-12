@@ -1881,14 +1881,19 @@
   .task-list { padding: 2px 0; }
   .task {
     display: flex; align-items: center; gap: 6px; padding: 6px 8px;
+    position: relative;
     cursor: pointer; user-select: none; touch-action: pan-y;
     transition: transform 0.12s ease, background 0.12s ease;
   }
   .task + .task { border-top: 1px dashed #C4C4C4; }
   .task:active { background: #fffbf0; }
-  .task.task-swiping {
-    background: #fffbf0;
-    transform: scale(0.985);
+  /* 스와이프 삭제: 칸이 주황으로 변하며 "지울까요?" — 끝까지 밀면 삭제 */
+  .task.task-swiping { background: #E87722; }
+  .task.task-swiping > * { visibility: hidden; }
+  .task.task-swiping::before {
+    content: '지울까요? →';
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: #FFFFFF; font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 800;
   }
   @keyframes taskIn {
     from { opacity: 0; transform: translateY(-8px); }
@@ -6166,8 +6171,9 @@ function bindTaskSwipe(el, task) {
   let startX = 0;
   let startY = 0;
   let swiping = false;
+  let justSwiped = false;
   el.addEventListener('pointerdown', e => {
-    if (e.target.closest('input, .checkbox, .sel-box')) return;
+    if (e.target.closest('.checkbox, .sel-box')) return;
     startX = e.clientX;
     startY = e.clientY;
     swiping = false;
@@ -6176,19 +6182,25 @@ function bindTaskSwipe(el, task) {
     if (!startX) return;
     const dx = e.clientX - startX;
     const dy = Math.abs(e.clientY - startY);
-    if (dx > 12 && dx > dy * 1.4) {
+    if (!swiping && dx > 12 && dx > dy * 1.4) {
       swiping = true;
       el.classList.add('task-swiping');
-      el.style.transform = `translateX(${Math.min(dx, 54)}px)`;
+      el.style.transition = 'none';  // 드래그 따라오게 (놓으면 복원)
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    if (swiping) {
+      el.style.transform = `translateX(${Math.max(0, dx)}px)`;
     }
   });
   const finish = e => {
     if (!startX) return;
     const dx = e.clientX - startX;
-    const shouldDelete = swiping && dx > 48;
+    const shouldDelete = swiping && el.offsetWidth > 0 && dx >= el.offsetWidth * 0.7;  // 끝까지 밀면 삭제
+    if (swiping) justSwiped = true;
     startX = 0;
     startY = 0;
     swiping = false;
+    el.style.transition = '';
     el.classList.remove('task-swiping');
     el.style.transform = '';
     if (shouldDelete) deleteTask(e, task.id, task.date_key);
@@ -6198,17 +6210,23 @@ function bindTaskSwipe(el, task) {
     startX = 0;
     startY = 0;
     swiping = false;
+    el.style.transition = '';
     el.classList.remove('task-swiping');
     el.style.transform = '';
   });
+  // 스와이프 직후 따라오는 click이 입력칸 포커스(키보드 올라옴)로 이어지지 않게 차단
+  el.addEventListener('click', e => {
+    if (justSwiped) { justSwiped = false; e.preventDefault(); e.stopPropagation(); }
+  }, true);
 }
 
 async function deleteTask(e, taskId, dk) {
   if (e && e.stopPropagation) e.stopPropagation();
   soundClick();
-  if (!confirm('이 숙제를 지울까요?')) return;
-  // 체크된 숙제면 코인도 회수
   const task = cachedTasks.find(t => t.id === taskId);
+  // ---- 화면 먼저 (낙관적): 줄 제거 ----
+  cachedTasks = cachedTasks.filter(t => t.id !== taskId);
+  // 체크된 숙제면 코인도 회수
   if (task && task.done) {
     cachedCoins.pending = { ...(cachedCoins.pending || {}) };
     if (cachedConfirmations[getConfKey(dk)]) {
@@ -6216,14 +6234,16 @@ async function deleteTask(e, taskId, dk) {
     } else {
       cachedCoins.pending[dk] = Math.max(0, (cachedCoins.pending[dk] || 0) - 1);
     }
+  }
+  renderAll();
+  showToast('🗑️ 숙제가 삭제됐어요');
+  // ---- 서버 반영 (백그라운드) ----
+  if (task && task.done) {
     await sb.from('coins').update({ amount: cachedCoins.amount, pending: cachedCoins.pending }).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
   }
   await sb.from('tasks').delete().eq('id', taskId);
-  if (task && !cachedTasks.some(t => t.id !== taskId && t.subject_id === task.subject_id && t.date_key === task.date_key)) {
-    await sb.from('subjects').delete().eq('id', task.subject_id);
-  }
+  // ⚠️ 과목은 자동 삭제하지 않음 (마지막 줄을 지워도 과목 유지) — 과목 삭제는 부모의 선택삭제(꾹 누르기)로만
   await sb.from('confirmations').delete().eq('date_key', dk).eq('family_id', getFamilyCode()).eq('member_id', coinOwnerId());
-  showToast('🗑️ 숙제가 삭제됐어요');
   await refreshData();
 }
 
