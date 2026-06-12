@@ -1834,6 +1834,15 @@
     order: 3;
   }
   .subject-toggle.collapsed { transform: rotate(-90deg); }
+  /* 첫 과목 헤더의 전체 접기/펴기 화살표 (주황) */
+  .subject-toggle-all {
+    font-size: 12px; color: #E87722; transition: transform 0.3s; flex-shrink: 0;
+    padding: 4px;
+    margin-left: auto;
+    order: 3;
+    cursor: pointer;
+  }
+  .subject-toggle-all.allcollapsed { transform: rotate(180deg); }
   .subject-body {
     overflow: hidden; transition: max-height 0.3s ease;
   }
@@ -4169,6 +4178,16 @@ function toggleSubject(subjectId) {
   refreshBottomActionSheetLayoutSoon();  // 펼침/접힘 후 본문 위로 올리기/내리기 재계산
 }
 
+// 전체 접기/펴기 (첫 과목 헤더의 주황 화살표) — 하나라도 펴져 있으면 전체 접기, 모두 접혀 있으면 전체 펴기
+function toggleAllSubjects(e) {
+  if (e) e.stopPropagation();
+  const subs = getSubjectsForDate(selectedDate);
+  const anyOpen = subs.some(s => collapsedSubjects[s.id] === false);
+  subs.forEach(s => { collapsedSubjects[s.id] = anyOpen; });
+  renderTasks();
+  refreshBottomActionSheetLayoutSoon();
+}
+
 let viewYear, viewMonth, selectedDate;
 let dogTimer = null;
 let pendingDeleteSubjectId = null;
@@ -5757,7 +5776,8 @@ function renderTasks() {
     return;
   }
   
-  subs.forEach(s => {
+  const allCollapsed = subs.every(s => collapsedSubjects[s.id] !== false);
+  subs.forEach((s, si) => {
     const tasks = getTasksForSubject(dk, s.id);
     const done = tasks.filter(t => t.done).length;
     if (collapsedSubjects[s.id] === undefined) collapsedSubjects[s.id] = true;
@@ -5767,7 +5787,7 @@ function renderTasks() {
     
     sEl.innerHTML = `
       <div class="subject-header" style="background:${s.color || '#EAE0C2'};" onclick="toggleSubject('${s.id}')">
-          ${isParent() && selectMode ? '' : `<span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}">▼</span>`}
+          ${isParent() && selectMode ? '' : `${si === 0 ? `<span class="subject-toggle-all ${allCollapsed ? 'allcollapsed' : ''}" onclick="toggleAllSubjects(event)">▲</span>` : ''}<span class="subject-toggle ${collapsedSubjects[s.id] ? 'collapsed' : ''}" id="subject-toggle-${s.id}"${si === 0 ? ' style="margin-left:8px;"' : ''}>▼</span>`}
           <span class="subject-name-input" style="pointer-events:none;">${esc(s.name)}</span>
           <span class="subject-status"><span style="color:${done>0?'#2A2A2A':'#BBBBBB'};">${done}</span><span style="color:#BBBBBB;">/${tasks.length}</span></span>
           ${isParent() && selectMode ? `<span class="sel-box ${selectedSubjects.has(s.id)?'on':''}" style="margin-left:auto;" onclick="toggleSelectSubject(event,'${s.id}')">${selectedSubjects.has(s.id)?'✓':''}</span>` : ''}
@@ -5903,10 +5923,11 @@ function updateBottomSelectDeleteButton() {
 
 function positionApprovalSheetNearLastTask() {
   const sheet = document.getElementById('bottomActionSheet');
-  const tasks = document.querySelectorAll('#subjects .subject-body:not(.collapsed) .task');
-  if (!sheet || !tasks.length) return;
-  const lastTask = tasks[tasks.length - 1];
-  const taskBottom = lastTask.getBoundingClientRect().bottom + getAppScrollShift();
+  // 마지막 '과목 박스' 기준 (접혀 있어도 헤더 아랫선 기준)
+  const subjects = document.querySelectorAll('#subjects .subject');
+  if (!sheet || !subjects.length) return;
+  const lastSubject = subjects[subjects.length - 1];
+  const taskBottom = lastSubject.getBoundingClientRect().bottom + getAppScrollShift();
   const sheetH = sheet.getBoundingClientRect().height || 220;
   const closedOffset = getBottomSheetClosedOffset(sheet);
   const knobTopWhenClosed = window.innerHeight - sheetH + closedOffset - 16 + getAppScrollShift();
