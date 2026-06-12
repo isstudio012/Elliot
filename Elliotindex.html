@@ -5832,7 +5832,7 @@ function renderTasks() {
       
       tEl.innerHTML = `
         <span class="task-index">${idx + 1}.</span>
-        <input type="text" class="task-input" placeholder="내용을 입력하세요" value="${esc(task.text)}" onfocus="this.select()">
+        <input type="text" class="task-input" placeholder="내용을 입력하세요" value="${esc(task.text)}">
         <span class="task-spacer"></span>
         ${isParent() && selectMode ? '' : `<div class="checkbox" data-tid="${task.id}"></div>`}
       `;
@@ -5840,11 +5840,18 @@ function renderTasks() {
       if (_cb) _cb.addEventListener('click', () => toggleTask(task));
       bindTaskSwipe(tEl, task);
       tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
-      tEl.querySelector('.task-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addTaskFromEnter(task, e.target.value); } });
+      // 포커스 시점에 빈 줄이었는지 기록 — 엔터 동작 분기(새로쓰기=추가 / 수정=저장만)
+      tEl.querySelector('.task-input').addEventListener('focus', e => { e.target.dataset.wasEmpty = e.target.value.trim() === '' ? '1' : ''; });
+      tEl.querySelector('.task-input').addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (e.target.dataset.wasEmpty === '1') addTaskFromEnter(task, e.target.value);
+        else e.target.blur();  // 수정 모드: change로 저장만 되고 키보드 닫힘
+      });
       tEl.addEventListener('click', e => {
         if (e.target.closest('input, .checkbox, .sel-box')) return;
         const input = tEl.querySelector('.task-input');
-        if (input) { input.focus(); input.select(); }
+        if (input) { input.focus(); const L = input.value.length; input.setSelectionRange(L, L); }
       });
       list.appendChild(tEl);
     });
@@ -6152,7 +6159,7 @@ async function updateTaskText(taskId, text) {
   const task = cachedTasks.find(t => t.id === taskId);
   if (task) task.text = text;
   await sb.from('tasks').update({ text }).eq('id', taskId);
-  renderTasks();
+  // 여기서 renderTasks() 하면 안 됨 — 저장 응답이 올 때 다른 입력칸에 쓰는 중이면 입력칸이 교체되어 글자·키보드가 날아감
 }
 
 function bindTaskSwipe(el, task) {
