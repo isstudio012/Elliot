@@ -1843,20 +1843,21 @@
     cursor: pointer;
   }
   .subject-toggle-all.allcollapsed { transform: rotate(180deg); }
-  /* 접힌 과목 = 알약 칩 (가로 나열, 줄바꿈) */
-  .subject-chip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px; }
+  /* 접힌 과목 = 알약 칩 (한 줄 고정 + 겹치기, 과목이름만) */
+  .subject-chip-row { display: flex; flex-wrap: nowrap; align-items: center; margin-bottom: 8px; }
   .subject-chip {
-    display: inline-flex; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center;
     background: #EAE0C2;
     border: 1px solid #3C6B40; border-radius: 999px;
-    padding: 6px 12px;
-    font-family: 'Pretendard', sans-serif; font-size: 14px; font-weight: 700; color: #2A2A2A;
-    white-space: nowrap;
+    padding: 4px 12px;
+    font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700; color: #2A2A2A;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0; flex-shrink: 1;
     cursor: pointer; box-shadow: none;
     transition: transform 0.06s, filter 0.06s;
   }
+  .subject-chip + .subject-chip { margin-left: -9px; }  /* 칩끼리 겹치기 */
   .subject-chip:active, .subject-chip.pressing { transform: translate(1px,1px); filter: brightness(0.93); }
-  .subject-chip .chip-count { font-size: 12.5px; font-weight: 700; }
   .subject-body {
     overflow: hidden; transition: max-height 0.3s ease;
   }
@@ -1934,6 +1935,12 @@
   .task-input::placeholder { color: #BBBBBB; font-weight: 500; }
   .task.done .task-input { text-decoration: none; color: #5A8A5E; }
   .task-spacer { flex: 1 1 auto; min-width: 0; }
+  /* 글자 있는 마지막 줄 옆 ↵(다음 숙제 추가) 버튼 */
+  .task-enter-btn {
+    flex-shrink: 0; border: none; background: transparent; padding: 2px 4px;
+    color: #5A8A5E; cursor: pointer; display: flex; align-items: center; line-height: 1;
+  }
+  .task-enter-btn:active { transform: translate(1px,1px); }
   
   .add-btn {
     width: 100%; padding: 8px; background: #FFFFFF; border: none;
@@ -5802,7 +5809,7 @@ function renderTasks() {
       chip.type = 'button';
       chip.className = 'subject-chip';
       chip.style.background = s.color || '#EAE0C2';
-      chip.innerHTML = `${esc(s.name)}<span class="chip-count"><span style="color:${done>0?'#2A2A2A':'#BBBBBB'};">${done}</span><span style="color:#BBBBBB;">/${tasks.length}</span></span>`;
+      chip.textContent = s.name;
       chip.onclick = () => toggleSubject(s.id);
       bindSubjectHeaderLongPress(chip, s.id);
       chipRow.appendChild(chip);
@@ -5837,22 +5844,36 @@ function renderTasks() {
       
       tEl.innerHTML = `
         <span class="task-index">${idx + 1}.</span>
-        <input type="text" class="task-input" placeholder="내용을 입력하세요" value="${esc(task.text)}">
+        <input type="text" class="task-input" enterkeyhint="enter" placeholder="내용을 입력하세요" value="${esc(task.text)}">
+        ${!isSelect && idx === tasks.length - 1 && (task.text || '').trim() !== '' ? `<button type="button" class="task-enter-btn" title="다음 숙제 추가"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg></button>` : ''}
         <span class="task-spacer"></span>
         ${isParent() && selectMode ? '' : `<div class="checkbox" data-tid="${task.id}"></div>`}
       `;
       const _cb = tEl.querySelector('.checkbox');
       if (_cb) _cb.addEventListener('click', () => toggleTask(task));
       bindTaskSwipe(tEl, task);
-      tEl.querySelector('.task-input').addEventListener('change', e => updateTaskText(task.id, e.target.value));
+      const _ti = tEl.querySelector('.task-input');
+      _ti.addEventListener('change', e => updateTaskText(task.id, e.target.value));
       // 포커스 시점에 빈 줄이었는지 기록 — 엔터 동작 분기(새로쓰기=추가 / 수정=저장만)
-      tEl.querySelector('.task-input').addEventListener('focus', e => { e.target.dataset.wasEmpty = e.target.value.trim() === '' ? '1' : ''; });
-      tEl.querySelector('.task-input').addEventListener('keydown', e => {
-        if (e.key !== 'Enter') return;
+      _ti.addEventListener('focus', e => { e.target.dataset.wasEmpty = e.target.value.trim() === '' ? '1' : ''; });
+      // 엔터 처리: 폰 한글 키보드는 조합 중이면 keydown이 'Enter'로 안 들어옴 → keyup으로도 받음 (다음 과목 점프 방지)
+      let _enterHandled = false;
+      const _onEnter = e => {
+        if (e.key !== 'Enter' && e.keyCode !== 13) return;
         e.preventDefault();
-        if (e.target.dataset.wasEmpty === '1') addTaskFromEnter(task, e.target.value);
-        else e.target.blur();  // 수정 모드: change로 저장만 되고 키보드 닫힘
-      });
+        if (e.type === 'keydown') {
+          if (e.isComposing) return;        // 한글 조합 중 — 조합 끝난 뒤 keyup에서 처리
+          _enterHandled = true;
+        } else {
+          if (_enterHandled) { _enterHandled = false; return; }  // keydown에서 이미 처리됨
+        }
+        if (_ti.dataset.wasEmpty === '1') addTaskFromEnter(task, _ti.value);
+        else { _ti.blur(); renderTasks(); }  // 수정 모드: 저장만 + ↵ 버튼 갱신, 키보드 닫힘
+      };
+      _ti.addEventListener('keydown', _onEnter);
+      _ti.addEventListener('keyup', _onEnter);
+      const _enterBtn = tEl.querySelector('.task-enter-btn');
+      if (_enterBtn) _enterBtn.addEventListener('click', e => { e.stopPropagation(); addTaskFromEnter(task, _ti.value); });
       tEl.addEventListener('click', e => {
         if (e.target.closest('input, .checkbox, .sel-box')) return;
         const input = tEl.querySelector('.task-input');
@@ -6173,7 +6194,7 @@ function bindTaskSwipe(el, task) {
   let swiping = false;
   let justSwiped = false;
   el.addEventListener('pointerdown', e => {
-    if (e.target.closest('.checkbox, .sel-box')) return;
+    if (e.target.closest('.checkbox, .sel-box, .task-enter-btn')) return;
     startX = e.clientX;
     startY = e.clientY;
     swiping = false;
