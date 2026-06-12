@@ -848,7 +848,7 @@
     border-bottom: 0;
     border-radius: 12px 12px 0 0;
     box-shadow: none;
-    overflow: hidden;
+    overflow: visible;  /* 원형 손잡이가 윗변 밖으로 반쯤 나와야 함 */
   }
   .bottom-action-sheet.show {
     display: block;
@@ -869,17 +869,35 @@
     user-select: none;
     -webkit-user-select: none;
   }
-  .bottom-action-grip::before {
+  /* 원형 손잡이 버튼: 닫힘=완전한 원(윗변에 반쯤 걸침), 열림=위쪽 절반이 사라지고 테두리 안쪽 반원만 */
+  .sheet-knob {
+    position: absolute;
+    left: 50%;
+    top: -22px;
+    width: 44px;
+    height: 44px;
+    transform: translateX(-50%);
+    background: #5A8A5E;
+    border-radius: 50%;
+    box-shadow: none;
+    pointer-events: none;
+    z-index: 1;
+    clip-path: inset(0px 0 0 0);
+    transition: clip-path 0.46s cubic-bezier(0.34, 1.22, 0.64, 1), transform 0.12s ease, filter 0.12s ease;
+  }
+  .sheet-knob::before {
     content: '';
     position: absolute;
     left: 50%;
-    top: 7px;
-    width: 36px;
+    top: 50%;
+    width: 22px;
     height: 3px;
-    transform: translateX(-50%);
-    background: #3C6B40;
+    transform: translate(-50%, -50%);
+    background: #FFFFFF;
     border-radius: 3px;
   }
+  .bottom-action-sheet.open .sheet-knob { clip-path: inset(22px 0 0 0); }
+  .bottom-action-sheet.knob-press .sheet-knob { transform: translateX(-50%) scale(0.86); filter: brightness(1.15); }
   .bottom-action-menu {
     display: grid;
     align-items: center;
@@ -1122,6 +1140,11 @@
   }
 /* 예비+15 와 동전더미 사이 여유 */
   .head-strip .profile-photo-wrap { touch-action: none; }
+  /* 프로필 탭: 누르면 줄어들며 밝아지고, 바뀌는 순간 밝은 플래시가 사르르 빠짐 */
+  .profile-photo-wrap { transition: transform 0.12s ease, filter 0.12s ease; }
+  .profile-photo-wrap.pressed { transform: scale(0.88); filter: brightness(1.45); }
+  @keyframes profileFlash { 0% { filter: brightness(1.8); } 100% { filter: brightness(1); } }
+  .profile-photo-wrap.flash { animation: profileFlash 0.45s ease-out; }
   .profile-photo-wrap.swiping .profile-photo,
   .profile-photo-wrap.swiping .profile-photo-placeholder { opacity: 0.45; transition: opacity 0.12s; }
   .profile-photo-wrap {
@@ -3063,6 +3086,7 @@
 
 <div class="bottom-action-sheet" id="bottomActionSheet">
   <div class="bottom-action-grip" id="bottomActionGrip"></div>
+  <div class="sheet-knob" id="sheetKnob" aria-hidden="true"></div>
   <div class="bottom-action-menu">
     <button class="bottom-action-btn" id="bottomAddSubjectBtn" onclick="openAddSubject(); closeBottomActionSheet();" style="color:#3C6B40;"><span class="bottom-action-icon">+</span><span class="bottom-action-label">과목 추가</span></button>
     <span class="bottom-action-sep"></span>
@@ -6107,8 +6131,15 @@ function cycleChild(dir) {
   selectChild(children[idx].id);
 }
 function onProfileCircleTap() {
-  // 자녀를 보는 부모는 탭으로 사진 안 바뀜(선택은 스와이프). 본인일 때만 업로드
-  if (isViewingChildAsParent()) return;
+  // 자녀를 보는 부모: 탭 = 다음 자녀로 전환(밝은 플래시). 본인일 때만 업로드
+  if (isViewingChildAsParent()) {
+    if (getSelectableChildren().length >= 2) {
+      cycleChild(1);
+      const wrap = document.getElementById('profileCircle');
+      if (wrap) { wrap.classList.remove('flash'); void wrap.offsetWidth; wrap.classList.add('flash'); }
+    }
+    return;
+  }
   document.getElementById('profileFileInput').click();
 }
 // 헤더 줄 드래그: 가로=스크롤(관성), 동그라미 세로=자녀 전환. 마우스+터치 통합
@@ -6119,7 +6150,7 @@ function onProfileCircleTap() {
     if (!strip || strip._dragBound) return;
     strip._dragBound = true;
 
-    let dragging = false, mode = null, onCircle = false;
+    let dragging = false, mode = null;
     let startX = 0, startY = 0, startScroll = 0, startIdx = 0;
     let lastX = 0, lastT = 0, vel = 0, raf = null;
 
@@ -6165,17 +6196,20 @@ function onProfileCircleTap() {
       startX = e.clientX; startY = e.clientY; startScroll = strip.scrollLeft;
       startIdx = nearestIndex();
       lastX = e.clientX; lastT = performance.now();
-      onCircle = circle.contains(e.target);
     });
+
+    // 프로필 동그라미 누르는 느낌 (줄어들며 밝아짐)
+    circle.addEventListener('pointerdown', () => circle.classList.add('pressed'));
+    const unpress = () => circle.classList.remove('pressed');
+    circle.addEventListener('pointerup', unpress);
+    circle.addEventListener('pointercancel', unpress);
+    circle.addEventListener('pointerleave', unpress);
 
     strip.addEventListener('pointermove', (e) => {
       if (!dragging) return;
-      const dx = e.clientX - startX, dy = e.clientY - startY;
+      const dx = e.clientX - startX;
       if (!mode) {
-        const canChild = onCircle && isViewingChildAsParent() && getSelectableChildren().length >= 2;
-        if (canChild && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) {
-          mode = 'child'; circle.classList.add('swiping');
-        } else if (Math.abs(dx) > 4) {
+        if (Math.abs(dx) > 4) {
           mode = 'scroll';
           try { strip.setPointerCapture(e.pointerId); } catch (err) {}
         }
@@ -6187,30 +6221,23 @@ function onProfileCircleTap() {
         const now = performance.now(), dt = now - lastT;
         if (dt > 0) vel = (e.clientX - lastX) / dt * 16;
         lastX = e.clientX; lastT = now;
-      } else if (mode === 'child') {
-        e.preventDefault();
       }
     });
 
     function end(e) {
       if (!dragging) return;
       dragging = false;
-      circle.classList.remove('swiping');
-      const dx = e.clientX - startX, dy = e.clientY - startY;
-      if (mode === 'child') {
-        if (Math.abs(dy) > 26 && Math.abs(dy) > Math.abs(dx)) cycleChild(dy < 0 ? 1 : -1); // 위=다음
-      } else {
-        // 손을 뗀 순간 목표 슬라이드 결정: 살짝 플릭 or 18% 이상 끌면 다음/이전, 아니면 제자리 복귀
-        if (performance.now() - lastT > 120) vel = 0;  // 끌다가 멈춘 뒤 놓으면 플릭 아님
-        const pos = slidePositions();
-        let target = nearestIndex();
-        if (mode === 'scroll' && target === startIdx) {
-          if (Math.abs(vel) > 4) target = startIdx + (vel < 0 ? 1 : -1);
-          else if (Math.abs(dx) > strip.clientWidth * 0.18) target = startIdx + (dx < 0 ? 1 : -1);
-        }
-        target = Math.max(0, Math.min(pos.length - 1, target));
-        glideTo(pos[target]);
+      const dx = e.clientX - startX;
+      // 손을 뗀 순간 목표 슬라이드 결정: 살짝 플릭 or 18% 이상 끌면 다음/이전, 아니면 제자리 복귀
+      if (performance.now() - lastT > 120) vel = 0;  // 끌다가 멈춘 뒤 놓으면 플릭 아님
+      const pos = slidePositions();
+      let target = nearestIndex();
+      if (mode === 'scroll' && target === startIdx) {
+        if (Math.abs(vel) > 4) target = startIdx + (vel < 0 ? 1 : -1);
+        else if (Math.abs(dx) > strip.clientWidth * 0.18) target = startIdx + (dx < 0 ? 1 : -1);
       }
+      target = Math.max(0, Math.min(pos.length - 1, target));
+      glideTo(pos[target]);
       mode = null;
     }
     strip.addEventListener('pointerup', end);
@@ -8404,10 +8431,10 @@ function bindBottomActionSheet() {
   let startOffset = 0;
   let dragOffset = 0;
   let didDrag = false;
-  let lastTapTime = 0;
   let baseSheetHeight = 0;
 
   grip.addEventListener('pointerdown', e => {
+    sheet.classList.add('knob-press');
     updateBottomActionSheetLayout();
     startY = lastY = e.clientY;
     startOffset = sheet.classList.contains('open') ? 0 : getBottomSheetClosedOffset(sheet);
@@ -8440,6 +8467,7 @@ function bindBottomActionSheet() {
   });
 
   grip.addEventListener('pointerup', e => {
+    sheet.classList.remove('knob-press');
     const dy = lastY - startY;
     sheet.style.transition = '';
     const scroll = document.getElementById('appScroll');
@@ -8450,20 +8478,15 @@ function bindBottomActionSheet() {
       const closedOffset = getBottomSheetClosedOffset(sheet);
       const shouldOpen = dy < -24 || (dy <= 24 && dragOffset < closedOffset * 0.5) || dragOffset < closedOffset * 0.35;
       setBottomActionSheet(shouldOpen);
-      lastTapTime = 0;
       return;
     }
 
-    const now = Date.now();
-    if (now - lastTapTime < 450) {
-      toggleBottomActionSheet();
-      lastTapTime = 0;
-    } else {
-      lastTapTime = now;
-    }
+    // 한 번만 살짝 탭해도 올라오고/내려감
+    toggleBottomActionSheet();
   });
 
   grip.addEventListener('pointercancel', () => {
+    sheet.classList.remove('knob-press');
     sheet.style.transition = '';
     const scroll = document.getElementById('appScroll');
     if (scroll) scroll.style.transition = '';
@@ -8473,11 +8496,12 @@ function bindBottomActionSheet() {
 
   const zone = document.getElementById('bottomTapZone');
   if (zone) {
-    let zTap = 0;
+    // 원 윗부분(테두리 위쪽)을 눌러도 한 번 탭으로 동작
+    zone.addEventListener('pointerdown', () => sheet.classList.add('knob-press'));
+    zone.addEventListener('pointercancel', () => sheet.classList.remove('knob-press'));
     zone.addEventListener('pointerup', () => {
-      const now = Date.now();
-      if (now - zTap < 450) { toggleBottomActionSheet(); zTap = 0; }
-      else zTap = now;
+      sheet.classList.remove('knob-press');
+      toggleBottomActionSheet();
     });
   }
   window.addEventListener('resize', updateBottomActionSheetLayout);
