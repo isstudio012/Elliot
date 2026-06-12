@@ -873,9 +873,9 @@
   .sheet-knob {
     position: absolute;
     left: 50%;
-    top: -22px;
-    width: 44px;
-    height: 44px;
+    top: -19px;
+    width: 38px;
+    height: 38px;
     transform: translateX(-50%);
     background: #5A8A5E;
     border-radius: 50%;
@@ -885,18 +885,17 @@
     clip-path: inset(0px 0 0 0);
     transition: clip-path 0.46s cubic-bezier(0.34, 1.22, 0.64, 1), transform 0.12s ease, filter 0.12s ease;
   }
+  /* 메뉴바 테두리선이 원 위로 그대로 가로질러 지나감 (원이 테두리보다 밝아 선이 보임) */
   .sheet-knob::before {
     content: '';
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 22px;
-    height: 3px;
-    transform: translate(-50%, -50%);
-    background: #FFFFFF;
-    border-radius: 3px;
+    left: 0;
+    top: 17px;
+    width: 100%;
+    height: 2px;
+    background: #3C6B40;
   }
-  .bottom-action-sheet.open .sheet-knob { clip-path: inset(22px 0 0 0); }
+  .bottom-action-sheet.open .sheet-knob { clip-path: inset(19px 0 0 0); }
   .bottom-action-sheet.knob-press .sheet-knob { transform: translateX(-50%) scale(0.86); filter: brightness(1.15); }
   .bottom-action-menu {
     display: grid;
@@ -1006,7 +1005,8 @@
     max-width: 380px;
     box-sizing: border-box;
     position: relative;
-    border: none;
+    border: 1px solid #3C6B40;  /* 틀은 하나로 고정 — 안의 내용만 움직임 */
+    border-radius: 14px;
     overflow-x: auto;
     overflow-y: hidden;
     margin-bottom: 6px;
@@ -1029,7 +1029,7 @@
   .head-strip > .top-bar {
     height: calc(var(--u) * 82);
     box-sizing: border-box;
-    border: 1px solid #3C6B40;
+    border: none;
     border-radius: 14px;
     background: none;
     position: relative;
@@ -1053,7 +1053,7 @@
     line-height: 1.15;
   }
   /* 1번(제목)과 2번(코인) 사이 여유 + 코인박스는 화면폭에 맞춰 비례, 상점은 오른쪽 끝 */
-  .head-strip .top-bar { flex: 0 0 100%; width: 100%; margin: 0; border: 1px solid #3C6B40; border-radius: 14px; padding: calc(var(--u) * 4); }
+  .head-strip .top-bar { flex: 0 0 100%; width: 100%; margin: 0; border: none; border-radius: 14px; padding: calc(var(--u) * 4); }
   .head-strip .coin-display { flex: 0 1 auto; padding-left: 0; gap: calc(var(--u) * 8); }
   .head-strip .top-bar > span { margin-left: auto; margin-right: auto; }  /* 구분선: 코인더미와 상점 사이 정가운데 */
   .head-strip .shop-btn { margin-left: 0; min-width: 0; min-height: 0; }
@@ -4065,6 +4065,7 @@ function toggleSubject(subjectId) {
     }
   }
   if (icon) icon.classList.toggle('collapsed');
+  refreshBottomActionSheetLayoutSoon();  // 펼침/접힘 후 본문 위로 올리기/내리기 재계산
 }
 
 let viewYear, viewMonth, selectedDate;
@@ -6117,7 +6118,8 @@ function scrollHeadToProfileOnce() {
   if (!strip || !prof) return;
   window._headScrolledInit = true;
   requestAnimationFrame(() => {
-    strip.scrollLeft = Math.max(0, prof.offsetLeft);
+    const first = document.getElementById('widgetSlide');
+    strip.scrollLeft = Math.max(0, first ? prof.getBoundingClientRect().left - first.getBoundingClientRect().left : prof.offsetLeft);
     document.querySelectorAll('[data-head-slide]').forEach(h => h.classList.toggle('active', h.dataset.headSlide === 'profile'));
   });
 }
@@ -6154,11 +6156,13 @@ function onProfileCircleTap() {
     let startX = 0, startY = 0, startScroll = 0, startIdx = 0;
     let lastX = 0, lastT = 0, vel = 0, raf = null;
 
-    // 슬라이드 3장의 정지 위치 (스크롤 한계 내로 보정)
+    // 슬라이드 3장의 정지 위치 — 첫 슬라이드 기준 상대거리(rect)로 계산해 틀 안에 정확히 정렬
     function slidePositions() {
       const els = [document.getElementById('widgetSlide'), document.getElementById('profileSlide'), strip.querySelector(':scope > .top-bar')].filter(Boolean);
       const max = Math.max(0, strip.scrollWidth - strip.clientWidth);
-      return els.map(el => Math.min(el.offsetLeft, max));
+      if (!els.length) return [0];
+      const base = els[0].getBoundingClientRect().left;
+      return els.map(el => Math.min(el.getBoundingClientRect().left - base, max));
     }
     function nearestIndex() {
       const pos = slidePositions();
@@ -8404,7 +8408,16 @@ function applyCalendarLift() {
   const off = offStr.endsWith('px') ? parseFloat(offStr) : getBottomSheetClosedOffset(sheet);
   const calBottomTrue = cal.getBoundingClientRect().bottom + _calLift;
   const sheetTop = viewH - sheetH + off;
-  const L = Math.max(0, Math.round(calBottomTrue + CAL_SHEET_GAP - sheetTop));
+  const L1 = Math.max(0, Math.round(calBottomTrue + CAL_SHEET_GAP - sheetTop));
+  // 과목을 펼쳐 본문이 하단 버튼(원형 손잡이 돌출 포함)과 겹치면 그만큼 전체를 위로
+  let L2 = 0;
+  const subj = document.getElementById('subjects');
+  if (subj) {
+    const subjBottomTrue = subj.getBoundingClientRect().bottom + _calLift;
+    const closedTop = viewH - 32 - 19;  // 닫힌 메뉴바 윗변(핸들 32px) 위로 원형 버튼이 19px 돌출
+    L2 = Math.max(0, Math.round(subjBottomTrue + 8 - closedTop));
+  }
+  const L = Math.max(L1, L2);
   _calLift = L;
   scroll.style.transform = L ? `translateY(${-L}px)` : '';
 }
