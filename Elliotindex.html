@@ -978,7 +978,9 @@
     padding: 4px 0;
   }
   /* 헤더 가로 스크롤 줄 */
+  /* --u: 폰 화면폭 기준 비례 단위 (380px 설계 기준, 1 = 1px). 위젯 3개의 모든 크기가 이 단위로 같이 움직임 */
   .head-strip {
+    --u: calc(min(100vw, 380px) / 380);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1008,7 +1010,7 @@
   .head-strip > .widget-slide,
   .head-strip > #profileSlide,
   .head-strip > .top-bar {
-    height: 82px;
+    height: calc(var(--u) * 82);
     box-sizing: border-box;
     border: 1px solid #3C6B40;
     border-radius: 14px;
@@ -1020,10 +1022,13 @@
   .head-strip > #profileSlide {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 0 12px;
+    gap: calc(var(--u) * 10);
+    padding: 0 calc(var(--u) * 12);
   }
-  .head-strip .profile-msg { flex: 0 0 min(62vw, 280px); width: min(62vw, 280px); padding-right: 8px; }
+  .head-strip .profile-msg { flex: 1 1 auto; min-width: 0; width: auto; padding-right: calc(var(--u) * 8); }
+  .head-strip .profile-photo-wrap,
+  .head-strip .profile-photo,
+  .head-strip .profile-photo-placeholder { width: calc(var(--u) * 64); height: calc(var(--u) * 64); }
   .head-strip .profile-msg h1 {
     white-space: nowrap;
     overflow: hidden;
@@ -1031,47 +1036,54 @@
     line-height: 1.15;
   }
   /* 1번(제목)과 2번(코인) 사이 여유 + 코인박스는 화면폭에 맞춰 비례, 상점은 오른쪽 끝 */
-  .head-strip .top-bar { flex: 0 0 100%; width: 100%; margin: 0; border: 1px solid #3C6B40; border-radius: 14px; padding: 4px 4px; }
-  .head-strip .coin-display { flex: 1; padding-left: 0; gap: 8px; }
-  .head-strip .top-bar > span { margin-left: auto; }  /* 구분선+상점을 오른쪽 끝으로 */
-  .head-strip .shop-btn { margin-left: 8px; }
-  .head-strip .coin-stack-visual { margin-left: 14px; }
+  .head-strip .top-bar { flex: 0 0 100%; width: 100%; margin: 0; border: 1px solid #3C6B40; border-radius: 14px; padding: calc(var(--u) * 4); }
+  .head-strip .coin-display { flex: 0 1 auto; padding-left: 0; gap: calc(var(--u) * 8); }
+  .head-strip .top-bar > span { margin-left: auto; margin-right: auto; }  /* 구분선: 코인더미와 상점 사이 정가운데 */
+  .head-strip .shop-btn { margin-left: 0; min-width: 0; min-height: 0; }
+  .head-strip .shop-btn img { width: calc(var(--u) * 72); }
+  .head-strip .coin-stack-visual { margin-left: calc(var(--u) * 14); }
+  .head-strip .coin-stack-visual svg { width: calc(var(--u) * 44); height: auto; }
+  .head-strip .coin-icon svg { width: calc(var(--u) * 53); height: calc(var(--u) * 53); }
+  .head-strip .coin-amount { font-size: calc(var(--u) * 28); }
+  .head-strip .coin-pending { font-size: calc(var(--u) * 12); }
   /* 위젯 슬라이드 (시계·날짜·오늘 할일·알람) */
   .head-strip .widget-slide {
     flex: 0 0 100%;
     width: 100%;
     margin-right: 0;
-    height: 82px;
+    height: calc(var(--u) * 82);
     box-sizing: border-box;
     position: relative;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: calc(var(--u) * 12);
     background: none;
     border-radius: 14px;
-    padding: 4px 8px 12px;
+    padding: calc(var(--u) * 4) calc(var(--u) * 8) calc(var(--u) * 12);
     scroll-snap-align: start;
     overflow: hidden;
   }
-  /* 위젯 3칸: 시계 | 알람 | 음악 */
-  .widget-slide .wg-col { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 0 6px; box-sizing: border-box; }
-  .widget-slide .wg-clock-col { flex: 0 0 auto; align-items: flex-start; }
+  /* 위젯 3칸: 시계 | 알람 | 음악 — 균등 배분 */
+  .widget-slide .wg-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: calc(var(--u) * 2); padding: 0 calc(var(--u) * 6); box-sizing: border-box; }
+  .widget-slide .wg-clock-col { align-items: flex-start; }
   .widget-slide .wg-alarm-col, .widget-slide .wg-music-col { align-items: flex-start; }
   .widget-slide .wg-alarm-col { border: none; background: none; cursor: pointer; text-align: left; font-family: Pretendard, sans-serif; }
-  .wg-vdiv { flex: 0 0 auto; align-self: stretch; width: 1px; background: #D7DDE3; margin: 8px 2px; }
-  .wg-date { font-family: Pretendard, sans-serif; font-size: 12px; font-weight: 700; color: #5C6B7A; line-height: 1.1; white-space: nowrap; }
-  .wg-clock { font-family: Pretendard, sans-serif; font-size: 28px; font-weight: 800; color: #1E2832; line-height: 1; letter-spacing: -1px; white-space: nowrap; }
-  .wg-clock .wg-ampm { font-size: 11px; font-weight: 700; color: #8492A0; margin-left: 2px; letter-spacing: 0; }
-  .wg-col-head { display: flex; align-items: center; gap: 4px; color: #6B7785; font-family: Pretendard, sans-serif; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .wg-vdiv { flex: 0 0 auto; align-self: stretch; width: 1px; background: #D7DDE3; margin: calc(var(--u) * 8) calc(var(--u) * 2); }
+  .wg-date { font-family: Pretendard, sans-serif; font-size: calc(var(--u) * 12); font-weight: 700; color: #5C6B7A; line-height: 1.1; white-space: nowrap; }
+  .wg-clock { font-family: Pretendard, sans-serif; font-size: calc(var(--u) * 28); font-weight: 800; color: #1E2832; line-height: 1; letter-spacing: calc(var(--u) * -1); white-space: nowrap; }
+  .wg-clock .wg-ampm { font-size: calc(var(--u) * 11); font-weight: 700; color: #8492A0; margin-left: calc(var(--u) * 2); letter-spacing: 0; }
+  .wg-col-head { display: flex; align-items: center; gap: calc(var(--u) * 4); color: #6B7785; font-family: Pretendard, sans-serif; font-size: calc(var(--u) * 11); font-weight: 700; white-space: nowrap; }
+  .wg-col-head svg { width: calc(var(--u) * 13); height: calc(var(--u) * 13); }
   .wg-alarm-col.on .wg-col-head { color: #3C6B40; }
-  .wg-alarm-time { font-family: Pretendard, sans-serif; font-size: 17px; font-weight: 800; color: #1E2832; line-height: 1.1; white-space: nowrap; }
-  .wg-alarm-time .wg-ampm { font-size: 10px; font-weight: 700; color: #8492A0; margin-left: 2px; }
-  .wg-col-sub { font-family: Pretendard, sans-serif; font-size: 10px; font-weight: 700; color: #9AA7B4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-  .wg-music-btns { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
-  .wg-music-btns button { border: none; background: none; padding: 0; cursor: pointer; color: #6B7785; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; }
-  .wg-music-btns .wg-play { background: #6C5CE7; color: #fff; width: 24px; height: 24px; }
-  .wg-dots { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; justify-content: center; align-items: center; gap: 7px; }
-  .wg-dot { width: 5px; height: 5px; border-radius: 50%; background: #B8C2CC; }
+  .wg-alarm-time { font-family: Pretendard, sans-serif; font-size: calc(var(--u) * 17); font-weight: 800; color: #1E2832; line-height: 1.1; white-space: nowrap; }
+  .wg-alarm-time .wg-ampm { font-size: calc(var(--u) * 10); font-weight: 700; color: #8492A0; margin-left: calc(var(--u) * 2); }
+  .wg-col-sub { font-family: Pretendard, sans-serif; font-size: calc(var(--u) * 10); font-weight: 700; color: #9AA7B4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .wg-music-btns { display: flex; align-items: center; gap: calc(var(--u) * 6); margin-top: calc(var(--u) * 2); }
+  .wg-music-btns button { border: none; background: none; padding: 0; cursor: pointer; color: #6B7785; display: inline-flex; align-items: center; justify-content: center; width: calc(var(--u) * 20); height: calc(var(--u) * 20); border-radius: 50%; }
+  .wg-music-btns button svg { width: calc(var(--u) * 12); height: calc(var(--u) * 12); }
+  .wg-music-btns .wg-play { background: #6C5CE7; color: #fff; width: calc(var(--u) * 24); height: calc(var(--u) * 24); }
+  .wg-dots { position: absolute; left: 0; right: 0; bottom: calc(var(--u) * 4); display: flex; justify-content: center; align-items: center; gap: calc(var(--u) * 7); }
+  .wg-dot { width: calc(var(--u) * 5); height: calc(var(--u) * 5); border-radius: 50%; background: #B8C2CC; }
   .wg-dot.active { background: #3C6B40; }
   .head-slide-handles {
     display: flex;
@@ -2918,7 +2930,7 @@
           <div class="coin-pending" id="pendingLabel"></div>
           <div class="coin-stack-visual" id="coinStackVisual"></div>
         </div>
-        <span style="width:1px;height:32px;background:#777777;display:inline-block;flex-shrink:0;"></span>
+        <span style="width:1px;height:calc(var(--u) * 32);background:#777777;display:inline-block;flex-shrink:0;"></span>
         <button class="shop-btn" onclick="openShop()"><img src="shop.png" alt="상점" onerror="this.outerHTML='<span style=&quot;font-size:28px;line-height:1;&quot;>🎁</span>';"></button>
         <div class="wg-dots" aria-hidden="true">
           <span class="wg-dot" data-head-slide="widget"></span>
@@ -4102,6 +4114,24 @@ function onAppTitleClick() {
   }, 200);
 }
 
+// 한마디가 길면 폰트를 자동으로 줄여 한 줄에 다 보이게 (기본 26px → 최소 14px)
+function fitAppTitle() {
+  const h1 = document.getElementById('appTitle');
+  if (!h1) return;
+  h1.style.fontSize = '';
+  if (!h1.textContent.trim()) return;
+  const strip = document.getElementById('headStrip');
+  if (!strip || strip.clientWidth === 0) return;  // 아직 화면에 안 보이면 보류
+  const u = Math.min(strip.clientWidth, 380) / 380;
+  let size = Math.round(26 * u);
+  h1.style.fontSize = size + 'px';
+  while (size > 14 && h1.scrollWidth > h1.clientWidth) {
+    size -= 1;
+    h1.style.fontSize = size + 'px';
+  }
+}
+window.addEventListener('resize', fitAppTitle);
+
 /* 비밀번호 해시 (SHA-256). secure context(https)에서만 해시, 아니면 평문 fallback.
    저장값이 'h:'로 시작하면 해시, 아니면 레거시 평문으로 간주 → 하위호환 유지 */
 async function hashPin(pin) {
@@ -4932,6 +4962,7 @@ async function showMainApp() {
   loginScores = { top: 0, bottom: 0 };
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appMain').classList.add('show');
+  fitAppTitle();
   document.getElementById('chatFab').style.display = '';
   document.getElementById('bottomActionSheet').classList.add('show');
   
@@ -5031,6 +5062,7 @@ async function loadAllData() {
   (settRes.data || []).forEach(s => { settings[s.key] = s.value; });
   if (settings.app_title) {
     document.getElementById('appTitle').textContent = settings.app_title;
+    fitAppTitle();
   }
   if (settings.add_subject_btn) {
     const btn = document.getElementById('bottomAddSubjectBtn') || document.querySelector('.add-sub-bar-btn');
@@ -6368,6 +6400,7 @@ function editAppTitle() {
     const newH1 = document.createElement('h1');
     newH1.id = 'appTitle'; newH1.textContent = val; newH1.onclick = editAppTitle;
     input.replaceWith(newH1);
+    fitAppTitle();
   };
   
   input.addEventListener('blur', finish);
@@ -7269,6 +7302,7 @@ async function saveAppTitleOnly() {
   await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   const el = document.getElementById('appTitle');
   if (el) el.textContent = appTitle;
+  fitAppTitle();
   if (appTitle) document.title = appTitle;
   showToast(appTitle ? '✅ 한마디 저장!' : '✅ 한마디 비움');
 }
@@ -7288,6 +7322,7 @@ async function saveTitleSettings() {
   const noteTitle = document.getElementById('settingsNoteTitle').value.trim() || '숙제노트';
   await sb.from('app_settings').upsert({ key: 'app_title', value: appTitle, family_id: getFamilyCode() }, { onConflict: 'key,family_id' });
   document.getElementById('appTitle').textContent = appTitle;
+  fitAppTitle();
   document.getElementById('homeworkNoteTitle').textContent = noteTitle;
   document.getElementById('noteModalTitle').textContent = noteTitle;
   noteLines; // trigger save with new title
